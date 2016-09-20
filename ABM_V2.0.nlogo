@@ -1,5 +1,5 @@
 
-extensions [stats profiler]
+extensions [stats profiler matrix]
 globals [              ;;DEFINE GLOBAL VARIABLES
   real_rain            ;; real annual rainfall
   R                    ;; climatic risk (rainfall transformed into a normalized [0-1] scale)
@@ -11,23 +11,24 @@ globals [              ;;DEFINE GLOBAL VARIABLES
 ;##################################
 ;;;;;;weights of criterions for goverment decisions
 ;##################################
+  matrix_A
+  matrix_B
+  w_11_demanda_F                    ;;Economic efficiency criteria
+  w_12_presion_F                    ;;Social response criteria
+  w_13_estado_F                    ;;Infrastructure criteria
 
-  w_11                    ;;Economic efficiency criteria
-  w_12                    ;;Social response criteria
-  w_13                    ;;Infrastructure criteria
-
-  w_21                    ;;Economic efficiency criteria
-  w_22                    ;;Social response criteria
-  w_23                    ;;Infrastructure criteria
+  w_21_necesidad_F                   ;;Economic efficiency criteria
+  w_22_presion_F                    ;;Social response criteria
+  w_23_estado_F                    ;;Infrastructure criteria
 
 
-  w_31                    ;;Economic efficiency criteria
-  w_32                    ;;Social response criteria
-  w_33                    ;;Infrastructure criteria
+  w_31_demanda_S                    ;;Economic efficiency criteria
+  w_32_presion_S                    ;;Social response criteria
+  w_33_estado_S                    ;;Infrastructure criteria
 
-  w_41                    ;;Economic efficiency criteria
-  w_42                    ;;Social response criteria
-  w_43                    ;;Infrastructure criteria
+  w_41_necesidad_S                    ;;Economic efficiency criteria
+  w_42_presion_S                    ;;Social response criteria
+  w_43_estado_S                    ;;Infrastructure criteria
 
 
 
@@ -145,6 +146,7 @@ patches-own[
 ;######################################################################
 ;######################################################################
 to create_landscape
+  random-seed 47822
   if landscape-type = "closed watershed"[
   ask patches with [(pxcor =  50 and pycor = 50)][set A 5000] ;;define central point with max value.
 
@@ -260,7 +262,7 @@ to setup
   set lorenz-points_V []
   create_landscape         ;;define landscape topography (Altitute)
   Create-Districts-Infra       ;;define the properties of the infrastructure and the neighborhoods
-
+  read_weightsfrom_matrix
 
   set ExposureIndex 0
   set EfficiencyIndex 0
@@ -299,6 +301,8 @@ to GO
 
   WGA_decisions ;; Water government authority decides in what (new vs. maitainance flooding vs. scarcity) and where (in what districts) to invest resources (budget)
   update_state_infrastructure ;update state of infrastructure (age, prob. of failure)
+
+if ticks = 400 [update_weights]
 if ticks = 499 [export_view]
 
 if ticks = 500 [stop]
@@ -405,60 +409,60 @@ end
 ;;Water government authority define priorities based on the prioritization strategy
 ;;####################################################################################
 to WGA_decisions
-    if GOVERNMENT_DECISION_MAKING = "Social Benefit"[                 ;;C1: priority for economic efficiency (increase benefits to people (less $ per people)
-      set w_11 0.8
-      set w_12 0.1
-      set w_13 0.1
-
-      set w_21 0.8
-      set w_22 0.1
-      set w_23 0.1
-
-      set w_31 0.8
-      set w_32 0.1
-      set w_33 0.1
-
-      set w_41 0.8
-      set w_42 0.1
-      set w_43 0.1
-    ]
-    if GOVERNMENT_DECISION_MAKING = "Response to Social Pressure"[         ;;C2: priority for Social efficiency (intevine to reduce number of protests)
-      set w_11 0.1
-      set w_12 0.8
-      set w_13 0.1
-
-      set w_21 0.1
-      set w_22 0.8
-      set w_23 0.1
-
-      set w_31 0.1
-      set w_32 0.8
-      set w_33 0.1
-
-
-      set w_41 0.1
-      set w_42 0.8
-      set w_43 0.1
-
-    ]
-    if GOVERNMENT_DECISION_MAKING = "State of infrastructure"[                ;;C3: priority for engeniering efficiency (reduce damage_F by intervine aged of infrastructure)
-      set w_11 0.1
-      set w_12 0.1
-      set w_13 0.8
-
-      set w_21 0.1
-      set w_22 0.1
-      set w_23 0.8
-
-      set w_31 0.1
-      set w_32 0.1
-      set w_33 0.8
-
-      set w_41 0.1
-      set w_42 0.1
-      set w_43 0.8
-
-    ]
+;   ; if GOVERNMENT_DECISION_MAKING = "Social Benefit"[                 ;;C1: priority for economic efficiency (increase benefits to people (less $ per people)
+;   ;   set w_11 0.8
+;      set w_12 0.1
+;      set w_13 0.1
+;
+;      set w_21 0.8
+;      set w_22 0.1
+;      set w_23 0.1
+;
+;      set w_31 0.8
+;      set w_32 0.1
+;      set w_33 0.1
+;
+;      set w_41 0.8
+;      set w_42 0.1
+;      set w_43 0.1
+;    ]
+;    if GOVERNMENT_DECISION_MAKING = "Response to Social Pressure"[         ;;C2: priority for Social efficiency (intevine to reduce number of protests)
+;      set w_11 0.1
+;      set w_12 0.8
+;      set w_13 0.1
+;
+;      set w_21 0.1
+;      set w_22 0.8
+;      set w_23 0.1
+;
+;      set w_31 0.1
+;      set w_32 0.8
+;      set w_33 0.1
+;
+;
+;      set w_41 0.1
+;      set w_42 0.8
+;      set w_43 0.1
+;
+;    ]
+;    if GOVERNMENT_DECISION_MAKING = "State of infrastructure"[                ;;C3: priority for engeniering efficiency (reduce damage_F by intervine aged of infrastructure)
+;      set w_11 0.1
+;      set w_12 0.1
+;      set w_13 0.8
+;
+;      set w_21 0.1
+;      set w_22 0.1
+;      set w_23 0.8
+;
+;      set w_31 0.1
+;      set w_32 0.1
+;      set w_33 0.8
+;
+;      set w_41 0.1
+;      set w_42 0.1
+;      set w_43 0.8
+;
+;    ]
 
 
 
@@ -503,11 +507,11 @@ to WGA_decisions
 
 
        let h_Cp 1
-       set distance_metric_maintenance_A1 precision (((w_11 ^ h_Cp) * (Vf_11 ^ h_Cp) + (w_12 ^ h_Cp) * (Vf_12 ^ h_Cp) + (w_13 ^ h_Cp)  * (Vf_13 ^ h_Cp)) ^ (1 / h_Cp)) 3              ;calcualte distance to ideal point
-       set distance_metric_New_A2 precision (((w_21 ^ h_Cp) * (Vf_21 ^ h_Cp) + (w_22 ^ h_Cp) * (Vf_22 ^ h_Cp) + (w_23 ^ h_Cp)  * (Vf_23 ^ h_Cp)) ^ (1 / h_Cp)) 3
+       set distance_metric_maintenance_A1 precision (((w_11_demanda_F ^ h_Cp) * (Vf_11 ^ h_Cp) + (w_12_presion_F ^ h_Cp) * (Vf_12 ^ h_Cp) + (w_13_estado_F ^ h_Cp)  * (Vf_13 ^ h_Cp)) ^ (1 / h_Cp)) 3              ;calcualte distance to ideal point
+       set distance_metric_New_A2 precision (((w_21_necesidad_F ^ h_Cp) * (Vf_21 ^ h_Cp) + (w_22_presion_F ^ h_Cp) * (Vf_22 ^ h_Cp) + (w_23_estado_F ^ h_Cp)  * (Vf_23 ^ h_Cp)) ^ (1 / h_Cp)) 3
 
-       set distance_metric_maintenance_A3 precision (((w_31 ^ h_Cp) * (Vf_31 ^ h_Cp) + (w_32 ^ h_Cp) * (Vf_32 ^ h_Cp) + (w_33 ^ h_Cp)  * (Vf_33 ^ h_Cp)) ^ (1 / h_Cp)) 3              ;calcualte distance to ideal point
-       set distance_metric_New_A4 precision (((w_41 ^ h_Cp) * (Vf_41 ^ h_Cp) + (w_42 ^ h_Cp) * (Vf_42 ^ h_Cp) + (w_43 ^ h_Cp)  * (Vf_43 ^ h_Cp)) ^ (1 / h_Cp)) 3
+       set distance_metric_maintenance_A3 precision (((w_31_demanda_S ^ h_Cp) * (Vf_31 ^ h_Cp) + (w_32_presion_S ^ h_Cp) * (Vf_32 ^ h_Cp) + (w_33_estado_S ^ h_Cp)  * (Vf_33 ^ h_Cp)) ^ (1 / h_Cp)) 3              ;calcualte distance to ideal point
+       set distance_metric_New_A4 precision (((w_41_necesidad_S ^ h_Cp) * (Vf_41 ^ h_Cp) + (w_42_presion_S ^ h_Cp) * (Vf_42 ^ h_Cp) + (w_43_estado_S ^ h_Cp)  * (Vf_43 ^ h_Cp)) ^ (1 / h_Cp)) 3
 
     ]
 
@@ -691,6 +695,164 @@ while [ff < 10000] [
 ]
 report (max hh_rain)
 end
+
+
+to read_weightsfrom_matrix
+  set matrix_A matrix:from-row-list [
+
+[0.00  0.00  0.00  0.00  0.00  0.00  0.00  0.00  0.45  0.06  0.45  0.38]
+[0.00  0.00  0.00  0.00  0.45  0.06  0.45  0.38  0.00  0.00  0.00  0.00]
+[0.00  0.00  0.00  0.00  0.00  0.00  0.00  0.00  0.05  0.44  0.05  0.13]
+[0.00  0.00  0.00  0.00  0.05  0.44  0.05  0.13  0.00  0.00  0.00  0.00]
+[0.00  0.00  0.00  0.26  0.00  0.26  0.00  0.22  0.00  0.00  0.00  0.00]
+[0.00  0.05  0.00  0.64  0.08  0.00  0.05  0.08  0.00  0.00  0.00  0.00]
+[0.00  0.58  0.00  0.00  0.00  0.05  0.00  0.19  0.00  0.00  0.00  0.00]
+[0.00  0.37  0.00  0.10  0.42  0.19  0.45  0.00  0.00  0.00  0.00  0.00]
+[0.00  0.00  0.14  0.00  0.00  0.00  0.00  0.00  0.00  0.26  0.00  0.32]
+[0.05  0.00  0.53  0.00  0.00  0.00  0.00  0.00  0.13  0.00  0.08  0.13]
+[0.58  0.00  0.00  0.00  0.00  0.00  0.00  0.00  0.00  0.05  0.00  0.05]
+[0.37  0.00  0.33  0.00  0.00  0.00  0.00  0.00  0.38  0.19  0.42  0.00]
+  ]
+
+
+  set matrix_B (matrix:times matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A)
+  print matrix:pretty-print-text matrix_A
+  print matrix:pretty-print-text matrix_B
+  let w_11_demanda_F_NW item 10 sort (matrix:get-row matrix_B 8)
+  let w_12_presion_F_NW item 10 sort (matrix:get-row matrix_B 11)
+  let w_13_estado_F_NW item 10 sort (matrix:get-row matrix_B 9)
+  let w_21_necesidad_F_NW item 10 sort (matrix:get-row matrix_B 10)
+  let w_22_presion_F_NW item 10 sort (matrix:get-row matrix_B 11)
+  let w_23_estado_F_NW item 10 sort (matrix:get-row matrix_B 9)
+
+  let w_31_demanda_S_NW item 10 sort (matrix:get-row matrix_B 4)
+  let w_32_presion_S_NW item 10 sort (matrix:get-row matrix_B 7)
+  let w_33_estado_S_NW item 10 sort (matrix:get-row matrix_B 5)
+
+
+  let w_41_necesidad_S_NW item 10 sort (matrix:get-row matrix_B 6)
+  let w_42_presion_S_NW item 10 sort (matrix:get-row matrix_B 7)
+  let w_43_estado_S_NW item 10 sort (matrix:get-row matrix_B 5)
+
+
+  let tot_weight_1_F (w_11_demanda_F_NW + w_12_presion_F_NW + w_13_estado_F_NW)
+  let tot_weight_2_F (w_21_necesidad_F_NW + w_22_presion_F_NW + w_23_estado_F_NW)
+  let tot_weight_3_S (w_31_demanda_S_NW + w_32_presion_S_NW +  w_33_estado_S_NW)
+  let tot_weight_4_S (w_41_necesidad_S_NW + w_42_presion_S_NW + w_43_estado_S_NW)
+
+  set w_11_demanda_F w_11_demanda_F_NW / tot_weight_1_F
+  set w_12_presion_F w_12_presion_F_NW / tot_weight_1_F
+  set w_13_estado_F w_13_estado_F_NW / tot_weight_1_F
+
+  set w_21_necesidad_F w_21_necesidad_F_NW / tot_weight_2_F
+  set w_22_presion_F w_22_presion_F_NW  / tot_weight_2_F
+  set w_23_estado_F w_23_estado_F_NW  / tot_weight_2_F
+
+  set w_31_demanda_S w_31_demanda_S_NW / tot_weight_3_S
+  set w_32_presion_S w_32_presion_S_NW / tot_weight_3_S
+  set w_33_estado_S w_33_estado_S_NW / tot_weight_3_S
+
+  set w_41_necesidad_S w_41_necesidad_S_NW / tot_weight_4_S
+  set w_42_presion_S w_42_presion_S_NW / tot_weight_4_S
+  set w_43_estado_S w_43_estado_S_NW / tot_weight_4_S
+
+
+
+
+  print w_11_demanda_F
+  print w_12_presion_F
+  print w_13_estado_F
+  print w_21_necesidad_F
+  print w_22_presion_F
+  print w_23_estado_F
+  print w_31_demanda_S
+  print w_32_presion_S
+  print w_33_estado_S
+  print w_41_necesidad_S
+  print w_42_presion_S
+  print w_43_estado_S
+
+
+end
+
+to update_weights
+
+
+
+  print w_11_demanda_F
+  print w_12_presion_F
+  print w_13_estado_F
+  print w_21_necesidad_F
+  print w_22_presion_F
+  print w_23_estado_F
+  print w_31_demanda_S
+  print w_32_presion_S
+  print w_33_estado_S
+  print w_41_necesidad_S
+  print w_42_presion_S
+  print w_43_estado_S
+
+ matrix:set matrix_A 9 0 0.814212784
+ matrix:set matrix_A 10 0 0.113982647
+ matrix:set matrix_A 11 0 0.113982647
+
+ set matrix_B (matrix:times matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A)
+
+ let w_11_demanda_F_NW item 10 sort (matrix:get-row matrix_B 8)
+  let w_12_presion_F_NW item 10 sort (matrix:get-row matrix_B 11)
+  let w_13_estado_F_NW item 10 sort (matrix:get-row matrix_B 9)
+  let w_21_necesidad_F_NW item 10 sort (matrix:get-row matrix_B 10)
+  let w_22_presion_F_NW item 10 sort (matrix:get-row matrix_B 11)
+  let w_23_estado_F_NW item 10 sort (matrix:get-row matrix_B 9)
+
+  let w_31_demanda_S_NW item 10 sort (matrix:get-row matrix_B 4)
+  let w_32_presion_S_NW item 10 sort (matrix:get-row matrix_B 7)
+  let w_33_estado_S_NW item 10 sort (matrix:get-row matrix_B 5)
+
+
+  let w_41_necesidad_S_NW item 10 sort (matrix:get-row matrix_B 6)
+  let w_42_presion_S_NW item 10 sort (matrix:get-row matrix_B 7)
+  let w_43_estado_S_NW item 10 sort (matrix:get-row matrix_B 5)
+
+  let tot_weight_1_F (w_11_demanda_F_NW + w_12_presion_F_NW + w_13_estado_F_NW)
+  let tot_weight_2_F (w_21_necesidad_F_NW + w_22_presion_F_NW + w_23_estado_F_NW)
+  let tot_weight_3_S (w_31_demanda_S_NW + w_32_presion_S_NW +  w_33_estado_S_NW)
+  let tot_weight_4_S (w_41_necesidad_S_NW + w_42_presion_S_NW + w_43_estado_S_NW)
+
+  set w_11_demanda_F w_11_demanda_F_NW / tot_weight_1_F
+  set w_12_presion_F w_12_presion_F_NW / tot_weight_1_F
+  set w_13_estado_F w_13_estado_F_NW / tot_weight_1_F
+
+  set w_21_necesidad_F w_21_necesidad_F_NW / tot_weight_2_F
+  set w_22_presion_F w_22_presion_F_NW  / tot_weight_2_F
+  set w_23_estado_F w_23_estado_F_NW  / tot_weight_2_F
+
+  set w_31_demanda_S w_31_demanda_S_NW / tot_weight_3_S
+  set w_32_presion_S w_32_presion_S_NW / tot_weight_3_S
+  set w_33_estado_S w_33_estado_S_NW / tot_weight_3_S
+
+
+  set w_41_necesidad_S w_41_necesidad_S_NW / tot_weight_4_S
+  set w_42_presion_S w_42_presion_S_NW / tot_weight_4_S
+  set w_43_estado_S w_43_estado_S_NW / tot_weight_4_S
+
+
+
+  print w_11_demanda_F
+  print w_12_presion_F
+  print w_13_estado_F
+  print w_21_necesidad_F
+  print w_22_presion_F
+  print w_23_estado_F
+  print w_31_demanda_S
+  print w_32_presion_S
+  print w_33_estado_S
+  print w_41_necesidad_S
+  print w_42_presion_S
+  print w_43_estado_S
+
+end
+
 ;###############################################################
 ;###############################################################
 ;End of Code
@@ -783,7 +945,7 @@ CHOOSER
 Visualization
 Visualization
 "Infrastructure_F" "Infrastructure_S" "Spatial priorities maintanance F" "Spatial priorities new F" "Spatial priorities maintanance S" "Spatial priorities new S" "Vulnerability" "Social Pressure_F" "Social Pressure_S" "Districts" "Harmful Events"
-1
+8
 
 PLOT
 840
@@ -814,10 +976,10 @@ GOVERNMENT_DECISION_MAKING
 2
 
 PLOT
-840
-323
-1040
-473
+859
+333
+1232
+559
 Mean vulnerability
 NIL
 NIL
@@ -834,10 +996,10 @@ PENS
 "pen-2" 1.0 0 -6459832 true "" "if ticks > 10 [plot mean [exposure_S] of patches with [district_here? = TRUE]]"
 
 PLOT
-839
-473
-1042
-619
+836
+576
+1171
+823
 Protests
 NIL
 NIL
@@ -998,25 +1160,6 @@ maintenance
 NIL
 HORIZONTAL
 
-PLOT
-1043
-323
-1243
-473
-Age_infra_dranage
-NIL
-NIL
-0.0
-1.0
-0.0
-1.0
-true
-false
-"" ""
-PENS
-"default" 1.0 0 -13791810 true "" "plot mean [infra_F_age] of patches with [Infra_flood = 1]"
-"pen-1" 1.0 0 -6459832 true "" "plot mean [infra_S_age] of patches with [Infra_supply = 1]"
-
 CHOOSER
 25
 147
@@ -1038,10 +1181,10 @@ Visualization
 1
 
 PLOT
-1148
-542
-1348
-692
+1180
+584
+1380
+734
 plot 1
 NIL
 NIL
