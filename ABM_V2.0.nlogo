@@ -146,7 +146,7 @@ patches-own[
 ;######################################################################
 ;######################################################################
 to create_landscape
-  random-seed 47822
+  random-seed semilla-aleatoria
   if landscape-type = "closed watershed"[
   ask patches with [(pxcor =  50 and pycor = 50)][set A 5000] ;;define central point with max value.
 
@@ -302,7 +302,7 @@ to GO
   WGA_decisions ;; Water government authority decides in what (new vs. maitainance flooding vs. scarcity) and where (in what districts) to invest resources (budget)
   update_state_infrastructure ;update state of infrastructure (age, prob. of failure)
 
-if ticks = 400 [update_weights]
+if ticks = 600 [update_weights]
 if ticks = 499 [export_view]
 
 if ticks = 500 [stop]
@@ -698,7 +698,7 @@ end
 
 
 to read_weightsfrom_matrix
-  set matrix_A matrix:from-row-list [
+  set matrix_A matrix:from-row-list [                                                                                               ;read supermatrix
 
 [0.00  0.00  0.00  0.00  0.00  0.00  0.00  0.00  0.45  0.06  0.45  0.38]
 [0.00  0.00  0.00  0.00  0.45  0.06  0.45  0.38  0.00  0.00  0.00  0.00]
@@ -715,10 +715,10 @@ to read_weightsfrom_matrix
   ]
 
 
-  set matrix_B (matrix:times matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A)
+  set matrix_B (matrix:times matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A)    ;calculate limit matrix
   print matrix:pretty-print-text matrix_A
   print matrix:pretty-print-text matrix_B
-  let w_11_demanda_F_NW item 10 sort (matrix:get-row matrix_B 8)
+  let w_11_demanda_F_NW item 10 sort (matrix:get-row matrix_B 8)                                                                    ;assige weights from the rows of the limit matrix
   let w_12_presion_F_NW item 10 sort (matrix:get-row matrix_B 11)
   let w_13_estado_F_NW item 10 sort (matrix:get-row matrix_B 9)
   let w_21_necesidad_F_NW item 10 sort (matrix:get-row matrix_B 10)
@@ -735,12 +735,12 @@ to read_weightsfrom_matrix
   let w_43_estado_S_NW item 10 sort (matrix:get-row matrix_B 5)
 
 
-  let tot_weight_1_F (w_11_demanda_F_NW + w_12_presion_F_NW + w_13_estado_F_NW)
+  let tot_weight_1_F (w_11_demanda_F_NW + w_12_presion_F_NW + w_13_estado_F_NW)                                                    ;calculate total sum of weights for normalization
   let tot_weight_2_F (w_21_necesidad_F_NW + w_22_presion_F_NW + w_23_estado_F_NW)
   let tot_weight_3_S (w_31_demanda_S_NW + w_32_presion_S_NW +  w_33_estado_S_NW)
   let tot_weight_4_S (w_41_necesidad_S_NW + w_42_presion_S_NW + w_43_estado_S_NW)
 
-  set w_11_demanda_F w_11_demanda_F_NW / tot_weight_1_F
+  set w_11_demanda_F w_11_demanda_F_NW / tot_weight_1_F                                                                           ;normalize weights with respect to each action
   set w_12_presion_F w_12_presion_F_NW / tot_weight_1_F
   set w_13_estado_F w_13_estado_F_NW / tot_weight_1_F
 
@@ -759,58 +759,44 @@ to read_weightsfrom_matrix
 
 
 
-  print w_11_demanda_F
-  print w_12_presion_F
-  print w_13_estado_F
-  print w_21_necesidad_F
-  print w_22_presion_F
-  print w_23_estado_F
-  print w_31_demanda_S
-  print w_32_presion_S
-  print w_33_estado_S
-  print w_41_necesidad_S
-  print w_42_presion_S
-  print w_43_estado_S
+  print word "w_11_demanda_F=" w_11_demanda_F
+  print word "w_12_presion_F= " w_12_presion_F
+  print word "w_13_estado_F= " w_13_estado_F
+  print word "w_21_necesidad_F= " w_21_necesidad_F
+  print word "w_22_presion_F= " w_22_presion_F
+  print word "w_23_estado_F= " w_23_estado_F
+  print word "w_31_demanda_S= " w_31_demanda_S
+  print word "w_32_presion_S= " w_32_presion_S
+  print word "w_33_estado_S= " w_33_estado_S
+  print word "w_41_necesidad_S=" w_41_necesidad_S
+  print word "w_42_presion_S=" w_42_presion_S
+  print word "w_43_estado_S=" w_43_estado_S
 
 
 end
 
-to update_weights
+to update_weights                                   ;generate a change in the supermatrix due to a change in pair comparisong of criterias with respect to action "nueva_F"
 
 
-
-  print w_11_demanda_F
-  print w_12_presion_F
-  print w_13_estado_F
-  print w_21_necesidad_F
-  print w_22_presion_F
-  print w_23_estado_F
-  print w_31_demanda_S
-  print w_32_presion_S
-  print w_33_estado_S
-  print w_41_necesidad_S
-  print w_42_presion_S
-  print w_43_estado_S
-
- matrix:set matrix_A 9 0 0.814212784
+ matrix:set matrix_A 9 0 0.814212784               ;change values of weights of cluster F (inundaciones) with respect to create new_F
  matrix:set matrix_A 10 0 0.113982647
  matrix:set matrix_A 11 0 0.113982647
 
- set matrix_B (matrix:times matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A)
+ set matrix_B (matrix:times matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A)  ;generate new limit matrix
 
- let w_11_demanda_F_NW item 10 sort (matrix:get-row matrix_B 8)
-  let w_12_presion_F_NW item 10 sort (matrix:get-row matrix_B 11)
-  let w_13_estado_F_NW item 10 sort (matrix:get-row matrix_B 9)
-  let w_21_necesidad_F_NW item 10 sort (matrix:get-row matrix_B 10)
-  let w_22_presion_F_NW item 10 sort (matrix:get-row matrix_B 11)
-  let w_23_estado_F_NW item 10 sort (matrix:get-row matrix_B 9)
+ let w_11_demanda_F_NW item 10 sort (matrix:get-row matrix_B 8)                      ;set new weights
+ let w_12_presion_F_NW item 10 sort (matrix:get-row matrix_B 11)
+ let w_13_estado_F_NW item 10 sort (matrix:get-row matrix_B 9)
+ let w_21_necesidad_F_NW item 10 sort (matrix:get-row matrix_B 10)
+ let w_22_presion_F_NW item 10 sort (matrix:get-row matrix_B 11)
+ let w_23_estado_F_NW item 10 sort (matrix:get-row matrix_B 9)
 
-  let w_31_demanda_S_NW item 10 sort (matrix:get-row matrix_B 4)
-  let w_32_presion_S_NW item 10 sort (matrix:get-row matrix_B 7)
-  let w_33_estado_S_NW item 10 sort (matrix:get-row matrix_B 5)
+ let w_31_demanda_S_NW item 10 sort (matrix:get-row matrix_B 4)
+ let w_32_presion_S_NW item 10 sort (matrix:get-row matrix_B 7)
+ let w_33_estado_S_NW item 10 sort (matrix:get-row matrix_B 5)
 
 
-  let w_41_necesidad_S_NW item 10 sort (matrix:get-row matrix_B 6)
+ let w_41_necesidad_S_NW item 10 sort (matrix:get-row matrix_B 6)
   let w_42_presion_S_NW item 10 sort (matrix:get-row matrix_B 7)
   let w_43_estado_S_NW item 10 sort (matrix:get-row matrix_B 5)
 
@@ -838,18 +824,18 @@ to update_weights
 
 
 
-  print w_11_demanda_F
-  print w_12_presion_F
-  print w_13_estado_F
-  print w_21_necesidad_F
-  print w_22_presion_F
-  print w_23_estado_F
-  print w_31_demanda_S
-  print w_32_presion_S
-  print w_33_estado_S
-  print w_41_necesidad_S
-  print w_42_presion_S
-  print w_43_estado_S
+ print word "w_11_demanda_F=" w_11_demanda_F
+ print word "w_12_presion_F= " w_12_presion_F
+ print word "w_13_estado_F= " w_13_estado_F
+ print word "w_21_necesidad_F= " w_21_necesidad_F
+ print word "w_22_presion_F= " w_22_presion_F
+ print word "w_23_estado_F= " w_23_estado_F
+ print word "w_31_demanda_S= " w_31_demanda_S
+ print word "w_32_presion_S= " w_32_presion_S
+ print word "w_33_estado_S= " w_33_estado_S
+ print word "w_41_necesidad_S=" w_41_necesidad_S
+ print word "w_42_presion_S=" w_42_presion_S
+ print word "w_43_estado_S=" w_43_estado_S
 
 end
 
@@ -945,7 +931,7 @@ CHOOSER
 Visualization
 Visualization
 "Infrastructure_F" "Infrastructure_S" "Spatial priorities maintanance F" "Spatial priorities new F" "Spatial priorities maintanance S" "Spatial priorities new S" "Vulnerability" "Social Pressure_F" "Social Pressure_S" "Districts" "Harmful Events"
-8
+2
 
 PLOT
 840
@@ -966,10 +952,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot R"
 
 CHOOSER
-25
-190
-260
-235
+20
+226
+255
+271
 GOVERNMENT_DECISION_MAKING
 GOVERNMENT_DECISION_MAKING
 "Social Benefit" "State of infrastructure" "Response to Social Pressure"
@@ -1015,10 +1001,10 @@ PENS
 "pen-1" 1.0 0 -8431303 true "" "plot mean [protestas_here_S] of patches with [district_here? = TRUE]"
 
 SLIDER
-36
-341
-221
-374
+31
+377
+216
+410
 New_infra_investment
 New_infra_investment
 0
@@ -1077,10 +1063,10 @@ PENS
 "pen-1" 100.0 0 -16777216 true "plot 0\nplot 100" ""
 
 SLIDER
-36
-374
-222
-407
+31
+410
+217
+443
 p_rain
 p_rain
 0.25
@@ -1126,45 +1112,45 @@ NIL
 1
 
 TEXTBOX
-37
-104
-216
-139
+32
+140
+211
+175
 Define Scenarios
 20
 0.0
 1
 
 TEXTBOX
-46
-259
-267
-286
+41
+295
+262
+322
 Define Parameter Values
 18
 0.0
 1
 
 SLIDER
-36
-309
-221
-342
+31
+345
+216
+378
 maintenance
 maintenance
 0
 500
-60
+130
 1
 1
 NIL
 HORIZONTAL
 
 CHOOSER
-25
-147
-260
-192
+20
+183
+255
+228
 landscape-type
 landscape-type
 "closed watershed" "gradient" "many hills"
@@ -1198,6 +1184,17 @@ false
 PENS
 "default" 1.0 0 -8990512 true "" "plot count patches with [infra_flood = 1 and p_failure_F < 0.9]"
 "pen-1" 1.0 0 -6459832 true "" "plot count patches with [infra_supply = 1 and p_failure_S < 0.9]"
+
+INPUTBOX
+70
+72
+188
+140
+semilla-aleatoria
+48569
+1
+0
+Number
 
 @#$#@#$#@
 # MEGADAPT PROTOTYPE ABM
