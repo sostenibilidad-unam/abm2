@@ -262,8 +262,8 @@ to setup
   set lorenz-points_V []
   create_landscape         ;;define landscape topography (Altitute)
   Create-Districts-Infra       ;;define the properties of the infrastructure and the neighborhoods
-  read_weightsfrom_matrix
-
+  ;read_weightsfrom_matrix
+  sweep_weights
   set ExposureIndex 0
   set EfficiencyIndex 0
   set EfficiencyIndex_S 0
@@ -302,7 +302,7 @@ to GO
   WGA_decisions ;; Water government authority decides in what (new vs. maitainance flooding vs. scarcity) and where (in what districts) to invest resources (budget)
   update_state_infrastructure ;update state of infrastructure (age, prob. of failure)
 
-if ticks = 600 [update_weights]
+;if ticks = 600 [update_weights]
 if ticks = 499 [export_view]
 
 if ticks = 500 [stop]
@@ -721,6 +721,7 @@ to read_weightsfrom_matrix
   let w_11_demanda_F_NW item 10 sort (matrix:get-row matrix_B 8)                                                                    ;assige weights from the rows of the limit matrix
   let w_12_presion_F_NW item 10 sort (matrix:get-row matrix_B 11)
   let w_13_estado_F_NW item 10 sort (matrix:get-row matrix_B 9)
+
   let w_21_necesidad_F_NW item 10 sort (matrix:get-row matrix_B 10)
   let w_22_presion_F_NW item 10 sort (matrix:get-row matrix_B 11)
   let w_23_estado_F_NW item 10 sort (matrix:get-row matrix_B 9)
@@ -839,6 +840,44 @@ to update_weights                                   ;generate a change in the su
 
 end
 
+to sweep_weights
+
+  set w_11_demanda_F w11_ex
+  set w_12_presion_F w12_ex
+  set w_13_estado_F 1 - w_11_demanda_F - w_12_presion_F
+
+  set w_21_necesidad_F w21_ex
+  set w_22_presion_F w22_ex
+  set w_23_estado_F 1 - w_21_necesidad_F - w_22_presion_F
+
+  set w_31_demanda_S w31_ex
+  set w_32_presion_S w32_ex
+  set w_33_estado_S 1 - w_31_demanda_S - w_32_presion_S
+
+
+  set w_41_necesidad_S w41_ex
+  set w_42_presion_S w42_ex
+  set w_43_estado_S 1 - w_41_necesidad_S - w_42_presion_S
+
+
+ if ( w_11_demanda_F + w_12_presion_F > 1 or w_21_necesidad_F + w_22_presion_F > 1 or  w_31_demanda_S + w_32_presion_S > 1 or  w_41_necesidad_S + w_42_presion_S > 1)[
+    stop
+    ]
+  print word "w_11_demanda_F=" w_11_demanda_F
+  print word "w_12_presion_F= " w_12_presion_F
+  print word "w_13_estado_F= " w_13_estado_F
+  print word "w_21_necesidad_F= " w_21_necesidad_F
+  print word "w_22_presion_F= " w_22_presion_F
+  print word "w_23_estado_F= " w_23_estado_F
+  print word "w_31_demanda_S= " w_31_demanda_S
+  print word "w_32_presion_S= " w_32_presion_S
+  print word "w_33_estado_S= " w_33_estado_S
+  print word "w_41_necesidad_S=" w_41_necesidad_S
+  print word "w_42_presion_S=" w_42_presion_S
+  print word "w_43_estado_S=" w_43_estado_S
+
+end
+
 ;###############################################################
 ;###############################################################
 ;End of Code
@@ -931,7 +970,7 @@ CHOOSER
 Visualization
 Visualization
 "Infrastructure_F" "Infrastructure_S" "Spatial priorities maintanance F" "Spatial priorities new F" "Spatial priorities maintanance S" "Spatial priorities new S" "Vulnerability" "Social Pressure_F" "Social Pressure_S" "Districts" "Harmful Events"
-2
+4
 
 PLOT
 840
@@ -1195,6 +1234,126 @@ semilla-aleatoria
 1
 0
 Number
+
+SLIDER
+486
+674
+658
+707
+w11_ex
+w11_ex
+0.1
+0.9
+0.1
+0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+486
+707
+658
+740
+w12_ex
+w12_ex
+0.1
+0.9
+0.1
+0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+666
+672
+838
+705
+w21_ex
+w21_ex
+0.1
+0.9
+0.6
+0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+667
+706
+839
+739
+w22_ex
+w22_ex
+0.1
+0.9
+0.3
+0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+487
+748
+659
+781
+w31_ex
+w31_ex
+0.1
+0.9
+0.1
+0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+487
+786
+659
+819
+w32_ex
+w32_ex
+0.1
+0.9
+0.1
+0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+665
+750
+837
+783
+w41_ex
+w41_ex
+0.1
+0.9
+0.1
+0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+666
+786
+838
+819
+w42_ex
+w42_ex
+0.1
+0.9
+0.1
+0.1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 # MEGADAPT PROTOTYPE ABM
@@ -1672,6 +1831,52 @@ NetLogo 5.2.1
     </enumeratedValueSet>
     <enumeratedValueSet variable="maintenance">
       <value value="60"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="experiment" repetitions="1" runMetricsEveryStep="true">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="300"/>
+    <exitCondition>w_13_estado_F + w_11_demanda_F + w_12_presion_F != 1 or w_23_estado_F + w_21_necesidad_F + w_22_presion_F != 1 or w_33_estado_S + w_31_demanda_S + w_32_presion_S != 1 or w_43_estado_S + w_41_necesidad_S + w_43_estado_S  != 1</exitCondition>
+    <metric>EfficiencyIndex</metric>
+    <metric>InequalityExposureIndex</metric>
+    <metric>ExposureIndex</metric>
+    <metric>EfficiencyIndex_S</metric>
+    <metric>EfficiencyIndex_F</metric>
+    <metric>StateinfraIndex_S</metric>
+    <metric>StateinfraIndex_F</metric>
+    <metric>socialpressureIndex_S</metric>
+    <metric>socialpressureIndex_F</metric>
+    <metric>StateinfraAgeIndex_S</metric>
+    <metric>StateinfraAgeIndex_F</metric>
+    <enumeratedValueSet variable="Visualization">
+      <value value="&quot;Spatial priorities maintanance S&quot;"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="w11_ex" first="0.1" step="0.1" last="0.9"/>
+    <steppedValueSet variable="w12_ex" first="0.1" step="0.1" last="0.9"/>
+    <steppedValueSet variable="w21_ex" first="0.1" step="0.1" last="0.9"/>
+    <steppedValueSet variable="w22_ex" first="0.1" step="0.1" last="0.9"/>
+    <steppedValueSet variable="w31_ex" first="0.1" step="0.1" last="0.9"/>
+    <steppedValueSet variable="w32_ex" first="0.1" step="0.1" last="0.9"/>
+    <steppedValueSet variable="w41_ex" first="0.1" step="0.1" last="0.9"/>
+    <steppedValueSet variable="w42_ex" first="0.1" step="0.1" last="0.9"/>
+    <enumeratedValueSet variable="New_infra_investment">
+      <value value="100"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="maintenance">
+      <value value="130"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="landscape-type">
+      <value value="&quot;many hills&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Initial-Condition-Infrastructure">
+      <value value="&quot;Worse&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="semilla-aleatoria">
+      <value value="48569"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="p_rain">
+      <value value="0.5"/>
     </enumeratedValueSet>
   </experiment>
 </experiments>
