@@ -1,5 +1,5 @@
 
-extensions [stats profiler matrix]
+extensions [stats profiler matrix csv]
 globals [              ;;DEFINE GLOBAL VARIABLES
   real_rain            ;; real annual rainfall
   R                    ;; climatic risk (rainfall transformed into a normalized [0-1] scale)
@@ -63,11 +63,10 @@ globals [              ;;DEFINE GLOBAL VARIABLES
   counter              ;;count in a for-loop
   max_protest_F          ;;maximum number of protest recorded in a year
   max_protest_S
-  ExposureIndex        ; average of the double exposure during last 100 ticks
 
-  EfficiencyIndex      ;average number of events a person suffer in the city
-  EfficiencyIndex_S    ;average level of scarcity of a person in the city
-  EfficiencyIndex_F    ;average number of flooding a person suffer in the city
+  ExposureIndex      ;average number of events a person suffer in the city
+  ExposureIndex_S    ;average level of scarcity of a person in the city
+  ExposureIndex_F    ;average number of flooding a person suffer in the city
 
   InequalityExposureIndex ; distribution of exposure to both events
 
@@ -155,7 +154,7 @@ to create_landscape
 
   if landscape-type = "many hills"[
     ask n-of 10 patches [set A (4500 + random 500)] ;;define central point with max value.
-  repeat 100 [diffuse A  1]
+  repeat 200 [diffuse A  1]
   ]
 
 
@@ -263,11 +262,11 @@ to setup
   create_landscape         ;;define landscape topography (Altitute)
   Create-Districts-Infra       ;;define the properties of the infrastructure and the neighborhoods
   ;read_weightsfrom_matrix
-  sweep_weights
+  read_weights_from_csv
   set ExposureIndex 0
-  set EfficiencyIndex 0
-  set EfficiencyIndex_S 0
-  set EfficiencyIndex_F 0
+  set ExposureIndex 0
+  set ExposureIndex_S 0
+  set ExposureIndex_F 0
   set StateinfraIndex_S 0
   set StateinfraIndex_F 0
   set InequalityExposureIndex 0
@@ -608,10 +607,10 @@ to update_globals_and_reporters
   update-lorenz-and-gini ;;update innequality state
    set max_damage max [exposure_F + exposure_S] of patches with [district_here? = TRUE]              ;;Calculate mean damage of city in a time-stepy cakculating the mean damage per year.
 
-  if ticks > 400 [
-    set EfficiencyIndex (mean [total_exposure_S + total_exposure_F] of patches with [district_here? = TRUE]) / count patches with [district_here? = TRUE]
-    set EfficiencyIndex_S precision ((sum [total_exposure_S] of patches with [district_here? = TRUE]) / count patches with [district_here? = TRUE]) 4
-    set EfficiencyIndex_F precision ((sum [total_exposure_F] of patches with [district_here? = TRUE]) / count patches with [district_here? = TRUE] ) 4
+  if ticks > 200 [
+    set ExposureIndex (mean [total_exposure_S + total_exposure_F] of patches with [district_here? = TRUE]) / count patches with [district_here? = TRUE]
+    set ExposureIndex_S precision ((sum [total_exposure_S] of patches with [district_here? = TRUE]) / count patches with [district_here? = TRUE]) 4
+    set ExposureIndex_F precision ((sum [total_exposure_F] of patches with [district_here? = TRUE]) / count patches with [district_here? = TRUE] ) 4
 
     set StateinfraIndex_S StateinfraIndex_S + 0.01 * (count patches with [infra_supply = 1 and p_failure_S < 0.6])
     set StateinfraIndex_F StateinfraIndex_F + 0.01 * (count patches with [infra_flood = 1 and p_failure_F < 0.6])
@@ -863,6 +862,10 @@ to sweep_weights
  if ( w_11_demanda_F + w_12_presion_F > 1 or w_21_necesidad_F + w_22_presion_F > 1 or  w_31_demanda_S + w_32_presion_S > 1 or  w_41_necesidad_S + w_42_presion_S > 1)[
     stop
     ]
+
+
+
+
   print word "w_11_demanda_F=" w_11_demanda_F
   print word "w_12_presion_F= " w_12_presion_F
   print word "w_13_estado_F= " w_13_estado_F
@@ -877,6 +880,47 @@ to sweep_weights
   print word "w_43_estado_S=" w_43_estado_S
 
 end
+
+
+ to read_weights_from_csv
+  let tot_S csv:from-file "c:/Users/abaezaca/Documents/MEGADAPT/ABM_V2/sampling_scenarios_Weights.csv"
+  let weigh_list but-first (item simulation_number (but-first tot_S))
+  print weigh_list
+
+  set w_11_demanda_F item 0 weigh_list
+  set w_12_presion_F item 1 weigh_list
+  set w_13_estado_F precision (1 - w_11_demanda_F - w_12_presion_F) 1
+
+  set w_21_necesidad_F item 2 weigh_list
+  set w_22_presion_F item 3 weigh_list
+  set w_23_estado_F precision (1 - w_21_necesidad_F - w_22_presion_F) 1
+
+
+  set w_31_demanda_S item 4 weigh_list
+  set w_32_presion_S item 5 weigh_list
+  set w_33_estado_S  precision (1 - w_31_demanda_S - w_32_presion_S) 1
+
+  set w_41_necesidad_S item 6 weigh_list
+  set w_42_presion_S item 7 weigh_list
+  set w_43_estado_S precision (1 - w_41_necesidad_S - w_42_presion_S) 1
+
+  print w_11_demanda_F
+  print w_12_presion_F
+  print w_13_estado_F
+  print w_21_necesidad_F
+  print w_22_presion_F
+  print w_23_estado_F
+  print w_31_demanda_S
+  print w_32_presion_S
+  print w_33_estado_S
+  print w_41_necesidad_S
+  print w_42_presion_S
+  print w_43_estado_S
+
+file-close
+  end
+
+
 
 ;###############################################################
 ;###############################################################
@@ -970,7 +1014,7 @@ CHOOSER
 Visualization
 Visualization
 "Infrastructure_F" "Infrastructure_S" "Spatial priorities maintanance F" "Spatial priorities new F" "Spatial priorities maintanance S" "Spatial priorities new S" "Vulnerability" "Social Pressure_F" "Social Pressure_S" "Districts" "Harmful Events"
-4
+0
 
 PLOT
 840
@@ -1351,6 +1395,21 @@ w42_ex
 0.9
 0.1
 0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+104
+743
+276
+776
+simulation_number
+simulation_number
+0
+140
+0
+1
 1
 NIL
 HORIZONTAL
@@ -1833,33 +1892,32 @@ NetLogo 5.2.1
       <value value="60"/>
     </enumeratedValueSet>
   </experiment>
-  <experiment name="experiment" repetitions="1" runMetricsEveryStep="true">
+  <experiment name="experiment" repetitions="30" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="300"/>
-    <exitCondition>w_13_estado_F + w_11_demanda_F + w_12_presion_F != 1 or w_23_estado_F + w_21_necesidad_F + w_22_presion_F != 1 or w_33_estado_S + w_31_demanda_S + w_32_presion_S != 1 or w_43_estado_S + w_41_necesidad_S + w_43_estado_S  != 1</exitCondition>
-    <metric>EfficiencyIndex</metric>
     <metric>InequalityExposureIndex</metric>
     <metric>ExposureIndex</metric>
-    <metric>EfficiencyIndex_S</metric>
-    <metric>EfficiencyIndex_F</metric>
+    <metric>ExposureIndex_S</metric>
+    <metric>ExposureIndex_F</metric>
     <metric>StateinfraIndex_S</metric>
     <metric>StateinfraIndex_F</metric>
     <metric>socialpressureIndex_S</metric>
     <metric>socialpressureIndex_F</metric>
     <metric>StateinfraAgeIndex_S</metric>
     <metric>StateinfraAgeIndex_F</metric>
-    <enumeratedValueSet variable="Visualization">
-      <value value="&quot;Spatial priorities maintanance S&quot;"/>
-    </enumeratedValueSet>
-    <steppedValueSet variable="w11_ex" first="0.1" step="0.1" last="0.9"/>
-    <steppedValueSet variable="w12_ex" first="0.1" step="0.1" last="0.9"/>
-    <steppedValueSet variable="w21_ex" first="0.1" step="0.1" last="0.9"/>
-    <steppedValueSet variable="w22_ex" first="0.1" step="0.1" last="0.9"/>
-    <steppedValueSet variable="w31_ex" first="0.1" step="0.1" last="0.9"/>
-    <steppedValueSet variable="w32_ex" first="0.1" step="0.1" last="0.9"/>
-    <steppedValueSet variable="w41_ex" first="0.1" step="0.1" last="0.9"/>
-    <steppedValueSet variable="w42_ex" first="0.1" step="0.1" last="0.9"/>
+    <metric>w_11_demanda_F</metric>
+    <metric>w_12_presion_F</metric>
+    <metric>w_13_estado_F</metric>
+    <metric>w_21_necesidad_F</metric>
+    <metric>w_22_presion_F</metric>
+    <metric>w_23_estado_F</metric>
+    <metric>w_31_demanda_S</metric>
+    <metric>w_32_presion_S</metric>
+    <metric>w_33_estado_S</metric>
+    <metric>w_41_necesidad_S</metric>
+    <metric>w_42_presion_S</metric>
+    <metric>w_43_estado_S</metric>
     <enumeratedValueSet variable="New_infra_investment">
       <value value="100"/>
     </enumeratedValueSet>
@@ -1878,6 +1936,7 @@ NetLogo 5.2.1
     <enumeratedValueSet variable="p_rain">
       <value value="0.5"/>
     </enumeratedValueSet>
+    <steppedValueSet variable="simulation_number" first="0" step="1" last="53"/>
   </experiment>
 </experiments>
 @#$#@#$#@
