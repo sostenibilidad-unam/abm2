@@ -141,15 +141,15 @@ patches-own[
 ]
 
 ;#############################################################################################
-
 ;######################################################################
 ;######################################################################
 to create_landscape
-  random-seed semilla-aleatoria
+ ; random-seed semilla-aleatoria
+  print random-float 1
   if landscape-type = "closed watershed"[
   ask patches with [(pxcor =  50 and pycor = 50)][set A 5000] ;;define central point with max value.
 
-  repeat 300 [diffuse A  1]   ;; slightly smooth out the landscape by difusing variables A (this can be modified to include other topography with other method or using real data.
+  repeat 400 [diffuse A  1]   ;; slightly smooth out the landscape by difusing variables A (this can be modified to include other topography with other method or using real data.
   ]
 
   if landscape-type = "many hills"[
@@ -209,7 +209,8 @@ to create_landscape
     set pcolor 65
   ]
 
-
+;random-seed (1 + random 100000)
+print random-float 1
 end
 
 ;#############################################################################################
@@ -264,7 +265,6 @@ to setup
   ;read_weightsfrom_matrix
   read_weights_from_csv
   set ExposureIndex 0
-  set ExposureIndex 0
   set ExposureIndex_S 0
   set ExposureIndex_F 0
   set StateinfraIndex_S 0
@@ -273,7 +273,7 @@ to setup
   set socialpressureIndex_S 0
   set socialpressureIndex_F 0
   set rain_max_obs (max_rain_recorded p_rain) ;;set max rainfall observed
-
+  ask patches [Landscape_visualization]
   reset-ticks
 end
 
@@ -328,7 +328,7 @@ to Hazard                                                                       
       set Prob_H_F IS_N  * R * (1 - A)                                                                                    ;;update probability of hazardous event
       set H_F ifelse-value (Prob_H_F >= random-float 1) [1][0]                                                      ;;update hazard counter to 1
       set exposure_F precision (0.9 * exposure_F + H_F) 3                                                           ;;update memory of past events
-      if ticks > 400[
+      if ticks > 200[
         set total_exposure_F total_exposure_F + H_F
       ]
       set Prob_H_S IS_S * A
@@ -343,6 +343,7 @@ end
 
 ;###############################################################################
 to Landscape_visualization                                                                                                             ;;TO REPRESENT DIFFERENT INFORMATION IN THE LANDSCAPE
+  if Visualization = "Elevation" [set pcolor scale-color grey  A 0  1]      ;;probability of Infrastructure failure
   if Visualization = "Infrastructure_F" [set pcolor ifelse-value (Infra_flood = 1)[scale-color grey  (1 - P_failure_F) 0  1][65]]      ;;probability of Infrastructure failure
   if Visualization = "Infrastructure_S" [set pcolor ifelse-value (Infra_supply = 1)[scale-color grey  (1 - P_failure_S) 0  1][65]]     ;;probability of Infrastructure failure
   if Visualization = "Vulnerability" [set pcolor ifelse-value (District_here? = TRUE) [scale-color blue V 0 max_v][65]]                ;;visualize vulnerability
@@ -378,7 +379,7 @@ to protest ;;AN STOCHASTIC PROCESS THAT SIMUALTE A PROTEST RANDOMLY BUT PROPROTI
   set   protestas_here_F  0.9 * protestas_here_F + prot_F                                        ;;update patch variable to be collected by the government
   set   protestas_here_S  0.9 * protestas_here_S + prot_S                                       ;;update patch variable to be collected by the government
 
-if ticks > 400 [
+if ticks > 200 [
   set   socialpressureTOTALIndex_S socialpressureTOTALIndex_S + prot_F
   set   socialpressureTOTALIndex_F socialpressureTOTALIndex_F + prot_S
 ]
@@ -515,6 +516,9 @@ to WGA_decisions
     ]
 
 
+
+
+if budget-distribution = "competition in space"[
      let tot_cost_Maintance 0
      let bud_mant (count patches with [district_here? = true]) * maintenance / 1350
       let rank_A1 sort-on [1 - distance_metric_maintenance_A1] patches                                             ;;;sort neighborhoods based on distance metric Action 1 mantanance F.
@@ -565,6 +569,9 @@ to WGA_decisions
 
          ])
        ]
+]
+       if budget-distribution = "competition between actions"[]
+
 
 end
 
@@ -1013,8 +1020,8 @@ CHOOSER
 523
 Visualization
 Visualization
-"Infrastructure_F" "Infrastructure_S" "Spatial priorities maintanance F" "Spatial priorities new F" "Spatial priorities maintanance S" "Spatial priorities new S" "Vulnerability" "Social Pressure_F" "Social Pressure_S" "Districts" "Harmful Events"
-0
+"Elevation" "Infrastructure_F" "Infrastructure_S" "Spatial priorities maintanance F" "Spatial priorities new F" "Spatial priorities maintanance S" "Spatial priorities new S" "Vulnerability" "Social Pressure_F" "Social Pressure_S" "Districts" "Harmful Events"
+1
 
 PLOT
 840
@@ -1042,7 +1049,7 @@ CHOOSER
 GOVERNMENT_DECISION_MAKING
 GOVERNMENT_DECISION_MAKING
 "Social Benefit" "State of infrastructure" "Response to Social Pressure"
-2
+0
 
 PLOT
 859
@@ -1407,12 +1414,22 @@ SLIDER
 simulation_number
 simulation_number
 0
-140
-0
+22
+21
 1
 1
 NIL
 HORIZONTAL
+
+CHOOSER
+55
+688
+261
+733
+budget-distribution
+budget-distribution
+"competition in space" "competition between actions"
+1
 
 @#$#@#$#@
 # MEGADAPT PROTOTYPE ABM
@@ -1892,7 +1909,7 @@ NetLogo 5.2.1
       <value value="60"/>
     </enumeratedValueSet>
   </experiment>
-  <experiment name="experiment" repetitions="30" runMetricsEveryStep="false">
+  <experiment name="experiment" repetitions="20" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="300"/>
@@ -1936,7 +1953,7 @@ NetLogo 5.2.1
     <enumeratedValueSet variable="p_rain">
       <value value="0.5"/>
     </enumeratedValueSet>
-    <steppedValueSet variable="simulation_number" first="0" step="1" last="53"/>
+    <steppedValueSet variable="simulation_number" first="0" step="1" last="21"/>
   </experiment>
 </experiments>
 @#$#@#$#@
