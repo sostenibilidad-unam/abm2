@@ -13,70 +13,70 @@ globals [              ;;DEFINE GLOBAL VARIABLES
 ;##################################
   matrix_A
   matrix_B
-  w_11_demanda_F                    ;;Economic efficiency criteria
-  w_12_presion_F                    ;;Social response criteria
-  w_13_estado_F                    ;;Infrastructure criteria
+  w_11_demanda_F          ;;Demand criteria
+  w_12_presion_F          ;;Social response criteria
+  w_13_estado_F           ;;Infrastructure criteria
 
-  w_21_necesidad_F                   ;;Economic efficiency criteria
-  w_22_presion_F                    ;;Social response criteria
-  w_23_estado_F                    ;;Infrastructure criteria
-
-
-  w_31_demanda_S                    ;;Economic efficiency criteria
-  w_32_presion_S                    ;;Social response criteria
-  w_33_estado_S                    ;;Infrastructure criteria
-
-  w_41_necesidad_S                    ;;Economic efficiency criteria
-  w_42_presion_S                    ;;Social response criteria
-  w_43_estado_S                    ;;Infrastructure criteria
+  w_21_necesidad_F        ;;Need for infrastructure criteria
+  w_22_presion_F          ;;Social response criteria
+  w_23_estado_F           ;;Infrastructure criteria
 
 
+  w_31_demanda_S          ;;Demand criteria
+  w_32_presion_S          ;;Social response criteria
+  w_33_estado_S           ;;Infrastructure criteria
 
-  C11max                  ;;max efficiency recorded
-  C12max                  ;;max protests recorded
-  C13max                  ;;max age infra recorded
+  w_41_necesidad_S        ;;Economic efficiency criteria
+  w_42_presion_S          ;;Social response criteria
+  w_43_estado_S           ;;Infrastructure criteria
 
-  C21max                  ;;max efficiency recorded
-  C22max                  ;;max protests recorded
-  C23max                  ;;max age infra recorded
 
-  C31max                  ;;max efficiency recorded
-  C32max                  ;;max protests recorded
-  C33max                  ;;max age infra recorded
 
-  C41max                  ;;max efficiency recorded
-  C42max                  ;;max protests recorded
-  C43max                  ;;max age infra recorded
+  C11max                  ;;max Demand for F recorded
+  C12max                  ;;max Social pressure for F recorded
+  C13max                  ;;max Age infra F recorded
+
+  C21max                  ;;max Need for F recorded
+  C22max                  ;;max Social pressure for S recorded
+  C23max                  ;;max age infra S recorded
+
+  C31max                  ;;max Demand for S recorded
+  C32max                  ;;max Social pressure for S recorded
+  C33max                  ;;max age infra S recorded
+
+  C41max                  ;;max need for S recorded
+  C42max                  ;;max Social pressure for S recorded
+  C43max                  ;;max age infra S recorded
 
 
 
 ;##################################
 ;;Reporters
 ;##################################
-  Var_list             ;;To report vulnerability at the final 100
-  max_damage           ;;max damage in the city. It helps to calculate the tolerance threshold tau in the vulnerability procedure by comparing the state of the agents with respect to to waalth {W] and the average damage (mean_damage)
+  Var_list                ;;To report vulnerability at the final 100
+  max_damage              ;;max damage in the city. It helps to calculate the tolerance threshold tau in the vulnerability procedure by comparing the state of the agents with respect to to waalth {W] and the average damage (mean_damage)
 
-  lorenz-points_V      ;;variable to calculate lorenz curve for innequality (need to think what does it mean)
-  gini_V               ;;gini coefitient of the vulnerability
+  lorenz-points_V         ;;variable to calculate lorenz curve for innequality (need to think what does it mean)
+  gini_V                  ;;gini coefitient of the vulnerability
 
-  max_v                ;;auxiliar variable to calculate neighborhood with the maximal level of vulnerability
-  counter              ;;count in a for-loop
-  max_protest_F          ;;maximum number of protest recorded in a year
+  max_v                   ;;auxiliar variable to calculate neighborhood with the maximal level of vulnerability
+  counter                 ;;count in a for-loop
+  max_protest_F           ;;maximum number of protest recorded in a year
   max_protest_S
 
-  ExposureIndex      ;average number of events a person suffer in the city
-  ExposureIndex_S    ;average level of scarcity of a person in the city
-  ExposureIndex_F    ;average number of flooding a person suffer in the city
+  ExposureIndex           ;average number of events a person suffer in the city
+  ExposureIndex_S         ;average level of scarcity of a person in the city
+  ExposureIndex_F         ;average number of flooding a person suffer in the city
 
-  InequalityExposureIndex ; distribution of exposure to both events
+  InequalityExposureIndex ;distribution of exposure to both events
 
-  StateinfraIndex_S    ;report the number of patches with functioning infrastructure
-  StateinfraIndex_F    ;report the number of patches with functioning infrastructure
-  StateinfraAgeIndex_S ;report the mean age of infrastructure S
-  StateinfraAgeIndex_F ;report the mean age of infrastructure F
+  StateinfraIndex_S       ;report the number of patches with functioning infrastructure
+  StateinfraIndex_F       ;report the number of patches with functioning infrastructure
+  StateinfraAgeIndex_S    ;report the mean age of infrastructure S
+  StateinfraAgeIndex_F    ;report the mean age of infrastructure F
 
-  socialpressureIndex_S ;report the sum of protest in the city
-  socialpressureIndex_F ;report the sum of protest in the city
+  socialpressureIndex_S   ;report the sum of protest in the city
+  socialpressureIndex_F   ;report the sum of protest in the city
 
   socialpressureTOTALIndex_S ;report the sum of protest in the city
   socialpressureTOTALIndex_F ;report the sum of protest in the city
@@ -95,28 +95,28 @@ patches-own[
   Infra_flood               ;;IS= 1 If the patch has an infrastructure piece; IS = 0 if not
   Infra_supply              ;;IS= 1 If the patch has an infrastructure piece; IS = 0 if not
 
-  P_failure_F               ;;Probability of failure of infrastructure-here (P_failure =1 if not infra here; P_failure =0 if infrastructure is new)
-  P_failure_S               ;;Probability of failure of infrastructure-here (P_failure =1 if not infra here; P_failure =0 if infrastructure is new)
-  infra_F_age               ;;age infrastructure Flooding
-  infra_S_age               ;;age infrastructure supply
+  P_failure_F                     ;;Probability of failure of infrastructure-here (P_failure =1 if not infra here; P_failure =0 if infrastructure is new)
+  P_failure_S                     ;;Probability of failure of infrastructure-here (P_failure =1 if not infra here; P_failure =0 if infrastructure is new)
+  infra_F_age                     ;;age infrastructure Flooding
+  infra_S_age                     ;;age infrastructure supply
 
-  A                         ;;Altitute
+  A                               ;;Altitute
 
 
-  C11-Efficiencia           ;;criteria use to measure # people benefitiated if investment is made
-  C12-Social_pressure       ;;criteria use by gov to measure social pressure due to flooding
-  C13-InfraState            ;;variable that messure the age of infra in each patch with IS >0
+  C11-Demanda                      ;;criteria use to measure # people benefitiated if investment is made
+  C12-Social_pressure              ;;criteria use by gov to measure social pressure due to flooding
+  C13-InfraState                   ;;variable that messure the age of infra in each patch with IS >0
 
-  C21-need                  ;;criteria to messure the need for infra based on # people without infrastructure
-  C22-Social_pressure       ;;criteria use by gov to measure social pressure due to flooding
+  C21-need                         ;;criteria to messure the need for infra based on # people without infrastructure
+  C22-Social_pressure              ;;criteria use by gov to measure social pressure due to flooding
   C23-InfraState
 
-  C31-Efficiencia
-  C32-Social_pressure       ;;criteria use by gov to measure social pressure due to scarcity
+  C31-Demanda
+  C32-Social_pressure             ;;criteria use by gov to measure social pressure due to scarcity
   C33-InfraState
 
-  C41-need                  ;;criteria to messure the need for infra based on # people without infrastructure
-  C42-Social_pressure       ;;criteria use by gov to measure social pressure due to scarcity
+  C41-need                         ;;criteria to messure the need for infra based on # people without infrastructure
+  C42-Social_pressure              ;;criteria use by gov to measure social pressure due to scarcity
   C43-InfraState
 
 
@@ -143,7 +143,7 @@ patches-own[
 ;#############################################################################################
 ;######################################################################
 ;######################################################################
-to create_landscape
+to create-Landscape
  ; random-seed semilla-aleatoria
   print random-float 1
   if landscape-type = "closed watershed"[
@@ -174,37 +174,39 @@ to create_landscape
     ]
 
 
-    set Infra_flood 0
-    set Infra_supply 0
+    ;Define initial values
+    set Infra_flood 0                       ;presence or absence of infrastructure
+    set Infra_supply 0                      ;presence or absence of infrastructure
 
-    set P_failure_F 1
-    set P_failure_S 1
+    set P_failure_F 1                       ;probability of failure
+    set P_failure_S 1                       ;probability of failure
 
-    set infra_F_age 0
-    set infra_S_age 0
+    set infra_F_age 0                       ;age
+    set infra_S_age 0                       ;age
 
-    set protestas_here_F  0
-    set protestas_here_S  0
-    set total_exposure_S 0
-    set total_exposure_F 0
+    set protestas_here_F  0                 ;wheather a protest happen at a particula location and time
+    set protestas_here_S  0                 ;wheather a protest happen at a particula location and time
+    set total_exposure_S 0                  ;accumulated burden
+    set total_exposure_F 0                  ;accumulated burden
+    set V exposure_F + exposure_S             ;; Vulnerability
 
-    set district_here? FALSE
+    set district_here? FALSE                ;;presence or absence of neighborhood here
 
-    set C11-Efficiencia 0.01
-    set C12-Social_pressure 0.001
-    set C13-InfraState infra_F_age
+    set C11-Demanda 0.01                       ;C11 Demanda
+    set C12-Social_pressure 0.001              ;C21 social pressure              collect the number of protest in the district located in this patch
+    set C13-InfraState infra_F_age             ;C31 state Infra
 
-    set C21-need 0.1
-    set C22-Social_pressure 0.001
-    set C23-InfraState infra_F_age
+    set C21-need 0.1                           ;C21 Need
+    set C22-Social_pressure 0.001              ;C22 social pressure
+    set C23-InfraState infra_F_age             ;C23 state Infra
 
-    set C31-Efficiencia 0.01;Criteria 1 economic efficiancy. calcuate number of neighborhoods beneficiated per "dolar" invested
-    set C32-Social_pressure 0.001                   ;;criteria 2. collect the number of protest in the district located in this patch
-    set C33-InfraState infra_S_age  ;;criteria 3. Collect information about the age of the infrastructure in the current patch
+    set C31-Demanda 0.01                        ;C31 Demanda;;Criteria 1 economic efficiancy. calcuate number of neighborhoods beneficiated per "dolar" invested
+    set C32-Social_pressure 0.001               ;C31 social pressure   ;;criteria 2. collect the number of protest in the district located in this patch
+    set C33-InfraState infra_S_age              ;C41 state Infra ;;criteria 3. Collect information about the age of the infrastructure in the current patch
 
-    set C41-need 0.1
-    set C42-Social_pressure  0.001                   ;;criteria 2. collect the number of protest in the district located in this patch
-    set C43-InfraState infra_S_age  ;;criteria 3. Collect information about the age of the infrastructure in the current patch
+    set C41-need 0.1                              ;C41 Need
+    set C42-Social_pressure  0.001                  ;C42 social pressure
+    set C43-InfraState infra_S_age                 ;C43 state Infra ;;criteria 3. Collect information about the age of the infrastructure in the current patch
 
     set pcolor 65
   ]
@@ -217,7 +219,6 @@ end
 to Create-Districts-Infra
 
   ask patches [
-
     if A < random-float 1 [
       set district_here? TRUE
       set   protestas_here_F  0.1
@@ -233,17 +234,7 @@ to Create-Districts-Infra
         set P_failure_S 1 - exp(- infra_S_age / 100)
       ]
     ]
-
-
-    set V exposure_F + exposure_S                                           ;; Vulnerability
-
-
-
-
-
-
   ]
-
 end
 
 
@@ -260,7 +251,7 @@ to setup
 ;;set global
   set Var_list []
   set lorenz-points_V []
-  create_landscape         ;;define landscape topography (Altitute)
+  create-Landscape         ;;define landscape topography (Altitute)
   Create-Districts-Infra       ;;define the properties of the infrastructure and the neighborhoods
   ;read_weightsfrom_matrix
   read_weights_from_csv
@@ -273,7 +264,7 @@ to setup
   set socialpressureIndex_S 0
   set socialpressureIndex_F 0
   set rain_max_obs (max_rain_recorded p_rain) ;;set max rainfall observed
-  ask patches [Landscape_visualization]
+  ask patches [Landscape-Visualization]
   reset-ticks
 end
 
@@ -288,18 +279,18 @@ to GO
   ;profiler:start  ;;to check the computational time needed per procedude
   tick
 
-  update_globals_and_reporters ;; to update global and reporters
-  rain                   ;;set the magnitude of the climatic event and the risk factor
+  Update-Globals-Reporters ;; to update global and reporters
+  To-Rain                   ;;set the magnitude of the climatic event and the risk factor
   ask patches [
-    collect_information
+    Surveillance
     Hazard                 ;; To define if a neighborhood suffer a hazard (H=1), or not (H=0), in a year
     vulnerability
-    protest
-    Landscape_visualization
+    To-Protest
+    Landscape-Visualization
   ]
 
-  WGA_decisions ;; Water government authority decides in what (new vs. maitainance flooding vs. scarcity) and where (in what districts) to invest resources (budget)
-  update_state_infrastructure ;update state of infrastructure (age, prob. of failure)
+  WA-Decisions ;; Water government authority decides in what (new vs. maitainance flooding vs. scarcity) and where (in what districts) to invest resources (budget)
+  Update-Infrastructure ;update state of infrastructure (age, prob. of failure)
 
 ;if ticks = 600 [update_weights]
 if ticks = 499 [export_view]
@@ -312,7 +303,7 @@ end
 
 
 ;###############################################################################
-to rain   ;;GENERATE CLIMATIC REALIZATIONS USING A NORMAL DISTRICUTION AND CONVERTED TO A RISK CLIMATIC FACTOR BY NORMALIZING THE SCALE
+to To-Rain   ;;GENERATE CLIMATIC REALIZATIONS USING A NORMAL DISTRICUTION AND CONVERTED TO A RISK CLIMATIC FACTOR BY NORMALIZING THE SCALE
   set real_rain log-normal 1 p_rain              ;;generate a normal realization
   if (real_rain > rain_max_obs) [set rain_max_obs real_rain]   ;;to update max observation if greater than 200
   set R real_rain / rain_max_obs                               ;;convert to a risk scale between 0 and 1.
@@ -342,15 +333,15 @@ end
 
 
 ;###############################################################################
-to Landscape_visualization                                                                                                             ;;TO REPRESENT DIFFERENT INFORMATION IN THE LANDSCAPE
+to Landscape-Visualization                                                                                                             ;;TO REPRESENT DIFFERENT INFORMATION IN THE LANDSCAPE
   if Visualization = "Elevation" [set pcolor scale-color grey  A 0  1]      ;;probability of Infrastructure failure
   if Visualization = "Infrastructure_F" [set pcolor ifelse-value (Infra_flood = 1)[scale-color grey  (1 - P_failure_F) 0  1][65]]      ;;probability of Infrastructure failure
   if Visualization = "Infrastructure_S" [set pcolor ifelse-value (Infra_supply = 1)[scale-color grey  (1 - P_failure_S) 0  1][65]]     ;;probability of Infrastructure failure
   if Visualization = "Vulnerability" [set pcolor ifelse-value (District_here? = TRUE) [scale-color blue V 0 max_v][65]]                ;;visualize vulnerability
   if visualization = "Social Pressure_F" [set pcolor ifelse-value (District_here? = TRUE) [scale-color red   protestas_here_F  0 10][black]];;visualized social pressure
   if visualization = "Social Pressure_S" [set pcolor ifelse-value (District_here? = TRUE) [scale-color red   protestas_here_S  0 10][black]];;visualized social pressure
-  if visualization ="Spatial priorities maintanance F" [set pcolor scale-color magenta  distance_metric_maintenance_A1 0 1]              ;;priorities
-  if visualization ="Spatial priorities maintanance S" [set pcolor scale-color sky  distance_metric_maintenance_A3 0 1]              ;;priorities
+  if visualization = "Spatial priorities maintanance F" [set pcolor scale-color magenta  distance_metric_maintenance_A1 0 1]              ;;priorities
+  if visualization = "Spatial priorities maintanance S" [set pcolor scale-color sky  distance_metric_maintenance_A3 0 1]              ;;priorities
 
   if visualization ="Spatial priorities new F" [set pcolor scale-color magenta distance_metric_New_A2 0 1]                               ;;priorities
   if visualization ="Spatial priorities new S" [set pcolor scale-color sky distance_metric_New_A4 0 1]                               ;;priorities
@@ -372,7 +363,7 @@ end
 
 
 ;###############################################################################
-to protest ;;AN STOCHASTIC PROCESS THAT SIMUALTE A PROTEST RANDOMLY BUT PROPROTIONALY TO TIME ALLOCATED TO PROTESTING
+to To-Protest ;;AN STOCHASTIC PROCESS THAT SIMUALTE A PROTEST RANDOMLY BUT PROPROTIONALY TO TIME ALLOCATED TO PROTESTING
   let prot_F ifelse-value ((exposure_F / 10) > random-float 1)[1][0]
   let prot_S ifelse-value ((exposure_S / 10) > random-float 1)[1][0]
 
@@ -387,8 +378,8 @@ end
 
 
 ;###############################################################################
-to collect_information    ;; GOVERNMENT SURVEILLANCE SYSTEM
- set C11-Efficiencia ((count patches in-radius 2 with [district_here? = TRUE]) + (ifelse-value (district_here? = TRUE)[1][0])) ;* (ifelse-value (any? patches in-radius 2 with [Infra_flood = 1] or Infra_flood = 1)[(P_failure_F + sum [P_failure_F] of patches in-radius 2 with [Infra_flood = 1])/(1 + count patches in-radius 2 with [Infra_flood = 1])][1])  ;Criteria 1 economic efficiancy. calcuate number of neighborhoods beneficiated per "dolar" invested
+to Surveillance    ;; GOVERNMENT SURVEILLANCE SYSTEM
+ set C11-Demanda ((count patches in-radius 2 with [district_here? = TRUE]) + (ifelse-value (district_here? = TRUE)[1][0])) ;* (ifelse-value (any? patches in-radius 2 with [Infra_flood = 1] or Infra_flood = 1)[(P_failure_F + sum [P_failure_F] of patches in-radius 2 with [Infra_flood = 1])/(1 + count patches in-radius 2 with [Infra_flood = 1])][1])  ;Criteria 1 economic efficiancy. calcuate number of neighborhoods beneficiated per "dolar" invested
  set C12-Social_pressure   protestas_here_F                   ;;criteria 2. collect the number of protest in the district located in this patch
  set C13-InfraState infra_F_age  ;;criteria 3. Collect information about the age of the infrastructure in the current patch
 
@@ -396,7 +387,7 @@ to collect_information    ;; GOVERNMENT SURVEILLANCE SYSTEM
  set C22-Social_pressure protestas_here_F                   ;;criteria 2. collect the number of protest in the district located in this patch
  set C23-InfraState infra_F_age  ;;criteria 3. Collect information about the age of the infrastructure in the current patch
 
- set C31-Efficiencia (count patches in-radius 2 with [district_here? = TRUE] + (ifelse-value (district_here? = TRUE)[1][0])) ;*    (ifelse-value (any? patches in-radius 2 with [Infra_supply = 1] or Infra_supply = 1)[(P_failure_S + sum [P_failure_S] of patches in-radius 2 with [Infra_supply = 1])/(1 + count patches in-radius 2 with [Infra_supply = 1])][1])  ;Criteria 1 economic efficiancy. calcuate number of neighborhoods beneficiated per "dolar" invested
+ set C31-Demanda (count patches in-radius 2 with [district_here? = TRUE] + (ifelse-value (district_here? = TRUE)[1][0])) ;*    (ifelse-value (any? patches in-radius 2 with [Infra_supply = 1] or Infra_supply = 1)[(P_failure_S + sum [P_failure_S] of patches in-radius 2 with [Infra_supply = 1])/(1 + count patches in-radius 2 with [Infra_supply = 1])][1])  ;Criteria 1 economic efficiancy. calcuate number of neighborhoods beneficiated per "dolar" invested
  set C32-Social_pressure protestas_here_S                   ;;criteria 2. collect the number of protest in the district located in this patch
  set C33-InfraState infra_S_age  ;;criteria 3. Collect information about the age of the infrastructure in the current patch
 
@@ -408,7 +399,7 @@ end
 ;;####################################################################################
 ;;Water government authority define priorities based on the prioritization strategy
 ;;####################################################################################
-to WGA_decisions
+to WA-Decisions
 ;   ; if GOVERNMENT_DECISION_MAKING = "Social Benefit"[                 ;;C1: priority for economic efficiency (increase benefits to people (less $ per people)
 ;   ;   set w_11 0.8
 ;      set w_12 0.1
@@ -467,7 +458,7 @@ to WGA_decisions
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;goverment select patches according to a distance metric and Compromised programing optimiation
+;;goverment selects patches according to a distance metric and Compromised programing optimiation
 
 ;;1) obtain information from the state of the coupled human-infrastucture system (procedure "collect_information")
 ;;2) tranform the information to an standarized scale using "value functions"
@@ -479,7 +470,7 @@ to WGA_decisions
       ;C13 Age infrastructure
 
 
-       let Vf_11 ifelse-value (C11-Efficiencia < C11max)[(C11-Efficiencia / C11max)][1]                                                                             ;;define the value functions by transforming natural scale of the information gethered by goverment
+       let Vf_11 ifelse-value (C11-Demanda < C11max)[(C11-Demanda / C11max)][1]                                                                             ;;define the value functions by transforming natural scale of the information gethered by goverment
        let Vf_12 ifelse-value (C12-Social_pressure < C12max)[(C12-Social_pressure / C12max)][1]                                                                     ;;to a standarized scale [0,1] where 1 means maximal atention from goverment (1 = larger number of protested in an area
 
        let Vf_13 0
@@ -493,7 +484,7 @@ to WGA_decisions
        let Vf_23 ifelse-value (C23-InfraState < 50)[0][2 * (C23-InfraState - 50) / C23max]
        if C23-InfraState > 100 or C23-InfraState = 0 [set Vf_23 1]
 
-       let Vf_31 ifelse-value (C31-Efficiencia < C31max)[(C31-Efficiencia / C31max)][1]                                                                             ;;define the value functions by transforming natural scale of the information gethered by goverment
+       let Vf_31 ifelse-value (C31-Demanda < C31max)[(C31-Demanda / C31max)][1]                                                                             ;;define the value functions by transforming natural scale of the information gethered by goverment
        let Vf_32 ifelse-value (C32-Social_pressure < C32max)[(C32-Social_pressure / C32max)][1]                                                                     ;;to a standarized scale [0,1] where 1 means maximal atention from goverment (1 = larger number of protested in an area
        let Vf_33 ifelse-value (C33-InfraState < 50)[C33-InfraState / 50] [(C33max - C33-InfraState) / 50]
        if C33-InfraState > 100 or C33-InfraState = 0 [set Vf_33 0]
@@ -516,63 +507,127 @@ to WGA_decisions
     ]
 
 
-
-
-if budget-distribution = "competition in space"[
-     let tot_cost_Maintance 0
-     let bud_mant (count patches with [district_here? = true]) * maintenance / 1350
+    if budget-distribution = "competition within actions"[                                            ;patches are compared based on decition for each action
+      let tot_cost_Maintance 0
+      let bud_mant (count patches with [district_here? = true]) * maintenance / 1350                                ;;; scale budget proportional to the number of neighborhoods
       let rank_A1 sort-on [1 - distance_metric_maintenance_A1] patches                                             ;;;sort neighborhoods based on distance metric Action 1 mantanance F.
       let rank_A3 sort-on [1 - distance_metric_maintenance_A3] patches                                             ;;;sort neighborhoods based on distance metric Action 3 mantanance S.
 
-       (foreach rank_A1 rank_A3 [
-         if [infra_flood] of ?1 = 1 [
-           ask ?1 [
-             if distance_metric_maintenance_A1 > random-float 1 and tot_cost_Maintance < bud_mant[                 ;;if total cost until now is lower than budget then mantain the infra in this patch
-               set tot_cost_Maintance tot_cost_Maintance + 1                                                          ;;add to the total cost
-               set infra_F_age infra_F_age - 0.4 * infra_F_age                                                        ;;update the state (age) of infrastructure
-             ]
-           ]
-         ]
-
-         if [infra_supply] of ?2 = 1[
+      (foreach rank_A1 rank_A3 [
+        if [infra_flood] of ?1 = 1 [
+          ask ?1 [
+            if distance_metric_maintenance_A1 > random-float 1 and tot_cost_Maintance < bud_mant[                 ;;if total cost until now is lower than budget then mantain the infra in this patch
+              set tot_cost_Maintance tot_cost_Maintance + 1                                                          ;;add to the total cost
+              set infra_F_age infra_F_age - 0.4 * infra_F_age                                                        ;;update the state (age) of infrastructure
+            ]
+          ]
+        ]
+        if [infra_supply] of ?2 = 1[
           ask ?2 [
-             if distance_metric_maintenance_A3 > random-float 1 and tot_cost_Maintance <  bud_mant[                  ;; Water autority would repare if the distance is alrge than a random number betwee 0 and 1 and if total cost upto this point is lower than budget
-               set tot_cost_Maintance tot_cost_Maintance + 1                                                           ;;add new cost to total cost
-               set infra_S_age infra_S_age - 0.4 * infra_S_age                                                         ;;update the state (age) of infrastructure
-             ]
-           ]
-         ]
-       ])
+            if distance_metric_maintenance_A3 > random-float 1 and tot_cost_Maintance <  bud_mant[                  ;; Water autority would repare if the distance is alrge than a random number betwee 0 and 1 and if total cost upto this point is lower than budget
+              set tot_cost_Maintance tot_cost_Maintance + 1                                                           ;;add new cost to total cost
+              set infra_S_age infra_S_age - 0.4 * infra_S_age                                                         ;;update the state (age) of infrastructure
+            ]
+          ]
+        ]
+      ])
 
-       if ticks mod 10 = 0[                                                                                            ;;in years when government invest in new infrastructure
-         let tot_cost_New 0
-         let bud_new (count patches with [district_here? = true]) * New_infra_investment / 1350
-         let rank_A2 sort-on [1 - distance_metric_New_A2] patches                                                      ;;;sort neighborhoods based on distance metric Action 3 new infra F.
-         let rank_A4 sort-on [1 - distance_metric_New_A4] patches                                                      ;;;sort neighborhoods based on distance metric Action 4 new infra F.
-         (foreach  rank_A2  rank_A4[
+      if ticks mod 10 = 0[                                                                                            ;;in years when government invest in new infrastructure
+        let tot_cost_New 0
+        let bud_new (count patches with [district_here? = true]) * New_infra_investment / 1350
+        let rank_A2 sort-on [1 - distance_metric_New_A2] patches                                                      ;;;sort neighborhoods based on distance metric Action 3 new infra F.
+        let rank_A4 sort-on [1 - distance_metric_New_A4] patches                                                      ;;;sort neighborhoods based on distance metric Action 4 new infra F.
+          (foreach  rank_A2  rank_A4[
 
-           ask ?1 [
-             if distance_metric_New_A2 > random-float 1 and tot_cost_New < bud_new[                                                                  ;;if total cost until now is lower than budget for new investments, then create new infra in this patch
-               set tot_cost_New tot_cost_New + 1                                                              ;;add new cost to total cost
-               set infra_F_age 1                                                                                            ;;update the state (age) of infrastructure
-               set Infra_flood 1                                                                                            ;;update the state of the patch. Now the patch contains a piece of infrastructure                                                                                    ;;set new probability of failure = 0
-             ]
-           ]
-           ask ?2 [
-             if distance_metric_New_A4 > random-float 1 and tot_cost_New < bud_new [              ;;if total cost until now is lower than budget for new investments, then create new infra in this patch
-               set tot_cost_New tot_cost_New + 1                                                              ;;add new cost to total cost
-               set infra_S_age 1                                                                                            ;;update the state (age) of infrastructure
-               set Infra_supply 1                                                                                            ;;update the state of the patch. Now the patch contains a piece of infrastructure                                                                                    ;;set new probability of failure = 0
-             ]
-           ]
-
-
-         ])
-       ]
-]
-       if budget-distribution = "competition between actions"[]
+            ask ?1 [
+              if distance_metric_New_A2 > random-float 1 and tot_cost_New < bud_new[                                     ;;if total cost until now is lower than budget for new investments, then create new infra in this patch
+                set tot_cost_New tot_cost_New + 1                                                                        ;;add new cost to total cost
+                set infra_F_age 1                                                                                            ;;update the state (age) of infrastructure
+                set Infra_flood 1                                                                                            ;;update the state of the patch. Now the patch contains a piece of infrastructure                                                                                    ;;set new probability of failure = 0
+              ]
+            ]
+            ask ?2 [
+              if distance_metric_New_A4 > random-float 1 and tot_cost_New < bud_new [                                    ;;if total cost until now is lower than budget for new investments, then create new infra in this patch
+                set tot_cost_New tot_cost_New + 1                                                                          ;;add new cost to total cost
+                set infra_S_age 1                                                                                            ;;update the state (age) of infrastructure
+                set Infra_supply 1                                                                                            ;;update the state of the patch. Now the patch contains a piece of infrastructure                                                                                    ;;set new probability of failure = 0
+              ]
+            ]
+          ])
+      ]
+    ]
 
 
+    if budget-distribution = "competition between actions"[                ;In this setting only the action with the higher distance is taken
+      let tot_cost_Maintance 0
+      let bud_mant 2 * (count patches with [district_here? = true]) * maintenance / 1350                                                      ;Scale budget proportionally to the number of neighborhoods
+      let rank_A13 sort-on [(1 - distance_metric_maintenance_A3) + (1 - distance_metric_maintenance_A1)] patches                                      ;Sort neighborhoods based on distance metric Action 1 mantanance F.
+      foreach rank_A13 [
+        ask ? [
+          if distance_metric_maintenance_A1 > distance_metric_maintenance_A3 and [infra_flood] of ? = 1 and tot_cost_Maintance < bud_mant [
+            set tot_cost_Maintance tot_cost_Maintance + 1                                                                                      ;;add to the total cost
+            set infra_F_age infra_F_age - 0.4 * infra_F_age
+          ]
+          if distance_metric_maintenance_A1 < distance_metric_maintenance_A3 and [infra_supply] of ? = 1 and tot_cost_Maintance < bud_mant [
+            set tot_cost_Maintance tot_cost_Maintance + 1                                                                                      ;;add to the total cost
+            set infra_S_age infra_S_age - 0.4 * infra_S_age
+          ]
+          if distance_metric_maintenance_A1 = distance_metric_maintenance_A3 and tot_cost_Maintance < bud_mant [
+
+            if [infra_supply] of ? = 1 and [infra_flood] of ? = 1[
+              ifelse(random-float 1 > 0.5)[
+                set tot_cost_Maintance tot_cost_Maintance + 1                                                                                   ;;add to the total cost
+                set infra_F_age infra_F_age - 0.4 * infra_F_age
+              ]
+              [
+                set tot_cost_Maintance tot_cost_Maintance + 1                                                                                   ;;add to the total cost
+                set infra_S_age infra_S_age - 0.4 * infra_S_age
+              ]
+
+              if [infra_supply] of ? = 1 and [infra_flood] of ? = 0[
+                set tot_cost_Maintance tot_cost_Maintance + 1                                                                                   ;;add to the total cost
+                set infra_F_age infra_F_age - 0.4 * infra_F_age
+              ]
+              if [infra_supply] of ? = 0 and [infra_flood] of ? = 1[
+              set tot_cost_Maintance tot_cost_Maintance + 1                                                                                      ;;add to the total cost
+              set infra_S_age infra_S_age - 0.4 * infra_S_age
+              ]
+            ]
+          ]
+        ]
+      ]
+
+      if ticks mod 10 = 0[
+        let tot_cost_New 0
+        let bud_new 2 * (count patches with [district_here? = true]) * New_infra_investment / 1350
+        let rank_A24 sort-on [(1 - distance_metric_New_A2) + (1 - distance_metric_New_A4)] patches                                                      ;;;sort neighborhoods based on distance metric Action 3 new infra F.
+        foreach  rank_A24[
+          ask ? [
+            if distance_metric_New_A2 > distance_metric_New_A4 and tot_cost_New < bud_new[
+              set tot_cost_New tot_cost_New + 1                                                              ;;add new cost to total cost
+              set infra_F_age 1                                                                                            ;;update the state (age) of infrastructure
+              set Infra_flood 1
+            ]
+            if distance_metric_New_A2 < distance_metric_New_A4 and tot_cost_New < bud_new[
+              set tot_cost_New tot_cost_New + 1                                                              ;;add new cost to total cost
+              set infra_S_age 1                                                                                            ;;update the state (age) of infrastructure
+              set Infra_supply 1
+            ]
+            if distance_metric_New_A2 = distance_metric_New_A4 and tot_cost_New < bud_new[
+              ifelse(random-float 1 > 0.5)[
+                set tot_cost_New tot_cost_New + 1                                                                                   ;;add to the total cost
+                set infra_F_age 1
+              ]
+              [
+                set tot_cost_New tot_cost_New + 1                                                                                   ;;add to the total cost
+                set infra_S_age 1
+              ]
+
+            ]
+          ]
+        ]
+      ]
+    ]
 end
 
 
@@ -606,7 +661,7 @@ to update-lorenz-and-gini ;;;obtained from the netlogo library model "Wealth dis
 end
 
 
-to update_globals_and_reporters
+to Update-Globals-Reporters
   set max_v max [V] of patches with [district_here? = TRUE] ;max vulnerability of neighborhoods
   set max_protest_F max [protestas_here_F] of patches with [district_here? = TRUE]
   if max_v = 0 [set max_v 1]
@@ -632,7 +687,7 @@ to update_globals_and_reporters
     set InequalityExposureIndex InequalityExposureIndex + 0.01 * gini_V
   ]
 
-  set C11max ifelse-value (max [C11-Efficiencia] of patches > C11max)[max [C11-Efficiencia] of patches][C11max]                                               ;#update ideal points by setting the maximum of the natural (physical) scale
+  set C11max ifelse-value (max [C11-Demanda] of patches > C11max)[max [C11-Demanda] of patches][C11max]                                               ;#update ideal points by setting the maximum of the natural (physical) scale
   set C12max ifelse-value (max [C12-Social_pressure] of patches > C12max)[max [C12-Social_pressure] of patches][C12max]
   set C13max 100
 
@@ -640,7 +695,7 @@ to update_globals_and_reporters
   set C22max ifelse-value (max [C22-Social_pressure] of patches > C22max)[max [C22-Social_pressure] of patches][C22max]
   set C23max 100
 
-  set C31max ifelse-value (max [C31-Efficiencia] of patches  > C31max) [max [C31-Efficiencia] of patches][C31max]
+  set C31max ifelse-value (max [C31-Demanda] of patches  > C31max) [max [C31-Demanda] of patches][C31max]
   set C32max ifelse-value (max [C32-Social_pressure] of patches > C32max)[max [C32-Social_pressure] of patches][C32max]
   set C33max 100
 
@@ -649,7 +704,7 @@ to update_globals_and_reporters
   set C43max 100
 end
 
-to update_state_infrastructure
+to Update-Infrastructure
   ask patches [
     if Infra_flood = 1[                                      ;;for patches with infrastructure, its age increases in one unit every tick
       set infra_F_age infra_F_age + 1
@@ -681,7 +736,7 @@ end
 
 ;###############################################################
 to clear-2Dview
-  ask patches[Landscape_visualization]
+  ask patches[Landscape-Visualization]
 end
 
 ;###############################################################
@@ -1014,14 +1069,14 @@ NIL
 1
 
 CHOOSER
-24
-478
-279
-523
+26
+636
+241
+681
 Visualization
 Visualization
 "Elevation" "Infrastructure_F" "Infrastructure_S" "Spatial priorities maintanance F" "Spatial priorities new F" "Spatial priorities maintanance S" "Spatial priorities new S" "Vulnerability" "Social Pressure_F" "Social Pressure_S" "Districts" "Harmful Events"
-1
+5
 
 PLOT
 840
@@ -1091,10 +1146,10 @@ PENS
 "pen-1" 1.0 0 -8431303 true "" "plot mean [protestas_here_S] of patches with [district_here? = TRUE]"
 
 SLIDER
-31
-377
-216
-410
+43
+451
+228
+484
 New_infra_investment
 New_infra_investment
 0
@@ -1106,10 +1161,10 @@ NIL
 HORIZONTAL
 
 CHOOSER
-34
-594
-228
-639
+22
+319
+258
+364
 Initial-Condition-Infrastructure
 Initial-Condition-Infrastructure
 "Perfect" "Worse" "intermedia"
@@ -1153,10 +1208,10 @@ PENS
 "pen-1" 100.0 0 -16777216 true "plot 0\nplot 100" ""
 
 SLIDER
-31
-410
-217
-443
+43
+484
+229
+517
 p_rain
 p_rain
 0.25
@@ -1212,20 +1267,20 @@ Define Scenarios
 1
 
 TEXTBOX
-41
-295
-262
-322
+46
+390
+267
+417
 Define Parameter Values
 18
 0.0
 1
 
 SLIDER
-31
-345
-216
-378
+43
+419
+228
+452
 maintenance
 maintenance
 0
@@ -1247,10 +1302,10 @@ landscape-type
 2
 
 TEXTBOX
-72
-447
-260
-471
+76
+603
+264
+627
 Visualization
 16
 0.0
@@ -1287,10 +1342,10 @@ semilla-aleatoria
 Number
 
 SLIDER
-486
-674
-658
-707
+424
+623
+596
+656
 w11_ex
 w11_ex
 0.1
@@ -1302,10 +1357,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-486
-707
-658
-740
+424
+656
+596
+689
 w12_ex
 w12_ex
 0.1
@@ -1317,10 +1372,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-666
-672
-838
-705
+604
+621
+776
+654
 w21_ex
 w21_ex
 0.1
@@ -1332,10 +1387,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-667
-706
-839
-739
+605
+655
+777
+688
 w22_ex
 w22_ex
 0.1
@@ -1347,10 +1402,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-487
-748
-659
-781
+425
+697
+597
+730
 w31_ex
 w31_ex
 0.1
@@ -1362,10 +1417,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-487
-786
-659
-819
+425
+735
+597
+768
 w32_ex
 w32_ex
 0.1
@@ -1377,10 +1432,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-665
-750
-837
-783
+603
+699
+775
+732
 w41_ex
 w41_ex
 0.1
@@ -1392,43 +1447,43 @@ NIL
 HORIZONTAL
 
 SLIDER
-666
-786
-838
-819
-w42_ex
-w42_ex
-0.1
-0.9
-0.1
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-104
-743
-276
+604
+735
 776
+768
+w42_ex
+w42_ex
+0.1
+0.9
+0.1
+0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+42
+523
+232
+556
 simulation_number
 simulation_number
 0
 22
-21
+2
 1
 1
 NIL
 HORIZONTAL
 
 CHOOSER
-55
-688
-261
-733
+21
+272
+254
+317
 budget-distribution
 budget-distribution
-"competition in space" "competition between actions"
+"competition within actions" "competition between actions"
 1
 
 @#$#@#$#@
