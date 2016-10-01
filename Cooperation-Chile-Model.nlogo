@@ -1,65 +1,71 @@
+extensions [profiler nw]
 globals [
-  Rain
-  N-links
-  Ave-links
-  Ave-Reputation
-  R_initial
-  E_coor
-  E_rain
-  L
-  N_Contracts
-  p_rain
+  Rain               ;can only take values r_bad and r_good
+  Ave-links          ;
+  Ave-Reputation      ;
+  R_initial           ;rain time step before to define auto correlation
+  L                   ;total proportion of labor =1
+  N_Contracts        ;number of contracts per year
+  p_rain             ;information farmers have about the probability of next rainfall (good or bad year)
 ]
 
-breed[familias family]
+breed[Comunidad family]
 undirected-link-breed [contracts contract]
-directed-link-breed [imagenes image]
-familias-own[
-  Wealth
-  Reputation
-  Agreement
-  Final_action
-  productivity
-  current-partner-contract
-  score
+directed-link-breed [friends friend]
+Comunidad-own[
+
+  Wealth                      ;Accumulated gain from interacting with other familis and the enviroment
+  Reputation                  ;Mean trust families that consider me a friend
+  Agreement                   ;decition made by family before rainfall with a friend
+  Final_action                ;final decision made individually and after rainfall event
+  productivity                ;yield per unit of labor
+  current-partner-contract    ;Family with currently in contract setting
+  score                       ;Score the partner after the rainfall Score = 3 for [CA CF]; score= 2 [DA, CF]; score= 1 [DA DF]; score = 0 [CA DF]  follow by
 ]
 
-imagenes-own[
-  p
-  trust
+friends-own[
+  p                           ;;probablity of maitaining a friend
+  trust                       ;how much I trust my friend
 ]
+
 contracts-own[
   trust_partner
 ]
 to setup
   clear-all
   clear-links
+
+;random-seed 20000
   set R_initial 1
   ifelse enviromental-information = "yes"[set p_rain p_good][set p_rain 0.5]
   set N_Contracts 0
   set L 1
-  create-network-images
+  create-community
+  repeat 10[layout]
+  nw:set-context Comunidad friends
   reset-ticks
 end
 
-to create-network-images
-  create-familias 60 [                                                       ;create families
+to create-community
+  create-Comunidad 60 [                                                       ;create families
     setxy random-ycor random-xcor                                            ;located them any place in the landscape
     set productivity (1 + random-normal 1 variability-Land-productivity)           ;set productivity of the land
     ifelse (productivity < 1)[set productivity 1][set productivity productivity]
-    set current-partner-contract 0                                           ;family with which they hace an agreement
-    set agreement "D"                                                        ;decition before rainfall
+    set current-partner-contract "N"                                           ;family with which they hace an agreement
+    set agreement "N"                                                        ;decition before rainfall
     set reputation 3
+    set shape "wheel"
+    set size 1
+    set color magenta
   ]
-  ask familias [
-    create-imagenes-to other familias with [xcor != [xcor] of myself or ycor != [ycor] of myself ]
-    set current-partner-contract "N"
-  ]
-  ask imagenes [                                            ;the link helps to represent the contacg families that are trsutworth for labor sharing
-    set trust 3
-    set p 1
-    set color blue
-    set hidden? true
+  ask Comunidad [
+    create-friends-to other Comunidad                                          ; initial condition all families are friend to each other (fully connected)
+    [
+      set trust 3
+      set p 1
+      set color blue
+      set hidden? true
+    ]
   ]
 end
 
@@ -73,48 +79,42 @@ to make-rain
   set R_initial Rain
 end
 
+
 to make-agreements
-
-  ask familias with [current-partner-contract = "N"][
-    let cc one-of my-out-imagenes                                            ;pick one of the families using the link
-
-    if cc != nobody[
-          ask cc[
-            ask end2 [set current-partner-contract [end1] of myself]
-            ask end1 [set current-partner-contract [end2] of myself]
-            ask both-ends[set agreement "C"]
-
-          ]
-          create-contract-with current-partner-contract[
-            set trust_partner [p] of cc
+  ask Comunidad [
+      let cc one-of out-link-neighbors
+      if cc != nobody [
+        if  current-partner-contract = "N"  and [current-partner-contract] of cc = "N"[
+          create-contract-with cc[
+            set trust_partner 1;[p] of myself
             set hidden? true
+            ask both-ends[set agreement "C"]
           ]
-
-    ]
-
-    if cc = nobody [set current-partner-contract "N"]
-
-
+          set current-partner-contract cc
+          ask cc [
+            set current-partner-contract myself
+          ]
+        ]
+      ]
   ]
 
   ask contracts[
-
     let U_CC_GY 2 * factor-of-cooperation *  ([productivity] of end1 * L + [productivity] of end2 * L)
     let U_CC_BY 1 * factor-of-cooperation *  ([productivity] of end1 * L + [productivity] of end2 * L)
 
     let U_DD_GY 2 *  ([productivity] of end1 * (L - Lw) + [productivity] of end2 * (L - Lw)) + Lw * wages
     let U_DD_BY 1 *  ([productivity] of end1 * (L - Lw) + [productivity] of end2 * (L - Lw)) + Lw * wages
 
-
     let E_U_CC p_rain * U_CC_GY +   (1 - p_rain) * U_CC_BY
     let E_U_DD p_rain * U_DD_GY +   (1 - p_rain) * U_DD_BY
+
     ifelse E_U_CC >= E_U_DD[
       ask both-ends [set agreement "C"]
-      set color red
-      set hidden? false
     ]
     [
-      ask both-ends [set agreement "D"]
+      ask both-ends [set agreement "D"
+        set current-partner-contract "N"
+      ]
       die
     ]
   ]
@@ -133,7 +133,6 @@ to final-decisions
       let p_C  [trust_partner] of myself * U-Cc + (1 - [trust_partner] of myself) * U-Cd
       let p_D  [trust_partner] of myself * U-Dc + (1 - [trust_partner] of myself) * U-Dd
 
-
       if-else p_C >= p_D [set Final_action "C"][set Final_action "D"]
 
     ]
@@ -144,17 +143,16 @@ to update-payoff
   ask contracts [
     ask both-ends[
       if [Final_action] of other-end = "D" and Final_action = "D"[
-      set Wealth Wealth + rain * productivity * (L - Lw) + wages * Lw
-
+        set Wealth Wealth + rain * productivity * (L - Lw) + wages * Lw
       ]
       if [Final_action] of other-end = "D" and Final_action = "C"[
-      set Wealth Wealth + rain * productivity * (L - Lc)
+        set Wealth Wealth + rain * productivity * (L - Lc)
       ]
       if [Final_action] of other-end = "C" and Final_action = "D"[
-      set Wealth Wealth + rain * productivity * (L + Lc - Lw) + wages * Lw
+        set Wealth Wealth + rain * productivity * (L + Lc - Lw) + wages * Lw
       ]
       if [Final_action] of other-end = "C" and Final_action = "C"[
-      set Wealth Wealth + factor-of-cooperation * (productivity / (productivity + [productivity] of other-end)) * rain * (productivity * L + [productivity] of other-end * L)
+        set Wealth Wealth + factor-of-cooperation * (productivity / (productivity + [productivity] of other-end)) * rain * (productivity * L + [productivity] of other-end * L)
       ]
     ]
   ]
@@ -179,15 +177,14 @@ to update-trust-reputation
 
     ]
   ]
-  if (any? imagenes)[
-  ask imagenes [
+  if (any? friends)[
+  ask friends [
     set trust (1 - trust-decay) * trust + trust-decay * [score] of end1
-    set color blue
   ]
 
   ]
-  ask familias with [any? my-in-imagenes][
-    set reputation ifelse-value (any? my-out-imagenes) [mean [trust] of my-out-imagenes][0]
+  ask Comunidad with [any? my-in-friends][
+    set reputation ifelse-value (any? my-in-friends) [mean [trust] of my-in-friends][0]
   ]
 end
 
@@ -195,24 +192,29 @@ end
 to update-globals-reporters
   set N_Contracts count contracts
    ask contracts [die]
-   ask familias [set current-partner-contract "N"]
-end
-
+   ask Comunidad [set current-partner-contract "N"]
+   end
 
 to update-network
-  let rr max [reputation] of familias
-  print rr
-  ask imagenes [
-    let my_in [my-out-imagenes] of end1
-    let mm max [trust] of my_in
-    set p (importance_trust * (trust / mm ) + (1 - importance_trust) * ([reputation] of end2) / rr)
+  ask friends [
+    set p (importance_trust * (trust / 3 ) + (1 - importance_trust) * ([reputation] of end2) / 3)
   if p < random-float 1[die]
   ]
 end
 
 to GO
+;;profiler:start  ;;to check the computational time needed per procedude
+
   tick
-  if any? imagenes [make-agreements]
+
+if Lc + Lw > 1 [
+  print (Lc + Lw )
+   stop]
+
+  if any? friends [
+    make-agreements
+  ]
+
   make-rain
   final-decisions
   layout
@@ -220,26 +222,34 @@ to GO
   update-payoff
   update-globals-reporters
   update-network
-  if count imagenes < 1 [stop]
-
+  if count friends < 1 [stop]
+  if ticks = 10 [ask friends [set hidden? false]]
+  ;;profiler:stop          ;; stop ;;profiling
+  ;;profiler:report  ;; view the results
+  ;;;;profiler:reset         ;; clear the data
 
 
 end
 
 to layout
-   let factor ifelse-value (any? contracts)[sqrt count contracts] [1]
+   let factor ifelse-value (any? friends)[((count friends) ^ (1 / 1.7))] [1]
 
-   layout-spring familias imagenes factor / 7 factor factor / 7
+   layout-spring Comunidad friends factor / 7 factor factor / 7
+   ask Comunidad [set size (1 + 2 * reputation)]
+end
+
+to-report global-clustering-coefficient
+  report mean [nw:clustering-coefficient] of Comunidad
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
 10
-649
-470
-16
-16
-13.0
+624
+445
+50
+50
+4.0
 1
 10
 1
@@ -249,10 +259,10 @@ GRAPHICS-WINDOW
 0
 0
 1
--16
-16
--16
-16
+-50
+50
+-50
+50
 0
 0
 1
@@ -268,8 +278,8 @@ factor-of-cooperation
 factor-of-cooperation
 1
 4
-1.25
-0.25
+1.4
+0.01
 1
 NIL
 HORIZONTAL
@@ -283,7 +293,7 @@ variability-Land-productivity
 variability-Land-productivity
 0
 1
-0
+1
 0.1
 1
 NIL
@@ -298,7 +308,7 @@ trust-decay
 trust-decay
 0
 1
-0.58
+0.503
 0.001
 1
 NIL
@@ -362,8 +372,8 @@ temp_corr
 temp_corr
 0
 0.8
-0
-0.4
+0.1
+0.1
 1
 NIL
 HORIZONTAL
@@ -395,7 +405,7 @@ p_good
 p_good
 0
 1
-0.1
+0.9
 0.1
 1
 NIL
@@ -410,7 +420,7 @@ Lc
 Lc
 0
 1
-0.1
+0.2
 0.1
 1
 NIL
@@ -442,7 +452,7 @@ Lw
 Lw
 0
 1
-0.1
+0.3
 0.1
 1
 NIL
@@ -457,8 +467,8 @@ wages
 wages
 0
 4
-0
-1
+2.3
+0.1
 1
 NIL
 HORIZONTAL
@@ -479,7 +489,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" "plot mean [p] of imagenes"
+"default" 1.0 0 -16777216 true "" "plot mean [p] of friends"
 
 PLOT
 781
@@ -507,7 +517,43 @@ CHOOSER
 enviromental-information
 enviromental-information
 "yes" "no "
-0
+1
+
+PLOT
+1043
+234
+1243
+384
+Friends links
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot count friends"
+
+PLOT
+1071
+120
+1271
+270
+plot 2
+NIL
+NIL
+0.0
+10.0
+0.0
+1.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot global-clustering-coefficient"
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -856,6 +902,43 @@ NetLogo 5.2.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
+<experiments>
+  <experiment name="experiment" repetitions="1" runMetricsEveryStep="true">
+    <setup>setup</setup>
+    <go>go</go>
+    <metric>count turtles</metric>
+    <enumeratedValueSet variable="factor-of-cooperation">
+      <value value="1.5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Lw">
+      <value value="0.3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="temp_corr">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="enviromental-information">
+      <value value="&quot;no &quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="trust-decay">
+      <value value="0.605"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="p_good">
+      <value value="0.7"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="importance_trust">
+      <value value="0.25"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="wages">
+      <value value="3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Lc">
+      <value value="0.2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="variability-Land-productivity">
+      <value value="0.3"/>
+    </enumeratedValueSet>
+  </experiment>
+</experiments>
 @#$#@#$#@
 @#$#@#$#@
 default
