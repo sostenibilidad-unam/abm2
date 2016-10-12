@@ -1,5 +1,5 @@
 
-extensions [stats profiler matrix csv]
+extensions [matrix csv]
 globals [              ;;DEFINE GLOBAL VARIABLES
   real_rain            ;; real annual rainfall
   R                    ;; climatic risk (rainfall transformed into a normalized [0-1] scale)
@@ -945,7 +945,8 @@ end
 
 
  to read_weights_from_csv
-  let tot_S csv:from-file "c:/Users/abaezaca/Documents/MEGADAPT/ABM_V2/sampling_scenarios_Weights.csv"
+;  let tot_S csv:from-file "c:/Users/abaezaca/Documents/MEGADAPT/ABM_V2/sampling_scenarios_Weights.csv"
+  let tot_S csv:from-file "sampling_scenarios_Weights.csv"
   let weigh_list but-first (item simulation_number (but-first tot_S))
   print weigh_list
 
@@ -1076,7 +1077,7 @@ CHOOSER
 Visualization
 Visualization
 "Elevation" "Infrastructure_F" "Infrastructure_S" "Spatial priorities maintanance F" "Spatial priorities new F" "Spatial priorities maintanance S" "Spatial priorities new S" "Vulnerability" "Social Pressure_F" "Social Pressure_S" "Districts" "Harmful Events"
-5
+2
 
 PLOT
 840
@@ -1127,10 +1128,10 @@ PENS
 "pen-2" 1.0 0 -6459832 true "" "if ticks > 10 [plot mean [exposure_S] of patches with [district_here? = TRUE]]"
 
 PLOT
-836
-576
-1171
-823
+860
+563
+1238
+811
 Protests
 NIL
 NIL
@@ -1208,10 +1209,10 @@ PENS
 "pen-1" 100.0 0 -16777216 true "plot 0\nplot 100" ""
 
 SLIDER
-43
-484
-229
-517
+42
+520
+228
+553
 p_rain
 p_rain
 0.25
@@ -1285,7 +1286,7 @@ maintenance
 maintenance
 0
 500
-130
+126
 1
 1
 NIL
@@ -1312,11 +1313,11 @@ Visualization
 1
 
 PLOT
-1180
-584
-1380
-734
-plot 1
+1453
+363
+1653
+513
+Infrastructura
 NIL
 NIL
 0.0
@@ -1462,15 +1463,15 @@ NIL
 HORIZONTAL
 
 SLIDER
-42
-523
-232
-556
+43
+552
+233
+585
 simulation_number
 simulation_number
 0
-22
-2
+21
+12
 1
 1
 NIL
