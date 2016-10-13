@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE experiments SYSTEM "behaviorspace.dtd">
 <experiments>
-  <experiment name="prueba" repetitions="1" runMetricsEveryStep="false">
+  <experiment name="experiment" repetitions="20" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="10"/>
+    <timeLimit steps="300"/>
     <metric>InequalityExposureIndex</metric>
     <metric>ExposureIndex</metric>
     <metric>ExposureIndex_S</metric>
@@ -45,6 +45,8 @@
     <enumeratedValueSet variable="p_rain">
       <value value="0.5"/>
     </enumeratedValueSet>
-    <steppedValueSet variable="simulation_number" first="0" step="1" last="21"/>
+    <enumeratedValueSet variable="simulation_number">
+      <value value="0"/>
+    </enumeratedValueSet>
   </experiment>
 </experiments>
