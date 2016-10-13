@@ -1,4 +1,9 @@
 # abm2
+
 Agent Based Modeling v2
 
-https://github.com/NetLogo/NetLogo/wiki/Controlling-API
+To run from the command line interface try:
+
+    $ ./run.sh setup.xml output.csv
+
+
