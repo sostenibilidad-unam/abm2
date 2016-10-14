@@ -1,3 +1,5 @@
+#!/bin/bash
+
 java -Xmx8024m -cp NetLogo.jar org.nlogo.headless.Main \
      --model ABM_V2.0.nlogo \
      --experiment experiment \
