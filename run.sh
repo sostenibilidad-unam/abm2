@@ -3,4 +3,4 @@ java -Xmx8024m -cp ~/bin/netlogo/app/NetLogo.jar org.nlogo.headless.Main \
      --experiment prueba \
      --setup-file $1 \
      --table $2 \
-
+     --threads $3
