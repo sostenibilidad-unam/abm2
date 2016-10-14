@@ -26,7 +26,7 @@ condor_template= open('../submit_template.condor').read()
 for simulation_number in range(len(lines)-1):
     for new_infra_investment in args.new_infra_investment:
         for maintenance in args.maintenance:
-            random_seed = random.randint(100000)
+            random_seed = random.randint(0, 100000)
             run_id = "nii%s_mii%s_%s_%s" % (new_infra_investment,
                                             maintenance,
                                             args.landscape,
@@ -37,7 +37,7 @@ for simulation_number in range(len(lines)-1):
                                                       new_infra_investment=new_infra_investment,
                                                       maintenance=maintenance,
                                                       landscape=args.landscape,
-                                                      budget_distribution=budget_distribution,
+                                                      budget_distribution=args.budget_distribution,
                                                       random_seed=random_seed,
                                                       threads=args.threads))
                 condorfile.write(condor_template.format(run_id=run_id,
