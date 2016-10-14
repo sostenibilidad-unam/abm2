@@ -43,7 +43,7 @@
       <value value="{random_seed}"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="budget-distribution">
-      <value value="{budget_distribution}"/>
+      <value value="&quot;{budget_distribution}&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="p_rain">
       <value value="0.5"/>
