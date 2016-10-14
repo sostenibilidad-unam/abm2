@@ -212,7 +212,6 @@ to create-Landscape
   ]
 
 ;random-seed (1 + random 100000)
-print random-float 1
 end
 
 ;#############################################################################################
@@ -297,7 +296,6 @@ if ticks = 499 [export_view]
 
 if ticks = 500 [stop]
  ; profiler:stop          ;; stop profiling
- ; print profiler:report  ;; view the results
  ; profiler:reset         ;; clear the data
 end
 
@@ -777,8 +775,6 @@ to read_weightsfrom_matrix
 
 
   set matrix_B (matrix:times matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A)    ;calculate limit matrix
-  print matrix:pretty-print-text matrix_A
-  print matrix:pretty-print-text matrix_B
   let w_11_demanda_F_NW item 10 sort (matrix:get-row matrix_B 8)                                                                    ;assige weights from the rows of the limit matrix
   let w_12_presion_F_NW item 10 sort (matrix:get-row matrix_B 11)
   let w_13_estado_F_NW item 10 sort (matrix:get-row matrix_B 9)
@@ -821,18 +817,6 @@ to read_weightsfrom_matrix
 
 
 
-  print word "w_11_demanda_F=" w_11_demanda_F
-  print word "w_12_presion_F= " w_12_presion_F
-  print word "w_13_estado_F= " w_13_estado_F
-  print word "w_21_necesidad_F= " w_21_necesidad_F
-  print word "w_22_presion_F= " w_22_presion_F
-  print word "w_23_estado_F= " w_23_estado_F
-  print word "w_31_demanda_S= " w_31_demanda_S
-  print word "w_32_presion_S= " w_32_presion_S
-  print word "w_33_estado_S= " w_33_estado_S
-  print word "w_41_necesidad_S=" w_41_necesidad_S
-  print word "w_42_presion_S=" w_42_presion_S
-  print word "w_43_estado_S=" w_43_estado_S
 
 
 end
@@ -886,18 +870,6 @@ to update_weights                                   ;generate a change in the su
 
 
 
- print word "w_11_demanda_F=" w_11_demanda_F
- print word "w_12_presion_F= " w_12_presion_F
- print word "w_13_estado_F= " w_13_estado_F
- print word "w_21_necesidad_F= " w_21_necesidad_F
- print word "w_22_presion_F= " w_22_presion_F
- print word "w_23_estado_F= " w_23_estado_F
- print word "w_31_demanda_S= " w_31_demanda_S
- print word "w_32_presion_S= " w_32_presion_S
- print word "w_33_estado_S= " w_33_estado_S
- print word "w_41_necesidad_S=" w_41_necesidad_S
- print word "w_42_presion_S=" w_42_presion_S
- print word "w_43_estado_S=" w_43_estado_S
 
 end
 
@@ -928,18 +900,6 @@ to sweep_weights
 
 
 
-  print word "w_11_demanda_F=" w_11_demanda_F
-  print word "w_12_presion_F= " w_12_presion_F
-  print word "w_13_estado_F= " w_13_estado_F
-  print word "w_21_necesidad_F= " w_21_necesidad_F
-  print word "w_22_presion_F= " w_22_presion_F
-  print word "w_23_estado_F= " w_23_estado_F
-  print word "w_31_demanda_S= " w_31_demanda_S
-  print word "w_32_presion_S= " w_32_presion_S
-  print word "w_33_estado_S= " w_33_estado_S
-  print word "w_41_necesidad_S=" w_41_necesidad_S
-  print word "w_42_presion_S=" w_42_presion_S
-  print word "w_43_estado_S=" w_43_estado_S
 
 end
 
@@ -948,7 +908,6 @@ end
 ;  let tot_S csv:from-file "c:/Users/abaezaca/Documents/MEGADAPT/ABM_V2/sampling_scenarios_Weights.csv"
   let tot_S csv:from-file "sampling_scenarios_Weights.csv"
   let weigh_list but-first (item simulation_number (but-first tot_S))
-  print weigh_list
 
   set w_11_demanda_F item 0 weigh_list
   set w_12_presion_F item 1 weigh_list
@@ -967,18 +926,6 @@ end
   set w_42_presion_S item 7 weigh_list
   set w_43_estado_S precision (1 - w_41_necesidad_S - w_42_presion_S) 1
 
-  print w_11_demanda_F
-  print w_12_presion_F
-  print w_13_estado_F
-  print w_21_necesidad_F
-  print w_22_presion_F
-  print w_23_estado_F
-  print w_31_demanda_S
-  print w_32_presion_S
-  print w_33_estado_S
-  print w_41_necesidad_S
-  print w_42_presion_S
-  print w_43_estado_S
 
 file-close
   end
