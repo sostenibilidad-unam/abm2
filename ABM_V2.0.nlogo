@@ -144,15 +144,15 @@ patches-own[
 ;######################################################################
 ;######################################################################
 to create-Landscape
- ; random-seed semilla-aleatoria
-  print random-float 1
-  if landscape-type = "closed watershed"[
+  random-seed semilla-aleatoria
+
+  if landscape-type = "closed-watershed"[
   ask patches with [(pxcor =  50 and pycor = 50)][set A 5000] ;;define central point with max value.
 
   repeat 400 [diffuse A  1]   ;; slightly smooth out the landscape by difusing variables A (this can be modified to include other topography with other method or using real data.
   ]
 
-  if landscape-type = "many hills"[
+  if landscape-type = "many-hills"[
     ask n-of 10 patches [set A (4500 + random 500)] ;;define central point with max value.
   repeat 200 [diffuse A  1]
   ]
@@ -161,11 +161,11 @@ to create-Landscape
   let max_alt max [A] of patches   ;;define maximum altitute
   let min_alt min [A] of patches   ;;define minimum altitute
   ask patches [
-    if landscape-type = "closed watershed" [
+    if landscape-type = "closed-watershed" [
       set A (max_alt - A) / max_alt
     ]
 
-    if landscape-type = "many hills" [
+    if landscape-type = "many-hills" [
       set A A / max_alt
     ]
 
@@ -507,7 +507,7 @@ to WA-Decisions
     ]
 
 
-    if budget-distribution = "competition within actions"[                                            ;patches are compared based on decition for each action
+    if budget-distribution = "competitionwithinactions"[                                            ;patches are compared based on decition for each action
       let tot_cost_Maintance 0
       let bud_mant (count patches with [district_here? = true]) * maintenance / 1350                                ;;; scale budget proportional to the number of neighborhoods
       let rank_A1 sort-on [1 - distance_metric_maintenance_A1] patches                                             ;;;sort neighborhoods based on distance metric Action 1 mantanance F.
@@ -558,7 +558,7 @@ to WA-Decisions
     ]
 
 
-    if budget-distribution = "competition between actions"[                ;In this setting only the action with the higher distance is taken
+    if budget-distribution = "competitionbetweenactions"[                ;In this setting only the action with the higher distance is taken
       let tot_cost_Maintance 0
       let bud_mant 2 * (count patches with [district_here? = true]) * maintenance / 1350                                                      ;Scale budget proportionally to the number of neighborhoods
       let rank_A13 sort-on [(1 - distance_metric_maintenance_A3) + (1 - distance_metric_maintenance_A1)] patches                                      ;Sort neighborhoods based on distance metric Action 1 mantanance F.
@@ -1299,8 +1299,8 @@ CHOOSER
 228
 landscape-type
 landscape-type
-"closed watershed" "gradient" "many hills"
-2
+"closed-watershed" "gradient" "many-hills"
+1
 
 TEXTBOX
 76
@@ -1484,8 +1484,8 @@ CHOOSER
 317
 budget-distribution
 budget-distribution
-"competition within actions" "competition between actions"
-1
+"competitionwithinactions" "competitionbetweenactions"
+0
 
 @#$#@#$#@
 # MEGADAPT PROTOTYPE ABM
