@@ -590,7 +590,7 @@ to WA-Decisions
               ]
               if [infra_supply] of ? = 0 and [infra_flood] of ? = 1[
               set tot_cost_Maintance tot_cost_Maintance + 1                                                                                      ;;add to the total cost
-              set infra_S_age infra_S_age - 0.2 * infra_S_age
+              set infra_S_age infra_S_age - 0.2 * infra_S_age ;#
               ]
             ]
           ]
@@ -1005,8 +1005,8 @@ GRAPHICS-WINDOW
 1
 1
 0
-0
-0
+1
+1
 1
 0
 99
@@ -1337,7 +1337,7 @@ INPUTBOX
 188
 140
 semilla-aleatoria
-47317
+47319
 1
 0
 Number
@@ -1471,7 +1471,7 @@ simulation_number
 simulation_number
 0
 21
-0
+5
 1
 1
 NIL
@@ -1485,7 +1485,7 @@ CHOOSER
 budget-distribution
 budget-distribution
 "competitionwithinactions" "competitionbetweenactions"
-0
+1
 
 @#$#@#$#@
 # MEGADAPT PROTOTYPE ABM
