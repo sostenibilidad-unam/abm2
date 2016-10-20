@@ -518,7 +518,7 @@ to WA-Decisions
           ask ?1 [
             if distance_metric_maintenance_A1 > random-float 1 and tot_cost_Maintance < bud_mant[                 ;;if total cost until now is lower than budget then mantain the infra in this patch
               set tot_cost_Maintance tot_cost_Maintance + 1                                                          ;;add to the total cost
-              set infra_F_age infra_F_age - 0.4 * infra_F_age                                                        ;;update the state (age) of infrastructure
+              set infra_F_age infra_F_age - 0.2 * infra_F_age                                                        ;;update the state (age) of infrastructure
             ]
           ]
         ]
@@ -526,7 +526,7 @@ to WA-Decisions
           ask ?2 [
             if distance_metric_maintenance_A3 > random-float 1 and tot_cost_Maintance <  bud_mant[                  ;; Water autority would repare if the distance is alrge than a random number betwee 0 and 1 and if total cost upto this point is lower than budget
               set tot_cost_Maintance tot_cost_Maintance + 1                                                           ;;add new cost to total cost
-              set infra_S_age infra_S_age - 0.4 * infra_S_age                                                         ;;update the state (age) of infrastructure
+              set infra_S_age infra_S_age - 0.2 * infra_S_age                                                         ;;update the state (age) of infrastructure
             ]
           ]
         ]
@@ -566,31 +566,31 @@ to WA-Decisions
         ask ? [
           if distance_metric_maintenance_A1 > distance_metric_maintenance_A3 and [infra_flood] of ? = 1 and tot_cost_Maintance < bud_mant [
             set tot_cost_Maintance tot_cost_Maintance + 1                                                                                      ;;add to the total cost
-            set infra_F_age infra_F_age - 0.4 * infra_F_age
+            set infra_F_age infra_F_age - 0.2 * infra_F_age
           ]
           if distance_metric_maintenance_A1 < distance_metric_maintenance_A3 and [infra_supply] of ? = 1 and tot_cost_Maintance < bud_mant [
             set tot_cost_Maintance tot_cost_Maintance + 1                                                                                      ;;add to the total cost
-            set infra_S_age infra_S_age - 0.4 * infra_S_age
+            set infra_S_age infra_S_age - 0.2 * infra_S_age
           ]
           if distance_metric_maintenance_A1 = distance_metric_maintenance_A3 and tot_cost_Maintance < bud_mant [
 
             if [infra_supply] of ? = 1 and [infra_flood] of ? = 1[
               ifelse(random-float 1 > 0.5)[
                 set tot_cost_Maintance tot_cost_Maintance + 1                                                                                   ;;add to the total cost
-                set infra_F_age infra_F_age - 0.4 * infra_F_age
+                set infra_F_age infra_F_age - 0.2 * infra_F_age
               ]
               [
                 set tot_cost_Maintance tot_cost_Maintance + 1                                                                                   ;;add to the total cost
-                set infra_S_age infra_S_age - 0.4 * infra_S_age
+                set infra_S_age infra_S_age - 0.2 * infra_S_age
               ]
 
               if [infra_supply] of ? = 1 and [infra_flood] of ? = 0[
                 set tot_cost_Maintance tot_cost_Maintance + 1                                                                                   ;;add to the total cost
-                set infra_F_age infra_F_age - 0.4 * infra_F_age
+                set infra_F_age infra_F_age - 0.2 * infra_F_age
               ]
               if [infra_supply] of ? = 0 and [infra_flood] of ? = 1[
               set tot_cost_Maintance tot_cost_Maintance + 1                                                                                      ;;add to the total cost
-              set infra_S_age infra_S_age - 0.4 * infra_S_age
+              set infra_S_age infra_S_age - 0.2 * infra_S_age
               ]
             ]
           ]
@@ -1005,8 +1005,8 @@ GRAPHICS-WINDOW
 1
 1
 0
-1
-1
+0
+0
 1
 0
 99
@@ -1155,7 +1155,7 @@ New_infra_investment
 New_infra_investment
 0
 500
-94
+18
 1
 1
 NIL
@@ -1286,7 +1286,7 @@ maintenance
 maintenance
 0
 500
-106
+24
 1
 1
 NIL
@@ -1300,7 +1300,7 @@ CHOOSER
 landscape-type
 landscape-type
 "closed-watershed" "gradient" "many-hills"
-1
+2
 
 TEXTBOX
 76
@@ -1337,7 +1337,7 @@ INPUTBOX
 188
 140
 semilla-aleatoria
-48569
+47317
 1
 0
 Number
@@ -1471,7 +1471,7 @@ simulation_number
 simulation_number
 0
 21
-21
+0
 1
 1
 NIL
