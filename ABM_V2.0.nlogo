@@ -70,16 +70,14 @@ globals [              ;;DEFINE GLOBAL VARIABLES
 
   InequalityExposureIndex ;distribution of exposure to both events
 
-  StateinfraIndex_S       ;report the number of patches with functioning infrastructure
-  StateinfraIndex_F       ;report the number of patches with functioning infrastructure
+  StateinfraQuantityIndex_S       ;report the number of patches with functioning infrastructure
+  StateinfraQuantityIndex_F       ;report the number of patches with functioning infrastructure
   StateinfraAgeIndex_S    ;report the mean age of infrastructure S
   StateinfraAgeIndex_F    ;report the mean age of infrastructure F
 
   socialpressureIndex_S   ;report the sum of protest in the city
   socialpressureIndex_F   ;report the sum of protest in the city
 
-  socialpressureTOTALIndex_S ;report the sum of protest in the city
-  socialpressureTOTALIndex_F ;report the sum of protest in the city
 ]
 
 
@@ -138,6 +136,9 @@ patches-own[
   exposure_S
   total_exposure_F
   total_exposure_S
+  socialpressureTOTAL_S ;report the sum of protest in the city
+  socialpressureTOTAL_F ;report the sum of protest in the city
+
 ]
 
 ;#############################################################################################
@@ -211,8 +212,6 @@ to create-Landscape
     set pcolor 65
   ]
 
-;random-seed (1 + random 100000)
-print random-float 1
 end
 
 ;#############################################################################################
@@ -258,8 +257,8 @@ to setup
   set ExposureIndex 0
   set ExposureIndex_S 0
   set ExposureIndex_F 0
-  set StateinfraIndex_S 0
-  set StateinfraIndex_F 0
+  set StateinfraQuantityIndex_S 0
+  set StateinfraQuantityIndex_F 0
   set InequalityExposureIndex 0
   set socialpressureIndex_S 0
   set socialpressureIndex_F 0
@@ -319,7 +318,7 @@ to Hazard                                                                       
       set Prob_H_F IS_N  * R * (1 - A)                                                                                    ;;update probability of hazardous event
       set H_F ifelse-value (Prob_H_F >= random-float 1) [1][0]                                                      ;;update hazard counter to 1
       set exposure_F precision (0.9 * exposure_F + H_F) 3                                                           ;;update memory of past events
-      if ticks > 200[
+      if ticks > 400[
         set total_exposure_F total_exposure_F + H_F
       ]
       set Prob_H_S IS_S * A
@@ -370,9 +369,9 @@ to To-Protest ;;AN STOCHASTIC PROCESS THAT SIMUALTE A PROTEST RANDOMLY BUT PROPR
   set   protestas_here_F  0.9 * protestas_here_F + prot_F                                        ;;update patch variable to be collected by the government
   set   protestas_here_S  0.9 * protestas_here_S + prot_S                                       ;;update patch variable to be collected by the government
 
-if ticks > 200 [
-  set   socialpressureTOTALIndex_S socialpressureTOTALIndex_S + prot_F
-  set   socialpressureTOTALIndex_F socialpressureTOTALIndex_F + prot_S
+if ticks > 400 [
+  set   socialpressureTOTAL_S socialpressureTOTAL_S + prot_F
+  set   socialpressureTOTAL_F socialpressureTOTAL_F + prot_S
 ]
 end
 
@@ -669,20 +668,20 @@ to Update-Globals-Reporters
   update-lorenz-and-gini ;;update innequality state
    set max_damage max [exposure_F + exposure_S] of patches with [district_here? = TRUE]              ;;Calculate mean damage of city in a time-stepy cakculating the mean damage per year.
 
-  if ticks > 200 [
-    set ExposureIndex (mean [total_exposure_S + total_exposure_F] of patches with [district_here? = TRUE]) / count patches with [district_here? = TRUE]
+  if ticks > 399 [
+    set ExposureIndex (sum [total_exposure_S + total_exposure_F] of patches with [district_here? = TRUE]) / count patches with [district_here? = TRUE]
     set ExposureIndex_S precision ((sum [total_exposure_S] of patches with [district_here? = TRUE]) / count patches with [district_here? = TRUE]) 4
     set ExposureIndex_F precision ((sum [total_exposure_F] of patches with [district_here? = TRUE]) / count patches with [district_here? = TRUE] ) 4
 
-    set StateinfraIndex_S StateinfraIndex_S + 0.01 * (count patches with [infra_supply = 1 and p_failure_S < 0.6])
-    set StateinfraIndex_F StateinfraIndex_F + 0.01 * (count patches with [infra_flood = 1 and p_failure_F < 0.6])
+    set StateinfraQuantityIndex_S StateinfraQuantityIndex_S + 0.01 * (count patches with [infra_supply = 1 and infra_S_age < 50])
+    set StateinfraQuantityIndex_F StateinfraQuantityIndex_F + 0.01 * (count patches with [infra_flood = 1 and infra_F_age < 50])
 
-    set StateinfraAgeIndex_S StateinfraIndex_S + 0.01 * (mean [infra_S_age] of patches with [infra_supply = 1 and p_failure_S < 0.6])
-    set StateinfraAgeIndex_F StateinfraIndex_F + 0.01 * (mean [infra_F_age] of patches with [infra_flood = 1 and p_failure_F < 0.6])
+    set StateinfraAgeIndex_S StateinfraAgeIndex_S + 0.01 * (mean [infra_S_age] of patches with [infra_supply = 1])
+    set StateinfraAgeIndex_F StateinfraAgeIndex_F + 0.01 * (mean [infra_F_age] of patches with [infra_flood = 1])
 
 
-    set socialpressureIndex_S precision (mean [socialpressureTOTALIndex_S] of patches with [district_here? = TRUE]) 3
-    set socialpressureIndex_F precision (mean [socialpressureTOTALIndex_F] of patches with [district_here? = TRUE]) 3
+    set socialpressureIndex_S precision (mean [socialpressureTOTAL_S] of patches with [district_here? = TRUE]) 3
+    set socialpressureIndex_F precision (mean [socialpressureTOTAL_F] of patches with [district_here? = TRUE]) 3
 
     set InequalityExposureIndex InequalityExposureIndex + 0.01 * gini_V
   ]
@@ -1155,7 +1154,7 @@ New_infra_investment
 New_infra_investment
 0
 500
-18
+100
 1
 1
 NIL
@@ -1286,7 +1285,7 @@ maintenance
 maintenance
 0
 500
-24
+100
 1
 1
 NIL
@@ -1337,7 +1336,7 @@ INPUTBOX
 188
 140
 semilla-aleatoria
-47319
+48569
 1
 0
 Number
@@ -1965,20 +1964,20 @@ NetLogo 5.2.1
       <value value="60"/>
     </enumeratedValueSet>
   </experiment>
-  <experiment name="experiment" repetitions="20" runMetricsEveryStep="false">
+  <experiment name="experiment" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="300"/>
+    <timeLimit steps="500"/>
     <metric>InequalityExposureIndex</metric>
     <metric>ExposureIndex</metric>
     <metric>ExposureIndex_S</metric>
     <metric>ExposureIndex_F</metric>
-    <metric>StateinfraIndex_S</metric>
-    <metric>StateinfraIndex_F</metric>
-    <metric>socialpressureIndex_S</metric>
-    <metric>socialpressureIndex_F</metric>
+    <metric>StateinfraQuantityIndex_S</metric>
+    <metric>StateinfraQuantityIndex_F</metric>
     <metric>StateinfraAgeIndex_S</metric>
     <metric>StateinfraAgeIndex_F</metric>
+    <metric>socialpressureIndex_S</metric>
+    <metric>socialpressureIndex_F</metric>
     <metric>w_11_demanda_F</metric>
     <metric>w_12_presion_F</metric>
     <metric>w_13_estado_F</metric>
@@ -1995,10 +1994,10 @@ NetLogo 5.2.1
       <value value="100"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="maintenance">
-      <value value="130"/>
+      <value value="100"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="landscape-type">
-      <value value="&quot;many hills&quot;"/>
+      <value value="&quot;many-hills&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Initial-Condition-Infrastructure">
       <value value="&quot;Worse&quot;"/>
@@ -2010,7 +2009,8 @@ NetLogo 5.2.1
       <value value="0.5"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="simulation_number">
-      <value value="0"/>
+      <value value="5"/>
+      <value value="10"/>
     </enumeratedValueSet>
   </experiment>
 </experiments>
