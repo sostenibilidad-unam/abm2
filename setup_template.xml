@@ -9,8 +9,8 @@
     <metric>ExposureIndex</metric>
     <metric>ExposureIndex_S</metric>
     <metric>ExposureIndex_F</metric>
-    <metric>StateinfraIndex_S</metric>
-    <metric>StateinfraIndex_F</metric>
+    <metric>StateinfraQuantityIndex_S</metric>
+    <metric>StateinfraQuantityIndex_F</metric>
     <metric>socialpressureIndex_S</metric>
     <metric>socialpressureIndex_F</metric>
     <metric>StateinfraAgeIndex_S</metric>
