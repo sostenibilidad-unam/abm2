@@ -4,7 +4,7 @@
   <experiment name="experiment" repetitions="20" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="300"/>
+    <timeLimit steps="500"/>
     <metric>InequalityExposureIndex</metric>
     <metric>ExposureIndex</metric>
     <metric>ExposureIndex_S</metric>
