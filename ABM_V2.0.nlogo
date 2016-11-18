@@ -145,8 +145,8 @@ patches-own[
 ;######################################################################
 ;######################################################################
 to create-Landscape
-  random-seed semilla-aleatoria
-;comment to failure
+;  random-seed semilla-aleatoria
+
   if landscape-type = "closed-watershed"[
   ask patches with [(pxcor =  50 and pycor = 50)][set A 5000] ;;define central point with max value.
 
@@ -251,7 +251,7 @@ to setup
   set Var_list []
   set lorenz-points_V []
   create-Landscape         ;;define landscape topography (Altitute)
-  Create-Districts-Infra       ;;define the properties of the infrastructure and the neighborhoods
+  Create-Districts-Infra      ;;define the properties of the infrastructure and the neighborhoods
   ;read_weightsfrom_matrix
   read_weights_from_csv
   set ExposureIndex 0
@@ -297,6 +297,7 @@ if ticks = 499 [export_view]
 if ticks = 500 [stop]
  ; profiler:stop          ;; stop profiling
  ; profiler:reset         ;; clear the data
+
 end
 
 
