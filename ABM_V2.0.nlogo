@@ -911,20 +911,20 @@ end
 
   set w_11_demanda_F item 0 weigh_list
   set w_12_presion_F item 1 weigh_list
-  set w_13_estado_F precision (1 - w_11_demanda_F - w_12_presion_F) 1
+  set w_13_estado_F precision (1 - w_11_demanda_F - w_12_presion_F) 2
 
   set w_21_necesidad_F item 2 weigh_list
   set w_22_presion_F item 3 weigh_list
-  set w_23_estado_F precision (1 - w_21_necesidad_F - w_22_presion_F) 1
+  set w_23_estado_F precision (1 - w_21_necesidad_F - w_22_presion_F) 2
 
 
   set w_31_demanda_S item 4 weigh_list
   set w_32_presion_S item 5 weigh_list
-  set w_33_estado_S  precision (1 - w_31_demanda_S - w_32_presion_S) 1
+  set w_33_estado_S  precision (1 - w_31_demanda_S - w_32_presion_S) 2
 
   set w_41_necesidad_S item 6 weigh_list
   set w_42_presion_S item 7 weigh_list
-  set w_43_estado_S precision (1 - w_41_necesidad_S - w_42_presion_S) 1
+  set w_43_estado_S precision (1 - w_41_necesidad_S - w_42_presion_S) 2
 
 
 file-close
