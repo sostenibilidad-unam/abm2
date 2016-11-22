@@ -145,7 +145,7 @@ patches-own[
 ;######################################################################
 ;######################################################################
 to create-Landscape
-;  random-seed semilla-aleatoria
+;;  random-seed semilla-aleatoria
 
   if landscape-type = "closed-watershed"[
   ask patches with [(pxcor =  50 and pycor = 50)][set A 5000] ;;define central point with max value.
