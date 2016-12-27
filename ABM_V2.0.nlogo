@@ -1,4 +1,3 @@
-
 extensions [matrix csv]
 globals [              ;;DEFINE GLOBAL VARIABLES
   real_rain            ;; real annual rainfall
@@ -370,8 +369,8 @@ to To-Protest ;;AN STOCHASTIC PROCESS THAT SIMUALTE A PROTEST RANDOMLY BUT PROPR
   set   protestas_here_S  0.9 * protestas_here_S + prot_S                                       ;;update patch variable to be collected by the government
 
 if ticks > 400 [
-  set   socialpressureTOTAL_S socialpressureTOTAL_S + prot_F
-  set   socialpressureTOTAL_F socialpressureTOTAL_F + prot_S
+  set   socialpressureTOTAL_S socialpressureTOTAL_S + prot_S
+  set   socialpressureTOTAL_F socialpressureTOTAL_F + prot_F
 ]
 end
 
