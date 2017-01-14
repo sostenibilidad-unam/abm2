@@ -10,8 +10,8 @@ globals [              ;;DEFINE GLOBAL VARIABLES
 ;##################################
 ;;;;;;weights of criterions for goverment decisions
 ;##################################
-  matrix_A
-  matrix_B
+  matrix_F
+  matrix_S
   w_11_demanda_F          ;;Demand criteria
   w_12_presion_F          ;;Social response criteria
   w_13_estado_F           ;;Infrastructure criteria
@@ -251,8 +251,8 @@ to setup
   set lorenz-points_V []
   create-Landscape         ;;define landscape topography (Altitute)
   Create-Districts-Infra      ;;define the properties of the infrastructure and the neighborhoods
-  ;read_weightsfrom_matrix
-  read_weights_from_csv
+  read_weightsfrom_matrix
+  ;read_weights_from_csv
   set ExposureIndex 0
   set ExposureIndex_S 0
   set ExposureIndex_F 0
@@ -290,7 +290,7 @@ to GO
   WA-Decisions ;; Water government authority decides in what (new vs. maitainance flooding vs. scarcity) and where (in what districts) to invest resources (budget)
   Update-Infrastructure ;update state of infrastructure (age, prob. of failure)
 
-;if ticks = 600 [update_weights]
+if ticks = 300 [update_weights]
 if ticks = 499 [export_view]
 
 if ticks = 500 [stop]
@@ -655,6 +655,7 @@ to update-lorenz-and-gini ;;;obtained from the netlogo library model "Wealth dis
       set index_V (index_V + 1)
       set gini_V gini_V + (index_V / num-people) - (V-sum-so-far / total-V)
     ]
+
   ]
 end
 
@@ -757,24 +758,42 @@ end
 
 
 to read_weightsfrom_matrix
-  set matrix_A matrix:from-row-list [                                                                                               ;read supermatrix
+  set matrix_F matrix:from-row-list [                                                                                               ;read supermatrix
 
-[0.00  0.00  0.00  0.00  0.00  0.00  0.00  0.00  0.45  0.06  0.45  0.38]
-[0.00  0.00  0.00  0.00  0.45  0.06  0.45  0.38  0.00  0.00  0.00  0.00]
-[0.00  0.00  0.00  0.00  0.00  0.00  0.00  0.00  0.05  0.44  0.05  0.13]
-[0.00  0.00  0.00  0.00  0.05  0.44  0.05  0.13  0.00  0.00  0.00  0.00]
-[0.00  0.00  0.00  0.26  0.00  0.26  0.00  0.22  0.00  0.00  0.00  0.00]
-[0.00  0.05  0.00  0.64  0.08  0.00  0.05  0.08  0.00  0.00  0.00  0.00]
-[0.00  0.58  0.00  0.00  0.00  0.05  0.00  0.19  0.00  0.00  0.00  0.00]
-[0.00  0.37  0.00  0.10  0.42  0.19  0.45  0.00  0.00  0.00  0.00  0.00]
-[0.00  0.00  0.14  0.00  0.00  0.00  0.00  0.00  0.00  0.26  0.00  0.32]
-[0.05  0.00  0.53  0.00  0.00  0.00  0.00  0.00  0.13  0.00  0.08  0.13]
-[0.58  0.00  0.00  0.00  0.00  0.00  0.00  0.00  0.00  0.05  0.00  0.05]
-[0.37  0.00  0.33  0.00  0.00  0.00  0.00  0.00  0.38  0.19  0.42  0.00]
+[0  0  0  0  0  0  0  0  0.09  0.0125  0.09  0.075]
+[0  0  0  0  0.81  0.1125  0.81  0.675  0  0  0  0]
+[0  0  0  0  0  0  0  0  0.01  0.0875  0.01  0.025]
+[0  0  0  0  0.09  0.7875  0.09  0.225  0  0  0  0]
+[0  0  0  0.258285  0  0.051456  0  0.044343  0  0  0  0]
+[0  0.051328  0  0.636986  0.016667  0  0.01  0.01692  0  0  0  0]
+[0  0.582022  0  0  0  0.00975  0  0.038737  0  0  0  0]
+[0  0.366651  0  0.104729  0.083333  0.038795  0.09  0  0  0  0  0]
+[0  0  0.139648  0  0  0  0  0  0  0.4631  0  0.573287]
+[0.366651  0  0.527836  0  0  0  0  0  0.225  0  0.15  0.232456]
+[0.051328  0  0  0  0  0  0  0  0  0.087748  0  0.094256]
+[0.582022  0  0.332516  0  0  0  0  0  0.675  0.349153  0.75  0]
   ]
 
 
-  set matrix_B (matrix:times matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A)    ;calculate limit matrix
+set matrix_S matrix:from-row-list [
+[  0  0  0  0  0  0  0  0  0.81  0.1125  0.81  0.675]
+[  0  0  0  0  0.09  0.0125  0.09  0.075  0  0  0  0]
+[  0  0  0  0  0  0  0  0  0.09  0.7875  0.09  0.225]
+[  0  0  0  0  0.01  0.0875  0.01  0.025  0  0  0  0]
+[  0  0  0  0.258285  0  0.4631  0  0.399086  0  0  0  0]
+[ 0  0.051328  0  0.636986  0.15  0  0.09  0.15228  0  0  0  0]
+[  0  0.582022  0  0  0  0.087748  0  0.348634  0  0  0  0]
+[  0  0.366651  0  0.104729  0.75  0.349153  0.81  0  0  0  0  0]
+[  0  0  0.139648  0  0  0  0  0  0  0.051456  0  0.063699]
+[  0.366651  0  0.527836  0  0  0  0  0  0.025  0  0.016667  0.025828]
+[  0.051328  0  0  0  0  0  0  0  0  0.00975  0  0.010473]
+[  0.582022  0  0.332516  0  0  0  0  0  0.075  0.038795  0.083333  0]
+]
+
+
+
+
+  let matrix_B (matrix:times matrix_F matrix_F matrix_F matrix_F matrix_F matrix_F matrix_F matrix_F matrix_F matrix_F matrix_F)    ;calculate limit matrix
   let w_11_demanda_F_NW item 10 sort (matrix:get-row matrix_B 8)                                                                    ;assige weights from the rows of the limit matrix
   let w_12_presion_F_NW item 10 sort (matrix:get-row matrix_B 11)
   let w_13_estado_F_NW item 10 sort (matrix:get-row matrix_B 9)
@@ -824,11 +843,11 @@ end
 to update_weights                                   ;generate a change in the supermatrix due to a change in pair comparisong of criterias with respect to action "nueva_F"
 
 
- matrix:set matrix_A 9 0 0.814212784               ;change values of weights of cluster F (inundaciones) with respect to create new_F
- matrix:set matrix_A 10 0 0.113982647
- matrix:set matrix_A 11 0 0.113982647
+ ;matrix:set matrix_F 9 0 0.814212784               ;change values of weights of cluster F (inundaciones) with respect to create new_F
+; matrix:set matrix_F 10 0 0.113982647
+ ;matrix:set matrix_F 11 0 0.113982647
 
- set matrix_B (matrix:times matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A matrix_A)  ;generate new limit matrix
+ let matrix_B (matrix:times matrix_S matrix_S matrix_S matrix_S matrix_S matrix_S matrix_S matrix_S matrix_S matrix_S matrix_S)  ;generate new limit matrix
 
  let w_11_demanda_F_NW item 10 sort (matrix:get-row matrix_B 8)                      ;set new weights
  let w_12_presion_F_NW item 10 sort (matrix:get-row matrix_B 11)
@@ -873,35 +892,6 @@ to update_weights                                   ;generate a change in the su
 
 end
 
-to sweep_weights
-
-  set w_11_demanda_F w11_ex
-  set w_12_presion_F w12_ex
-  set w_13_estado_F 1 - w_11_demanda_F - w_12_presion_F
-
-  set w_21_necesidad_F w21_ex
-  set w_22_presion_F w22_ex
-  set w_23_estado_F 1 - w_21_necesidad_F - w_22_presion_F
-
-  set w_31_demanda_S w31_ex
-  set w_32_presion_S w32_ex
-  set w_33_estado_S 1 - w_31_demanda_S - w_32_presion_S
-
-
-  set w_41_necesidad_S w41_ex
-  set w_42_presion_S w42_ex
-  set w_43_estado_S 1 - w_41_necesidad_S - w_42_presion_S
-
-
- if ( w_11_demanda_F + w_12_presion_F > 1 or w_21_necesidad_F + w_22_presion_F > 1 or  w_31_demanda_S + w_32_presion_S > 1 or  w_41_necesidad_S + w_42_presion_S > 1)[
-    stop
-    ]
-
-
-
-
-
-end
 
 
  to read_weights_from_csv
@@ -1024,7 +1014,7 @@ CHOOSER
 Visualization
 Visualization
 "Elevation" "Infrastructure_F" "Infrastructure_S" "Spatial priorities maintanance F" "Spatial priorities new F" "Spatial priorities maintanance S" "Spatial priorities new S" "Vulnerability" "Social Pressure_F" "Social Pressure_S" "Districts" "Harmful Events"
-2
+1
 
 PLOT
 840
@@ -1247,7 +1237,7 @@ CHOOSER
 landscape-type
 landscape-type
 "closed-watershed" "gradient" "many-hills"
-2
+0
 
 TEXTBOX
 76
