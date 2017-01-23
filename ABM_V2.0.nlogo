@@ -29,6 +29,18 @@ globals [              ;;DEFINE GLOBAL VARIABLES
   w_42_presion_S          ;;Social response criteria
   w_43_estado_S           ;;Infrastructure criteria
 
+w1
+w2
+w3
+w4
+w5
+w6
+w7
+w8
+alpha1
+alpha2
+alpha3
+alpha4
 
 
   C11max                  ;;max Demand for F recorded
@@ -223,12 +235,12 @@ to Create-Districts-Infra
       set   protestas_here_S  0.1
       if A < random-float 1 [
         set Infra_flood 1              ;; 1 if infra for "drainage" is here; 0 otherwise
-        set infra_F_age 1
+        set infra_F_age 20 + random 50
         set P_failure_F 1 - exp(- infra_F_age / 100)
       ]
       if A < random-float 1 [
         set Infra_supply 1
-        set infra_S_age 1             ;; 1 if infra for "water supply" is here; 0 otherwise
+        set infra_S_age 20 + random 50             ;; 1 if infra for "water supply" is here; 0 otherwise
         set P_failure_S 1 - exp(- infra_S_age / 100)
       ]
     ]
@@ -251,8 +263,9 @@ to setup
   set lorenz-points_V []
   create-Landscape         ;;define landscape topography (Altitute)
   Create-Districts-Infra      ;;define the properties of the infrastructure and the neighborhoods
-  read_weightsfrom_matrix
+  ;read_weightsfrom_matrix
   ;read_weights_from_csv
+  read_new_weights_from_csv
   set ExposureIndex 0
   set ExposureIndex_S 0
   set ExposureIndex_F 0
@@ -290,10 +303,11 @@ to GO
   WA-Decisions ;; Water government authority decides in what (new vs. maitainance flooding vs. scarcity) and where (in what districts) to invest resources (budget)
   Update-Infrastructure ;update state of infrastructure (age, prob. of failure)
 
-if ticks = 300 [update_weights]
-if ticks = 499 [export_view]
+; for experiments with different mental model
+;if ticks = 999 [update_weights]
+if ticks = 998 or ticks = 1998 [export_view]
 
-if ticks = 500 [stop]
+if ticks = 2000 [stop]
  ; profiler:stop          ;; stop profiling
  ; profiler:reset         ;; clear the data
 
@@ -493,14 +507,23 @@ to WA-Decisions
        let Vf_43 ifelse-value (C43-InfraState <= 50)[0][2 * (C43-InfraState - 50) / C43max]
        if C43-InfraState > 100 or C43-InfraState = 0 [set Vf_43 1]
 
-
-
+       let v_vec (list Vf_11 Vf_12  Vf_13 Vf_21 Vf_31 Vf_32 Vf_33 Vf_41)
+       let w_vec (list w1 w2 w3 w4 w5 w6 w7 w8)
        let h_Cp 1
-       set distance_metric_maintenance_A1 precision (((w_11_demanda_F ^ h_Cp) * (Vf_11 ^ h_Cp) + (w_12_presion_F ^ h_Cp) * (Vf_12 ^ h_Cp) + (w_13_estado_F ^ h_Cp)  * (Vf_13 ^ h_Cp)) ^ (1 / h_Cp)) 3              ;calcualte distance to ideal point
-       set distance_metric_New_A2 precision (((w_21_necesidad_F ^ h_Cp) * (Vf_21 ^ h_Cp) + (w_22_presion_F ^ h_Cp) * (Vf_22 ^ h_Cp) + (w_23_estado_F ^ h_Cp)  * (Vf_23 ^ h_Cp)) ^ (1 / h_Cp)) 3
 
-       set distance_metric_maintenance_A3 precision (((w_31_demanda_S ^ h_Cp) * (Vf_31 ^ h_Cp) + (w_32_presion_S ^ h_Cp) * (Vf_32 ^ h_Cp) + (w_33_estado_S ^ h_Cp)  * (Vf_33 ^ h_Cp)) ^ (1 / h_Cp)) 3              ;calcualte distance to ideal point
-       set distance_metric_New_A4 precision (((w_41_necesidad_S ^ h_Cp) * (Vf_41 ^ h_Cp) + (w_42_presion_S ^ h_Cp) * (Vf_42 ^ h_Cp) + (w_43_estado_S ^ h_Cp)  * (Vf_43 ^ h_Cp)) ^ (1 / h_Cp)) 3
+       set distance_metric_maintenance_A1 (alpha1 * sum (map [(?1 ^ h_Cp) * (?2 ^ h_Cp)] v_vec w_vec)) ^ (1 / h_Cp)
+
+       set distance_metric_New_A2 (alpha2 * sum (map [(?1 ^ h_Cp) * (?2 ^ h_Cp)] v_vec w_vec)) ^ (1 / h_Cp)
+       set distance_metric_maintenance_A3 (alpha3 * sum (map [(?1 ^ h_Cp) * (?2 ^ h_Cp)] v_vec w_vec)) ^ (1 / h_Cp)
+
+       set distance_metric_New_A4 (alpha4 * sum (map [(?1 ^ h_Cp) * (?2 ^ h_Cp)] v_vec w_vec)) ^ (1 / h_Cp)
+
+
+;       set distance_metric_maintenance_A1 precision (((w_11_demanda_F ^ h_Cp) * (Vf_11 ^ h_Cp) + (w_12_presion_F ^ h_Cp) * (Vf_12 ^ h_Cp) + (w_13_estado_F ^ h_Cp)  * (Vf_13 ^ h_Cp)) ^ (1 / h_Cp)) 3              ;calcualte distance to ideal point
+;       set distance_metric_New_A2 precision (((w_21_necesidad_F ^ h_Cp) * (Vf_21 ^ h_Cp) + (w_22_presion_F ^ h_Cp) * (Vf_22 ^ h_Cp) + (w_23_estado_F ^ h_Cp)  * (Vf_23 ^ h_Cp)) ^ (1 / h_Cp)) 3;
+
+;       set distance_metric_maintenance_A3 precision (((w_31_demanda_S ^ h_Cp) * (Vf_31 ^ h_Cp) + (w_32_presion_S ^ h_Cp) * (Vf_32 ^ h_Cp) + (w_33_estado_S ^ h_Cp)  * (Vf_33 ^ h_Cp)) ^ (1 / h_Cp)) 3              ;calcualte distance to ideal point
+;       set distance_metric_New_A4 precision (((w_41_necesidad_S ^ h_Cp) * (Vf_41 ^ h_Cp) + (w_42_presion_S ^ h_Cp) * (Vf_42 ^ h_Cp) + (w_43_estado_S ^ h_Cp)  * (Vf_43 ^ h_Cp)) ^ (1 / h_Cp)) 3
 
     ]
 
@@ -683,7 +706,7 @@ to Update-Globals-Reporters
     set socialpressureIndex_S precision (mean [socialpressureTOTAL_S] of patches with [district_here? = TRUE]) 3
     set socialpressureIndex_F precision (mean [socialpressureTOTAL_F] of patches with [district_here? = TRUE]) 3
 
-    set InequalityExposureIndex InequalityExposureIndex + 0.01 * gini_V
+    set InequalityExposureIndex InequalityExposureIndex + 0.01 * gini_V / (count patches with [district_here? = TRUE])
   ]
 
   set C11max ifelse-value (max [C11-Demanda] of patches > C11max)[max [C11-Demanda] of patches][C11max]                                               ;#update ideal points by setting the maximum of the natural (physical) scale
@@ -731,6 +754,60 @@ end
 to export_view  ;;export snapshots of the landscape
   let directory "c:/Users/abaezaca/Documents/MEGADAPT/ABM_V2/landscape_pics/"
   export-View  word directory  word GOVERNMENT_DECISION_MAKING word landscape-type "_infrastructure.png"
+
+  set Visualization  "Elevation"
+  ask patches [set pcolor scale-color grey  A 0  1]      ;;probability of Infrastructure failure
+  export-View  word directory  word visualization word ticks ".png"
+
+  set Visualization  "Infrastructure_F"
+  ask patches [set pcolor ifelse-value (Infra_flood = 1)[scale-color grey  (1 - P_failure_F) 0  1][65]]     ;;probability of Infrastructure failure
+  export-View  word directory  word visualization word ticks ".png"
+
+  set  Visualization  "Infrastructure_S"
+  ask patches [set pcolor ifelse-value (Infra_supply = 1)[scale-color grey  (1 - P_failure_S) 0  1][65]]     ;;probability of Infrastructure failure
+  export-View  word directory  word visualization word ticks ".png"
+
+  set Visualization  "Vulnerability"
+  ask patches [set pcolor ifelse-value (District_here? = TRUE) [scale-color blue V 0 max_v][65]]                ;;visualize vulnerability
+  export-View  word directory  word visualization word ticks ".png"
+
+  set visualization  "Social Pressure_F"
+  ask patches [set pcolor ifelse-value (District_here? = TRUE) [scale-color red   protestas_here_F  0 10][black]];;visualized social pressure
+  export-View  word directory  word visualization word ticks ".png"
+
+  set visualization  "Social Pressure_S"
+  ask patches[set pcolor ifelse-value (District_here? = TRUE) [scale-color red   protestas_here_S  0 10][black]];;visualized social pressure
+  export-View  word directory  word visualization word ticks ".png"
+
+  set visualization  "Spatial priorities maintanance F"
+  ask patches [set pcolor scale-color magenta  distance_metric_maintenance_A1 0 1]              ;;priorities
+  export-View  word directory  word visualization word ticks ".png"
+
+  set visualization  "Spatial priorities maintanance S"
+  ask patches[set pcolor scale-color sky  distance_metric_maintenance_A3 0 1]              ;;priorities
+  export-View  word directory  word visualization word ticks ".png"
+
+  set visualization  "Spatial priorities new F"
+  ask patches [set pcolor scale-color magenta distance_metric_New_A2 0 1]                               ;;priorities
+  export-View  word directory  word visualization word ticks ".png"
+
+  set visualization  "Spatial priorities new S"
+  ask patches [set pcolor scale-color sky distance_metric_New_A4 0 1]                               ;;priorities
+  export-View  word directory  word visualization word ticks ".png"
+
+  set visualization  "Districts"
+  ask patches[set pcolor ifelse-value (District_here? = TRUE) [magenta][65]]                                       ;;visualize if neighborhood are present in the landscape (green color if not)
+  export-View  word directory  word visualization word ticks ".png"
+
+  set visualization "Harmful Events"
+
+  ask patches [                                                                                                ;; here the harmful events red color when both events( flloding and scarcity occur)
+    ifelse district_here? = false [set pcolor 65]
+    [
+     set pcolor H_S * 35 + H_F * 85 - 105 * (H_F * H_S)
+    ]
+  ]
+  export-View  word directory  word visualization word ticks ".png"
 end
 
 ;###############################################################
@@ -758,6 +835,10 @@ end
 
 
 to read_weightsfrom_matrix
+
+
+  ;let matrix_F csv:from-file  "c:/Users/abaezaca/Documents/MEGADAPT/ABM-empirical-V1/Mental-Models/OCVAM_Version_sin_GEO.limit.csv"
+
   set matrix_F matrix:from-row-list [                                                                                               ;read supermatrix
 
 [0  0  0  0  0  0  0  0  0.09  0.0125  0.09  0.075]
@@ -791,9 +872,9 @@ set matrix_S matrix:from-row-list [
 ]
 
 
+ let matrix_B (matrix:times matrix_S matrix_S matrix_S matrix_S matrix_S matrix_S matrix_S matrix_S matrix_S matrix_S matrix_S)  ;generate new limit matrix
 
 
-  let matrix_B (matrix:times matrix_F matrix_F matrix_F matrix_F matrix_F matrix_F matrix_F matrix_F matrix_F matrix_F matrix_F)    ;calculate limit matrix
   let w_11_demanda_F_NW item 10 sort (matrix:get-row matrix_B 8)                                                                    ;assige weights from the rows of the limit matrix
   let w_12_presion_F_NW item 10 sort (matrix:get-row matrix_B 11)
   let w_13_estado_F_NW item 10 sort (matrix:get-row matrix_B 9)
@@ -847,7 +928,7 @@ to update_weights                                   ;generate a change in the su
 ; matrix:set matrix_F 10 0 0.113982647
  ;matrix:set matrix_F 11 0 0.113982647
 
- let matrix_B (matrix:times matrix_S matrix_S matrix_S matrix_S matrix_S matrix_S matrix_S matrix_S matrix_S matrix_S matrix_S)  ;generate new limit matrix
+  let matrix_B (matrix:times matrix_F matrix_F matrix_F matrix_F matrix_F matrix_F matrix_F matrix_F matrix_F matrix_F matrix_F)    ;calculate limit matrix
 
  let w_11_demanda_F_NW item 10 sort (matrix:get-row matrix_B 8)                      ;set new weights
  let w_12_presion_F_NW item 10 sort (matrix:get-row matrix_B 11)
@@ -894,8 +975,8 @@ end
 
 
 
- to read_weights_from_csv
-;  let tot_S csv:from-file "c:/Users/abaezaca/Documents/MEGADAPT/ABM_V2/sampling_scenarios_Weights.csv"
+to read_weights_from_csv
+  ;  let tot_S csv:from-file "c:/Users/abaezaca/Documents/MEGADAPT/ABM_V2/sampling_scenarios_Weights.csv"
   let tot_S csv:from-file "sampling_scenarios_Weights.csv"
   let weigh_list but-first (item simulation_number (but-first tot_S))
 
@@ -917,8 +998,36 @@ end
   set w_43_estado_S precision (1 - w_41_necesidad_S - w_42_presion_S) 2
 
 
-file-close
-  end
+  file-close
+end
+
+to read_new_weights_from_csv
+  ;  let tot_S csv:from-file "c:/Users/abaezaca/Documents/MEGADAPT/ABM_V2/sampling_scenarios_Weights.csv"
+  let tot_S csv:from-file "sampling_scenarios_new_Weights.csv"
+  let weigh_list but-first (item simulation_number (but-first tot_S))
+
+
+  set w1 item 0 weigh_list
+  set w2 item 1 weigh_list
+  set w3  item 2 weigh_list
+
+  set w4 item 3 weigh_list
+  set w5 item 4 weigh_list
+  set w6 item 5 weigh_list
+
+  set w7 item 6 weigh_list
+  set w8 item 7 weigh_list
+
+  set alpha1 item 8 weigh_list
+  set alpha2 item 9 weigh_list
+
+  set alpha3 item 10 weigh_list
+  set alpha4 item 11 weigh_list
+
+  file-close
+end
+
+
 
 
 
@@ -1014,7 +1123,7 @@ CHOOSER
 Visualization
 Visualization
 "Elevation" "Infrastructure_F" "Infrastructure_S" "Spatial priorities maintanance F" "Spatial priorities new F" "Spatial priorities maintanance S" "Spatial priorities new S" "Vulnerability" "Social Pressure_F" "Social Pressure_S" "Districts" "Harmful Events"
-1
+2
 
 PLOT
 840
@@ -1126,25 +1235,6 @@ false
 PENS
 "default" 1.0 0 -16777216 true "" "plot gini_V / count patches with [district_here? = TRUE]"
 
-PLOT
-1040
-174
-1240
-324
-Lorenz Curve
-NIL
-NIL
-0.0
-100.0
-0.0
-100.0
-false
-false
-"" ""
-PENS
-"LC" 1.0 0 -2674135 true "" "plot-pen-reset\nset-plot-pen-interval 100 / count patches with [district_here? = TRUE]\nplot 0\nforeach lorenz-points_V plot"
-"pen-1" 100.0 0 -16777216 true "plot 0\nplot 100" ""
-
 SLIDER
 42
 520
@@ -1237,7 +1327,7 @@ CHOOSER
 landscape-type
 landscape-type
 "closed-watershed" "gradient" "many-hills"
-0
+2
 
 TEXTBOX
 76
@@ -1408,7 +1498,7 @@ simulation_number
 simulation_number
 0
 21
-5
+12
 1
 1
 NIL
@@ -1422,7 +1512,7 @@ CHOOSER
 budget-distribution
 budget-distribution
 "competitionwithinactions" "competitionbetweenactions"
-1
+0
 
 @#$#@#$#@
 # MEGADAPT PROTOTYPE ABM
@@ -1902,53 +1992,20 @@ NetLogo 5.2.1
       <value value="60"/>
     </enumeratedValueSet>
   </experiment>
-  <experiment name="experiment" repetitions="1" runMetricsEveryStep="false">
+  <experiment name="experiment_two_mental_models" repetitions="10" runMetricsEveryStep="true">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="500"/>
-    <metric>InequalityExposureIndex</metric>
-    <metric>ExposureIndex</metric>
-    <metric>ExposureIndex_S</metric>
-    <metric>ExposureIndex_F</metric>
-    <metric>StateinfraQuantityIndex_S</metric>
-    <metric>StateinfraQuantityIndex_F</metric>
-    <metric>StateinfraAgeIndex_S</metric>
-    <metric>StateinfraAgeIndex_F</metric>
-    <metric>socialpressureIndex_S</metric>
-    <metric>socialpressureIndex_F</metric>
-    <metric>w_11_demanda_F</metric>
-    <metric>w_12_presion_F</metric>
-    <metric>w_13_estado_F</metric>
-    <metric>w_21_necesidad_F</metric>
-    <metric>w_22_presion_F</metric>
-    <metric>w_23_estado_F</metric>
-    <metric>w_31_demanda_S</metric>
-    <metric>w_32_presion_S</metric>
-    <metric>w_33_estado_S</metric>
-    <metric>w_41_necesidad_S</metric>
-    <metric>w_42_presion_S</metric>
-    <metric>w_43_estado_S</metric>
-    <enumeratedValueSet variable="New_infra_investment">
-      <value value="100"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="maintenance">
-      <value value="100"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="landscape-type">
-      <value value="&quot;many-hills&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="Initial-Condition-Infrastructure">
-      <value value="&quot;Worse&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="semilla-aleatoria">
-      <value value="48569"/>
-    </enumeratedValueSet>
+    <timeLimit steps="2000"/>
+    <metric>count patches with [P_failure_F &lt; 0.5]</metric>
+    <metric>count patches with [P_failure_S &lt; 0.5]</metric>
+    <metric>mean [protestas_here_F] of patches with [district_here? = TRUE]</metric>
+    <metric>mean [protestas_here_S] of patches with [district_here? = TRUE]</metric>
+    <metric>gini_V / (count patches with [district_here? = TRUE])</metric>
     <enumeratedValueSet variable="p_rain">
       <value value="0.5"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="simulation_number">
-      <value value="5"/>
-      <value value="10"/>
+    <enumeratedValueSet variable="landscape-type">
+      <value value="&quot;many-hills&quot;"/>
     </enumeratedValueSet>
   </experiment>
 </experiments>
