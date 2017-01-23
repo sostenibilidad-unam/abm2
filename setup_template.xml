@@ -15,18 +15,18 @@
     <metric>socialpressureIndex_F</metric>
     <metric>StateinfraAgeIndex_S</metric>
     <metric>StateinfraAgeIndex_F</metric>
-    <metric>w_11_demanda_F</metric>
-    <metric>w_12_presion_F</metric>
-    <metric>w_13_estado_F</metric>
-    <metric>w_21_necesidad_F</metric>
-    <metric>w_22_presion_F</metric>
-    <metric>w_23_estado_F</metric>
-    <metric>w_31_demanda_S</metric>
-    <metric>w_32_presion_S</metric>
-    <metric>w_33_estado_S</metric>
-    <metric>w_41_necesidad_S</metric>
-    <metric>w_42_presion_S</metric>
-    <metric>w_43_estado_S</metric>
+    <metric>w1</metric>
+    <metric>w2</metric>
+    <metric>w3</metric>
+    <metric>w4</metric>
+    <metric>w5</metric>
+    <metric>w6</metric>
+    <metric>w7</metric>
+    <metric>w8</metric>
+    <metric>alpha1</metric>
+    <metric>alpha2</metric>
+    <metric>alpha3</metric>
+    <metric>alpha4</metric>
     <enumeratedValueSet variable="New_infra_investment">
       <value value="{new_infra_investment}"/>
     </enumeratedValueSet>
