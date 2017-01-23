@@ -11,7 +11,7 @@ parser.add_argument('--landscape', default="many-hills",
                     help="type of landscape")
 parser.add_argument('--new_infra_investment', type=int, nargs="+")
 parser.add_argument('--maintenance', type=int, nargs="+")
-parser.add_argument('--budget_distribution', default="competitionbetweenactions")
+parser.add_argument('--budget_distribution', default="competitionwithinactions")
 parser.add_argument('--threads', type=int, default=12)
 args = parser.parse_args()
 
