@@ -17,3 +17,7 @@ This script will create a setup.xml file for every scenario in the CSV file. Run
                   --workdir /path/to/workdir
 
 Setup files and a ht-condor submit file are created in "workdir".
+
+Output files can be concatenated with the following command:
+
+    find /path/to/workdir -iname 'output_*csv' -exec tail -n +8 {} \; > /path/to/concat_output.csv
