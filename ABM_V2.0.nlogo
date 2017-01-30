@@ -12,22 +12,6 @@ globals [              ;;DEFINE GLOBAL VARIABLES
 ;##################################
   matrix_F
   matrix_S
-  w_11_demanda_F          ;;Demand criteria
-  w_12_presion_F          ;;Social response criteria
-  w_13_estado_F           ;;Infrastructure criteria
-
-  w_21_necesidad_F        ;;Need for infrastructure criteria
-  w_22_presion_F          ;;Social response criteria
-  w_23_estado_F           ;;Infrastructure criteria
-
-
-  w_31_demanda_S          ;;Demand criteria
-  w_32_presion_S          ;;Social response criteria
-  w_33_estado_S           ;;Infrastructure criteria
-
-  w_41_necesidad_S        ;;Economic efficiency criteria
-  w_42_presion_S          ;;Social response criteria
-  w_43_estado_S           ;;Infrastructure criteria
 
 w1
 w2
@@ -263,9 +247,9 @@ to setup
   set lorenz-points_V []
   create-Landscape         ;;define landscape topography (Altitute)
   Create-Districts-Infra      ;;define the properties of the infrastructure and the neighborhoods
-  ;read_weightsfrom_matrix
+  read_weightsfrom_matrix
   ;read_weights_from_csv
-  read_new_weights_from_csv
+  ;read_new_weights_from_csv
   set ExposureIndex 0
   set ExposureIndex_S 0
   set ExposureIndex_F 0
@@ -304,8 +288,8 @@ to GO
   Update-Infrastructure ;update state of infrastructure (age, prob. of failure)
 
 ; for experiments with different mental model
-;if ticks = 999 [update_weights]
-if ticks = 998 or ticks = 1998 [export_view]
+if ticks = 300 [update_weights]
+;if ticks = 998 or ticks = 1998 [export_view]
 
 if ticks = 2000 [stop]
  ; profiler:stop          ;; stop profiling
@@ -412,63 +396,6 @@ end
 ;;Water government authority define priorities based on the prioritization strategy
 ;;####################################################################################
 to WA-Decisions
-;   ; if GOVERNMENT_DECISION_MAKING = "Social Benefit"[                 ;;C1: priority for economic efficiency (increase benefits to people (less $ per people)
-;   ;   set w_11 0.8
-;      set w_12 0.1
-;      set w_13 0.1
-;
-;      set w_21 0.8
-;      set w_22 0.1
-;      set w_23 0.1
-;
-;      set w_31 0.8
-;      set w_32 0.1
-;      set w_33 0.1
-;
-;      set w_41 0.8
-;      set w_42 0.1
-;      set w_43 0.1
-;    ]
-;    if GOVERNMENT_DECISION_MAKING = "Response to Social Pressure"[         ;;C2: priority for Social efficiency (intevine to reduce number of protests)
-;      set w_11 0.1
-;      set w_12 0.8
-;      set w_13 0.1
-;
-;      set w_21 0.1
-;      set w_22 0.8
-;      set w_23 0.1
-;
-;      set w_31 0.1
-;      set w_32 0.8
-;      set w_33 0.1
-;
-;
-;      set w_41 0.1
-;      set w_42 0.8
-;      set w_43 0.1
-;
-;    ]
-;    if GOVERNMENT_DECISION_MAKING = "State of infrastructure"[                ;;C3: priority for engeniering efficiency (reduce damage_F by intervine aged of infrastructure)
-;      set w_11 0.1
-;      set w_12 0.1
-;      set w_13 0.8
-;
-;      set w_21 0.1
-;      set w_22 0.1
-;      set w_23 0.8
-;
-;      set w_31 0.1
-;      set w_32 0.1
-;      set w_33 0.8
-;
-;      set w_41 0.1
-;      set w_42 0.1
-;      set w_43 0.8
-;
-;    ]
-
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;goverment selects patches according to a distance metric and Compromised programing optimiation
 
@@ -482,41 +409,32 @@ to WA-Decisions
       ;C13 Age infrastructure
 
 
-       let Vf_11 ifelse-value (C11-Demanda < C11max)[(C11-Demanda / C11max)][1]                                                                             ;;define the value functions by transforming natural scale of the information gethered by goverment
-       let Vf_12 ifelse-value (C12-Social_pressure < C12max)[(C12-Social_pressure / C12max)][1]                                                                     ;;to a standarized scale [0,1] where 1 means maximal atention from goverment (1 = larger number of protested in an area
+       let V1 ifelse-value (C11-Demanda < C11max)[(C11-Demanda / C11max)][1]                                                                             ;;define the value functions by transforming natural scale of the information gethered by goverment
+       let V2 ifelse-value (C12-Social_pressure < C12max)[(C12-Social_pressure / C12max)][1]                                                                     ;;to a standarized scale [0,1] where 1 means maximal atention from goverment (1 = larger number of protested in an area
 
-       let Vf_13 0
-       set Vf_13 ifelse-value (C13-InfraState < 50)[C13-InfraState / 50] [(C13max - C13-InfraState) / 50]
-       if C13-InfraState > 100 or C13-InfraState = 0[set Vf_13 0]
-
-
-       let Vf_21 ifelse-value (C21-need < C21max)[C21-need / C21max][1]
-       let Vf_22 ifelse-value (C22-Social_pressure <= C22max)[C22-Social_pressure / C22max][1]
-
-       let Vf_23 ifelse-value (C23-InfraState < 50)[0][2 * (C23-InfraState - 50) / C23max]
-       if C23-InfraState > 100 or C23-InfraState = 0 [set Vf_23 1]
-
-       let Vf_31 ifelse-value (C31-Demanda < C31max)[(C31-Demanda / C31max)][1]                                                                             ;;define the value functions by transforming natural scale of the information gethered by goverment
-       let Vf_32 ifelse-value (C32-Social_pressure < C32max)[(C32-Social_pressure / C32max)][1]                                                                     ;;to a standarized scale [0,1] where 1 means maximal atention from goverment (1 = larger number of protested in an area
-       let Vf_33 ifelse-value (C33-InfraState < 50)[C33-InfraState / 50] [(C33max - C33-InfraState) / 50]
-       if C33-InfraState > 100 or C33-InfraState = 0 [set Vf_33 0]
+       let V3 0
+       set V3 ifelse-value (C13-InfraState < 50)[C13-InfraState / 50] [(C13max - C13-InfraState) / 50]
+       if C13-InfraState > 100 or C13-InfraState = 0[set V3 0]
 
 
-       let Vf_41 ifelse-value (C41-need <= C41max)[C41-need / C41max][1]
-       let Vf_42 ifelse-value (C42-Social_pressure <= C42max)[C42-Social_pressure / C42max][1]
-       let Vf_43 ifelse-value (C43-InfraState <= 50)[0][2 * (C43-InfraState - 50) / C43max]
-       if C43-InfraState > 100 or C43-InfraState = 0 [set Vf_43 1]
+       let V4 ifelse-value (C21-need < C21max)[C21-need / C21max][1]
 
-       let v_vec (list Vf_11 Vf_12  Vf_13 Vf_21 Vf_31 Vf_32 Vf_33 Vf_41)
+       let V5 ifelse-value (C31-Demanda < C31max)[(C31-Demanda / C31max)][1]                                                                             ;;define the value functions by transforming natural scale of the information gethered by goverment
+       let V6 ifelse-value (C32-Social_pressure < C32max)[(C32-Social_pressure / C32max)][1]                                                                     ;;to a standarized scale [0,1] where 1 means maximal atention from goverment (1 = larger number of protested in an area
+       let V7 ifelse-value (C33-InfraState < 50)[C33-InfraState / 50] [(C33max - C33-InfraState) / 50]
+       if C33-InfraState > 100 or C33-InfraState = 0 [set V7 0]
+       let V8 ifelse-value (C41-need <= C41max)[C41-need / C41max][1]
+
+       let v_vec (list V1 V2  V3 V4 V5 V6 V7 V8)
        let w_vec (list w1 w2 w3 w4 w5 w6 w7 w8)
        let h_Cp 1
 
-       set distance_metric_maintenance_A1 (alpha1 * sum (map [(?1 ^ h_Cp) * (?2 ^ h_Cp)] v_vec w_vec)) ^ (1 / h_Cp)
 
-       set distance_metric_New_A2 (alpha2 * sum (map [(?1 ^ h_Cp) * (?2 ^ h_Cp)] v_vec w_vec)) ^ (1 / h_Cp)
-       set distance_metric_maintenance_A3 (alpha3 * sum (map [(?1 ^ h_Cp) * (?2 ^ h_Cp)] v_vec w_vec)) ^ (1 / h_Cp)
+       set distance_metric_New_A2 (alpha1 * sum (map [(?1 ^ h_Cp) * (?2 ^ h_Cp)] v_vec w_vec)) ^ (1 / h_Cp)
+       set distance_metric_New_A4 (alpha2 * sum (map [(?1 ^ h_Cp) * (?2 ^ h_Cp)] v_vec w_vec)) ^ (1 / h_Cp)
+       set distance_metric_maintenance_A1 (alpha3 * sum (map [(?1 ^ h_Cp) * (?2 ^ h_Cp)] v_vec w_vec)) ^ (1 / h_Cp)
+       set distance_metric_maintenance_A3 (alpha4 * sum (map [(?1 ^ h_Cp) * (?2 ^ h_Cp)] v_vec w_vec)) ^ (1 / h_Cp)
 
-       set distance_metric_New_A4 (alpha4 * sum (map [(?1 ^ h_Cp) * (?2 ^ h_Cp)] v_vec w_vec)) ^ (1 / h_Cp)
 
 
 ;       set distance_metric_maintenance_A1 precision (((w_11_demanda_F ^ h_Cp) * (Vf_11 ^ h_Cp) + (w_12_presion_F ^ h_Cp) * (Vf_12 ^ h_Cp) + (w_13_estado_F ^ h_Cp)  * (Vf_13 ^ h_Cp)) ^ (1 / h_Cp)) 3              ;calcualte distance to ideal point
@@ -875,46 +793,43 @@ set matrix_S matrix:from-row-list [
  let matrix_B (matrix:times matrix_S matrix_S matrix_S matrix_S matrix_S matrix_S matrix_S matrix_S matrix_S matrix_S matrix_S)  ;generate new limit matrix
 
 
-  let w_11_demanda_F_NW item 10 sort (matrix:get-row matrix_B 8)                                                                    ;assige weights from the rows of the limit matrix
-  let w_12_presion_F_NW item 10 sort (matrix:get-row matrix_B 11)
-  let w_13_estado_F_NW item 10 sort (matrix:get-row matrix_B 9)
+  set alpha1 item 10 sort (matrix:get-row matrix_B 0)
+  set alpha2 item 10 sort (matrix:get-row matrix_B 1)
+  set alpha3 item 10 sort (matrix:get-row matrix_B 2)
+  set alpha4 item 10 sort (matrix:get-row matrix_B 3)
 
-  let w_21_necesidad_F_NW item 10 sort (matrix:get-row matrix_B 10)
-  let w_22_presion_F_NW item 10 sort (matrix:get-row matrix_B 11)
-  let w_23_estado_F_NW item 10 sort (matrix:get-row matrix_B 9)
-
-  let w_31_demanda_S_NW item 10 sort (matrix:get-row matrix_B 4)
-  let w_32_presion_S_NW item 10 sort (matrix:get-row matrix_B 7)
-  let w_33_estado_S_NW item 10 sort (matrix:get-row matrix_B 5)
-
-
-  let w_41_necesidad_S_NW item 10 sort (matrix:get-row matrix_B 6)
-  let w_42_presion_S_NW item 10 sort (matrix:get-row matrix_B 7)
-  let w_43_estado_S_NW item 10 sort (matrix:get-row matrix_B 5)
+  let alpha_tot alpha1 + alpha2 + alpha3 + alpha4
+  set alpha1 alpha1 / alpha_tot
+  set alpha2 alpha2 / alpha_tot
+  set alpha3 alpha3 / alpha_tot
+  set alpha4 alpha4 / alpha_tot
 
 
-  let tot_weight_1_F (w_11_demanda_F_NW + w_12_presion_F_NW + w_13_estado_F_NW)                                                    ;calculate total sum of weights for normalization
-  let tot_weight_2_F (w_21_necesidad_F_NW + w_22_presion_F_NW + w_23_estado_F_NW)
-  let tot_weight_3_S (w_31_demanda_S_NW + w_32_presion_S_NW +  w_33_estado_S_NW)
-  let tot_weight_4_S (w_41_necesidad_S_NW + w_42_presion_S_NW + w_43_estado_S_NW)
+  set w1 item 10 sort (matrix:get-row matrix_B 8)                                                                    ;assige weights from the rows of the limit matrix
+  set w2 item 10 sort (matrix:get-row matrix_B 11)
+  set w3 item 10 sort (matrix:get-row matrix_B 9)
 
-  set w_11_demanda_F w_11_demanda_F_NW / tot_weight_1_F                                                                           ;normalize weights with respect to each action
-  set w_12_presion_F w_12_presion_F_NW / tot_weight_1_F
-  set w_13_estado_F w_13_estado_F_NW / tot_weight_1_F
-
-  set w_21_necesidad_F w_21_necesidad_F_NW / tot_weight_2_F
-  set w_22_presion_F w_22_presion_F_NW  / tot_weight_2_F
-  set w_23_estado_F w_23_estado_F_NW  / tot_weight_2_F
-
-  set w_31_demanda_S w_31_demanda_S_NW / tot_weight_3_S
-  set w_32_presion_S w_32_presion_S_NW / tot_weight_3_S
-  set w_33_estado_S w_33_estado_S_NW / tot_weight_3_S
-
-  set w_41_necesidad_S w_41_necesidad_S_NW / tot_weight_4_S
-  set w_42_presion_S w_42_presion_S_NW / tot_weight_4_S
-  set w_43_estado_S w_43_estado_S_NW / tot_weight_4_S
+  set w4 item 10 sort (matrix:get-row matrix_B 10)
+  set w5 item 10 sort (matrix:get-row matrix_B 4)
+  set w6 item 10 sort (matrix:get-row matrix_B 7)
+  set w7 item 10 sort (matrix:get-row matrix_B 5)
+  set w8 item 10 sort (matrix:get-row matrix_B 6)
 
 
+
+  let tot_weights (w1 + w2 + w3 + w4 + w5 + w6 + w7 + w8)
+
+  set w1  w1 / tot_weights
+  set w2  w2 / tot_weights
+  set w3  w3 / tot_weights
+  set w4  w4 / tot_weights
+  set w5  w5 / tot_weights
+  set w6  w6 / tot_weights
+  set w7  w7 / tot_weights
+  set w8  w8 / tot_weights
+
+
+print (list alpha1 alpha2 alpha3 alpha4)
 
 
 
@@ -930,76 +845,45 @@ to update_weights                                   ;generate a change in the su
 
   let matrix_B (matrix:times matrix_F matrix_F matrix_F matrix_F matrix_F matrix_F matrix_F matrix_F matrix_F matrix_F matrix_F)    ;calculate limit matrix
 
- let w_11_demanda_F_NW item 10 sort (matrix:get-row matrix_B 8)                      ;set new weights
- let w_12_presion_F_NW item 10 sort (matrix:get-row matrix_B 11)
- let w_13_estado_F_NW item 10 sort (matrix:get-row matrix_B 9)
- let w_21_necesidad_F_NW item 10 sort (matrix:get-row matrix_B 10)
- let w_22_presion_F_NW item 10 sort (matrix:get-row matrix_B 11)
- let w_23_estado_F_NW item 10 sort (matrix:get-row matrix_B 9)
+  ;set alpha1 item 10 sort (matrix:get-row matrix_B 0)
+  ;set alpha2 item 10 sort (matrix:get-row matrix_B 1)
+  ;set alpha3 item 10 sort (matrix:get-row matrix_B 2)
+  ;set alpha4 item 10 sort (matrix:get-row matrix_B 3)
 
- let w_31_demanda_S_NW item 10 sort (matrix:get-row matrix_B 4)
- let w_32_presion_S_NW item 10 sort (matrix:get-row matrix_B 7)
- let w_33_estado_S_NW item 10 sort (matrix:get-row matrix_B 5)
-
-
- let w_41_necesidad_S_NW item 10 sort (matrix:get-row matrix_B 6)
-  let w_42_presion_S_NW item 10 sort (matrix:get-row matrix_B 7)
-  let w_43_estado_S_NW item 10 sort (matrix:get-row matrix_B 5)
-
-  let tot_weight_1_F (w_11_demanda_F_NW + w_12_presion_F_NW + w_13_estado_F_NW)
-  let tot_weight_2_F (w_21_necesidad_F_NW + w_22_presion_F_NW + w_23_estado_F_NW)
-  let tot_weight_3_S (w_31_demanda_S_NW + w_32_presion_S_NW +  w_33_estado_S_NW)
-  let tot_weight_4_S (w_41_necesidad_S_NW + w_42_presion_S_NW + w_43_estado_S_NW)
-
-  set w_11_demanda_F w_11_demanda_F_NW / tot_weight_1_F
-  set w_12_presion_F w_12_presion_F_NW / tot_weight_1_F
-  set w_13_estado_F w_13_estado_F_NW / tot_weight_1_F
-
-  set w_21_necesidad_F w_21_necesidad_F_NW / tot_weight_2_F
-  set w_22_presion_F w_22_presion_F_NW  / tot_weight_2_F
-  set w_23_estado_F w_23_estado_F_NW  / tot_weight_2_F
-
-  set w_31_demanda_S w_31_demanda_S_NW / tot_weight_3_S
-  set w_32_presion_S w_32_presion_S_NW / tot_weight_3_S
-  set w_33_estado_S w_33_estado_S_NW / tot_weight_3_S
+;  let alpha_tot alpha1 + alpha2 + alpha3 + alpha4
+;  set alpha1 alpha1 / alpha_tot
+;  set alpha2 alpha2 / alpha_tot
+;  set alpha3 alpha3 / alpha_tot
+;  set alpha4 alpha4 / alpha_tot
 
 
-  set w_41_necesidad_S w_41_necesidad_S_NW / tot_weight_4_S
-  set w_42_presion_S w_42_presion_S_NW / tot_weight_4_S
-  set w_43_estado_S w_43_estado_S_NW / tot_weight_4_S
+  set w1 item 10 sort (matrix:get-row matrix_B 8)                                                                    ;assige weights from the rows of the limit matrix
+  set w2 item 10 sort (matrix:get-row matrix_B 11)
+  set w3 item 10 sort (matrix:get-row matrix_B 9)
 
+  set w4 item 10 sort (matrix:get-row matrix_B 10)
+  set w5 item 10 sort (matrix:get-row matrix_B 4)
+  set w6 item 10 sort (matrix:get-row matrix_B 7)
+  set w7 item 10 sort (matrix:get-row matrix_B 5)
+  set w8 item 10 sort (matrix:get-row matrix_B 6)
 
+  let tot_weights (w1 + w2 + w3 + w4 + w5 + w6 + w7 + w8)
+
+  set w1  w1 / tot_weights
+  set w2  w2 / tot_weights
+  set w3  w3 / tot_weights
+  set w4  w4 / tot_weights
+  set w5  w5 / tot_weights
+  set w6  w6 / tot_weights
+  set w7  w7 / tot_weights
+  set w8  w8 / tot_weights
+
+print (list alpha1 alpha2 alpha3 alpha4)
 
 
 end
 
 
-
-to read_weights_from_csv
-  ;  let tot_S csv:from-file "c:/Users/abaezaca/Documents/MEGADAPT/ABM_V2/sampling_scenarios_Weights.csv"
-  let tot_S csv:from-file "sampling_scenarios_Weights.csv"
-  let weigh_list but-first (item simulation_number (but-first tot_S))
-
-  set w_11_demanda_F item 0 weigh_list
-  set w_12_presion_F item 1 weigh_list
-  set w_13_estado_F precision (1 - w_11_demanda_F - w_12_presion_F) 2
-
-  set w_21_necesidad_F item 2 weigh_list
-  set w_22_presion_F item 3 weigh_list
-  set w_23_estado_F precision (1 - w_21_necesidad_F - w_22_presion_F) 2
-
-
-  set w_31_demanda_S item 4 weigh_list
-  set w_32_presion_S item 5 weigh_list
-  set w_33_estado_S  precision (1 - w_31_demanda_S - w_32_presion_S) 2
-
-  set w_41_necesidad_S item 6 weigh_list
-  set w_42_presion_S item 7 weigh_list
-  set w_43_estado_S precision (1 - w_41_necesidad_S - w_42_presion_S) 2
-
-
-  file-close
-end
 
 to read_new_weights_from_csv
   ;  let tot_S csv:from-file "c:/Users/abaezaca/Documents/MEGADAPT/ABM_V2/sampling_scenarios_Weights.csv"
@@ -1018,11 +902,11 @@ to read_new_weights_from_csv
   set w7 item 6 weigh_list
   set w8 item 7 weigh_list
 
-  set alpha1 item 8 weigh_list
-  set alpha2 item 9 weigh_list
+  set alpha1 0.25;item 8 weigh_list
+  set alpha2 0.25;item 9 weigh_list
 
-  set alpha3 item 10 weigh_list
-  set alpha4 item 11 weigh_list
+  set alpha3 0.25;item 10 weigh_list
+  set alpha4 0.25;item 11 weigh_list
 
   file-close
 end
@@ -1123,7 +1007,7 @@ CHOOSER
 Visualization
 Visualization
 "Elevation" "Infrastructure_F" "Infrastructure_S" "Spatial priorities maintanance F" "Spatial priorities new F" "Spatial priorities maintanance S" "Spatial priorities new S" "Vulnerability" "Social Pressure_F" "Social Pressure_S" "Districts" "Harmful Events"
-2
+7
 
 PLOT
 840
@@ -1512,7 +1396,7 @@ CHOOSER
 budget-distribution
 budget-distribution
 "competitionwithinactions" "competitionbetweenactions"
-0
+1
 
 @#$#@#$#@
 # MEGADAPT PROTOTYPE ABM
