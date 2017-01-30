@@ -902,7 +902,7 @@ to read_new_weights_from_csv
   set w7 item 6 weigh_list
   set w8 item 7 weigh_list
 
-  set alpha1 0.25;item 8 weigh_list
+  set alpha1 0.25;;item 8 weigh_list
   set alpha2 0.25;item 9 weigh_list
 
   set alpha3 0.25;item 10 weigh_list
