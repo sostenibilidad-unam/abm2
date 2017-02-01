@@ -21,3 +21,15 @@ Setup files and a ht-condor submit file are created in "workdir".
 Output files can be concatenated with the following command:
 
     find /path/to/workdir -iname 'output_*csv' -exec tail -n +8 {} \; > /path/to/concat_output.csv
+
+
+
+
+
+
+
+
+##Path to vegetation maps
+https://www.dropbox.com/home/megadapt_integracion/insumos/agosto2016/inegi/USV/USV%20Serie%20V
+
+The maps projection is UTM 14N WGS84
