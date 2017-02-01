@@ -861,7 +861,7 @@ end
 
 to read_new_weights_from_csv
   ;  let tot_S csv:from-file "c:/Users/abaezaca/Documents/MEGADAPT/ABM_V2/sampling_scenarios_Weights.csv"
-  let tot_S csv:from-file "c:/Users/abaezaca/Documents/MEGADAPT/abm2/sampling_scenarios_Weights_all.csv"
+  let tot_S csv:from-file "sampling_scenarios_Weights_all.csv"
   ;let tot_S csv:from-file "c:/Users/abaezaca/Documents/MEGADAPT/ABM_V2/sampling_scenarios_Weights_var_WandD.csv"
   ;let tot_S csv:from-file "c:/Users/abaezaca/Documents/MEGADAPT/ABM_V2/sampling_scenarios_Weights_var_D.csv"
   let weigh_list but-first (item simulation_number (but-first tot_S))
