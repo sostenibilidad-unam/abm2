@@ -27,9 +27,12 @@ Output files can be concatenated with the following command:
 
     find /path/to/workdir -iname 'output_*csv' -exec tail -n +8 {} \; > /path/to/concat_output.csv
 
+# Data Repositories
 
-## Path to vegetation maps
+We're hosting some data in Dropbox. Here's the [path to vegetation maps](https://www.dropbox.com/home/megadapt_integracion/insumos/agosto2016/inegi/USV/USV%20Serie%20V). The maps projection is UTM 14N WGS84
 
-https://www.dropbox.com/home/megadapt_integracion/insumos/agosto2016/inegi/USV/USV%20Serie%20V
+This is the path to a WebDAV share from our storage server:
 
-The maps projection is UTM 14N WGS84
+https://132.247.90.93/WebDAV/MEGADAPT_integracion/
+
+This share can be mounted in windows, even through firewalls. Here's an [example of how to set it up](http://www2.le.ac.uk/offices/itservices/ithelp/my-computer/files-and-security/work-off-campus/webdav/webdav-on-windows-10).
