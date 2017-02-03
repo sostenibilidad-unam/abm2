@@ -932,11 +932,14 @@ end
 
 
 to export_value_patches
-  file-delete "c:/Users/abaezaca/Documents/MEGADAPT/abm2/landscape.txt"
+
 file-open "c:/Users/abaezaca/Documents/MEGADAPT/abm2/landscape.txt"
 foreach sort patches
   [
-    ask ? [file-write A]                                ;write the ID of each ageb using a numeric value (update acording to Marco's Identification)
+    ask ? [
+      file-write pxcor
+      file-write pycor
+      file-write A]                                ;write the ID of each ageb using a numeric value (update acording to Marco's Identification)
   ]
 file-close                                        ;close the File
 
@@ -946,18 +949,22 @@ end
 
 to read-landscape
   file-open "landscape.txt"
-
-
-foreach sort patches
-  [
-    let ff file-read
-    print ff
-    ask ?1 [
-      print who
-      set A ff]
+  let i 0
+  while [i <= max-pxcor] [
+    let j 0
+    while [j <= max-pycor] [
+      let x-tmp file-read
+      let y-tmp file-read
+      ask patch x-tmp y-tmp
+      [
+        let ff file-read
+        set A ff
+      ]
+      set j j + 1
+    ]
+    set i i + 1
   ]
-      file-close
-      file-flush
+  file-close
 end
 
 
@@ -1245,7 +1252,7 @@ maintenance
 maintenance
 0
 500
-74
+200
 1
 1
 NIL
@@ -1430,7 +1437,7 @@ simulation_number
 simulation_number
 0
 5999
-458
+1000
 1
 1
 NIL
