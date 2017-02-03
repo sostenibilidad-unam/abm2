@@ -128,6 +128,47 @@ patches-own[
 ]
 
 ;#############################################################################################
+
+
+to load_fixed_landscape
+
+
+  read-landscape
+ask patches[
+    ;Define initial values
+    set Infra_flood 0                       ;presence or absence of infrastructure
+    set Infra_supply 0                      ;presence or absence of infrastructure
+
+    set P_failure_F 1                       ;probability of failure
+    set P_failure_S 1                       ;probability of failure
+
+    set infra_F_age 1                       ;age
+    set infra_S_age 1                       ;age
+
+    set protestas_here_F  0                 ;wheather a protest happen at a particula location and time
+    set protestas_here_S  0                 ;wheather a protest happen at a particula location and time
+    set total_exposure_S 0                  ;accumulated burden
+    set total_exposure_F 0                  ;accumulated burden
+    set V exposure_F + exposure_S             ;; Vulnerability
+
+    set district_here? FALSE                ;;presence or absence of neighborhood here
+
+    set C1 0.01                       ;C11 Demanda
+    set C2 0.001              ;C21 social pressure              collect the number of protest in the district located in this patch
+    set C3 infra_F_age             ;C31 state Infra
+
+    set C4 0.1                           ;C21 Need
+
+
+    set C5 0.01                       ;C21 social pressure  S
+    set C6 infra_S_age
+
+    set C7 0.1                              ;C41 Need
+
+    set pcolor 65
+]
+
+end
 ;######################################################################
 ;######################################################################
 to create-Landscape
@@ -232,7 +273,8 @@ to setup
 ;;set global
   set Var_list []
   set lorenz-points_V []
-  create-Landscape         ;;define landscape topography (Altitute)
+  load_fixed_landscape
+  ;create-Landscape         ;;define landscape topography (Altitute)
   Create-Districts-Infra      ;;define the properties of the infrastructure and the neighborhoods
   ;read_weightsfrom_matrix
   ;read_weights_from_csv
@@ -247,6 +289,7 @@ to setup
   set socialpressureIndex_F 0
   set rain_max_obs (max_rain_recorded p_rain) ;;set max rainfall observed
   ask patches [Landscape-Visualization]
+   ;export_value_patches
   reset-ticks
 end
 
@@ -299,13 +342,13 @@ to Hazard                                                                       
       let IS_N (sum [P_failure_F] of patches in-radius 2 + P_failure_F) / (1 + count patches in-radius 2)           ;;update the average state of infrastructure in patches in radius 2
       let IS_S (sum [P_failure_S] of patches in-radius 2 + P_failure_S) / (1 + count patches in-radius 2)           ;;update the average state of infrastructure in patches in radius 2
 
-      set Prob_H_F IS_N  * R * (1 - A)                                                                                    ;;update probability of hazardous event
+      set Prob_H_F IS_N  * R * ((1 - A) ^ 0.5)                                                                                    ;;update probability of hazardous event
       set H_F ifelse-value (Prob_H_F >= random-float 1) [1][0]                                                      ;;update hazard counter to 1
       set exposure_F precision (0.9 * exposure_F + H_F) 3                                                           ;;update memory of past events
       if ticks > 400[
         set total_exposure_F total_exposure_F + H_F
       ]
-      set Prob_H_S IS_S * A
+      set Prob_H_S IS_S * (A ^ 0.5)
       set H_S Prob_H_S                                                                                              ;;update hazard counter to 1
       set exposure_S precision (0.9 * exposure_S + H_S) 3
       if ticks > 400[                                                          ;;update list (memory) of past events
@@ -659,9 +702,9 @@ to export_view  ;;export snapshots of the landscape
   ask patches [set pcolor ifelse-value (Infra_supply = 1)[scale-color grey  (1 - P_failure_S) 0  1][65]]     ;;probability of Infrastructure failure
   export-View  word directory  word visualization word ticks ".png"
 
-  set Visualization  "Vulnerability"
-  ask patches [set pcolor ifelse-value (District_here? = TRUE) [scale-color blue V 0 max_v][65]]                ;;visualize vulnerability
-  export-View  word directory  word visualization word ticks ".png"
+  ;set Visualization  "Vulnerability"
+  ;ask patches [set pcolor ifelse-value (District_here? = TRUE) [scale-color blue V 0 max_v][65]]                ;;visualize vulnerability
+  ;export-View  word directory  word visualization word ticks ".png"
 
   set visualization  "Social Pressure_F"
   ask patches [set pcolor ifelse-value (District_here? = TRUE) [scale-color red   protestas_here_F  0 10][black]];;visualized social pressure
@@ -700,6 +743,7 @@ to export_view  ;;export snapshots of the landscape
     ]
   ]
   export-View  word directory  word visualization word ticks ".png"
+
 end
 
 ;###############################################################
@@ -819,16 +863,16 @@ to update_weights                                   ;generate a change in the su
 
   let matrix_B (matrix:times matrix_F matrix_F matrix_F matrix_F matrix_F matrix_F matrix_F matrix_F matrix_F matrix_F matrix_F)    ;calculate limit matrix
 
-  ;set alpha1 item 10 sort (matrix:get-row matrix_B 0)
-  ;set alpha2 item 10 sort (matrix:get-row matrix_B 1)
-  ;set alpha3 item 10 sort (matrix:get-row matrix_B 2)
-  ;set alpha4 item 10 sort (matrix:get-row matrix_B 3)
+ set alpha1 item 10 sort (matrix:get-row matrix_B 0)
+ set alpha2 item 10 sort (matrix:get-row matrix_B 1)
+ set alpha3 item 10 sort (matrix:get-row matrix_B 2)
+ set alpha4 item 10 sort (matrix:get-row matrix_B 3)
 
-;  let alpha_tot alpha1 + alpha2 + alpha3 + alpha4
-;  set alpha1 alpha1 / alpha_tot
-;  set alpha2 alpha2 / alpha_tot
-;  set alpha3 alpha3 / alpha_tot
-;  set alpha4 alpha4 / alpha_tot
+  let alpha_tot alpha1 + alpha2 + alpha3 + alpha4
+  set alpha1 alpha1 / alpha_tot
+  set alpha2 alpha2 / alpha_tot
+  set alpha3 alpha3 / alpha_tot
+  set alpha4 alpha4 / alpha_tot
 
 
   set w1 item 10 sort (matrix:get-row matrix_B 8)                                                                    ;assige weights from the rows of the limit matrix
@@ -886,6 +930,35 @@ to read_new_weights_from_csv
   file-close
 end
 
+
+to export_value_patches
+  file-delete "c:/Users/abaezaca/Documents/MEGADAPT/abm2/landscape.txt"
+file-open "c:/Users/abaezaca/Documents/MEGADAPT/abm2/landscape.txt"
+foreach sort patches
+  [
+    ask ? [file-write A]                                ;write the ID of each ageb using a numeric value (update acording to Marco's Identification)
+  ]
+file-close                                        ;close the File
+
+end
+
+
+
+to read-landscape
+  file-open "landscape.txt"
+
+
+foreach sort patches
+  [
+    let ff file-read
+    print ff
+    ask ?1 [
+      print who
+      set A ff]
+  ]
+      file-close
+      file-flush
+end
 
 
 
@@ -982,7 +1055,7 @@ CHOOSER
 Visualization
 Visualization
 "Elevation" "Infrastructure_F" "Infrastructure_S" "Spatial priorities maintanance F" "Spatial priorities new F" "Spatial priorities maintanance S" "Spatial priorities new S" "Vulnerability" "Social Pressure_F" "Social Pressure_S" "Districts" "Harmful Events"
-3
+0
 
 PLOT
 840
@@ -1060,7 +1133,7 @@ New_infra_investment
 New_infra_investment
 0
 500
-100
+200
 1
 1
 NIL
@@ -1172,7 +1245,7 @@ maintenance
 maintenance
 0
 500
-100
+74
 1
 1
 NIL
@@ -1214,8 +1287,8 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -8990512 true "" "plot count patches with [infra_flood = 1 and p_failure_F < 0.9]"
-"pen-1" 1.0 0 -6459832 true "" "plot count patches with [infra_supply = 1 and p_failure_S < 0.9]"
+"default" 1.0 0 -8990512 true "" "plot count patches with [infra_flood = 1 and p_failure_F < 0.5]"
+"pen-1" 1.0 0 -6459832 true "" "plot count patches with [infra_supply = 1 and p_failure_S < 0.5]"
 
 INPUTBOX
 70
@@ -1357,7 +1430,7 @@ simulation_number
 simulation_number
 0
 5999
-3394
+458
 1
 1
 NIL
@@ -1865,6 +1938,36 @@ NetLogo 5.2.1
     </enumeratedValueSet>
     <enumeratedValueSet variable="landscape-type">
       <value value="&quot;many-hills&quot;"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="budget" repetitions="10" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="500"/>
+    <metric>count patches with [P_failure_F &lt; 0.5]</metric>
+    <metric>count patches with [P_failure_S &lt; 0.5]</metric>
+    <metric>mean [protestas_here_F] of patches with [district_here? = TRUE]</metric>
+    <metric>mean [protestas_here_S] of patches with [district_here? = TRUE]</metric>
+    <metric>gini_V / (count patches with [district_here? = TRUE])</metric>
+    <enumeratedValueSet variable="p_rain">
+      <value value="0.5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="budget-distribution">
+      <value value="&quot;competitionbetweenactions&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="landscape-type">
+      <value value="&quot;many-hills&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="simulation_number">
+      <value value="1000"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="maintenance">
+      <value value="30"/>
+      <value value="200"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="New_infra_investment">
+      <value value="30"/>
+      <value value="200"/>
     </enumeratedValueSet>
   </experiment>
 </experiments>
