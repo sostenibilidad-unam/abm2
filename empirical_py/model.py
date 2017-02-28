@@ -4,6 +4,7 @@ from sqlalchemy import Column, Integer, ForeignKey, Float, Boolean, String
 from sqlalchemy.orm import mapper, relationship
 from sqlalchemy.ext.declarative import declarative_base
 import random
+import pandas as pd
 
 Base = declarative_base()
 
@@ -21,7 +22,11 @@ class AGEB(Base):
     zona_aquifera = Column(Integer)
     name_delegation = Column(String) #the name of the delegation the ageb belongs to
 
-    Monto = Column(Float) # resources designated to each ageb (delegations?)
+    monto = Column(Float) # resources designated to each ageb (delegations?)
+
+    def update_monto(self):
+        self.monto = asdlkfjas;dlk
+    
     production_water_perageb = Column(Float) # produccion de agua {definir escala e.g resolucion temporal !!!!}
     abastecimiento = Column(Float) #Necesidad de la población en cuanto a servicios hidráulicos (agua potable, drenaje)
     abastecimiento_b = Column(Float)
@@ -103,10 +108,45 @@ class AGEB(Base):
     # def __repr__(self):
     #     mood = "boring" if self.boring() else "exciting"
     #     return "group%s, %s" % (self.id, mood)
+
+
+class SACMEX:
+    recursos_para_mantencion = 40
     
+    def reparar_infra(self):
+        budget = 0
+        for ageb in session.query(AGEB).order_by(AGEB.d_reparation): # es decendiente?
+            if budget < self.recursos_para_mantencion:
+                ageb.antiguedad_infra = 0.8 * ageb.antiguedad_infra
+                budget += 1
+                session.commit()
 
 
 
+
+
+def value_function(A, B, C, D, EE):
+  """This function reports a standarized value for the relationship between value of criteria and motivation to acta
+  A the value of a biophysical variable in its natural scale
+  B a list of percentage values of the biofisical variable that reflexts on the cut-offs to define the limits of the range in the linguistic scale
+  C list of streengs that define the lisguistice scale associate with a viobisical variable
+  D the ideal or anti ideal point of the criteria define based on the linguistic scale (e.g. intolerable ~= anti-ideal)
+  EE a list of standard values to map the natural scales
+  """
+    if A > B[3] * D:
+      SM = EE[4]
+    if A > B[2] * D and  A <= B[3] * D:
+      SM = EE[3]
+    if A > B[1] * D and  A <= B[2] * D:
+      SM = E[2]
+    if A > B[0] * D and  A <= B[1] * D:
+      SM = E[1]
+    if A <= B[0] * D:
+      SM = E[0]
+
+    return SM
+
+    
 class Pozo(Base):
     __tablename__ = 'pozos'
 
@@ -130,3 +170,31 @@ class Pozo(Base):
 
 
 
+a = Alternative('weighted.csv', 5)
+a.createSpesificAlternativeIZ()
+
+class Alternative:
+    def __init__(self, csv_path, last_alternative_row):
+        df = pd.read_csv(csv_path, encoding="latin1")
+        self.alternatives = df.ix[1:last_alternative_row,1]
+        w_sum = sum(pd.to_numeric(df.ix[last_alternative_row+1:,2]))
+    
+        self.weighted_C1 = df.ix[last_alternative_row+1:,2].apply(lambda x:x/w_sum)
+
+
+
+
+    def ideal_distance(self,alpha, VF_list, weight_list, h_Cp):
+        """
+        this function calcualtes a distance to ideal point using compromized programing metric
+        arguments:
+         - VF_list: a list of value functions
+         - weight_list a list of weights from the alternatives criteria links (CA_links)
+         - h_Cp to control the type of distance h_Cp=2 euclidian; h_Cp=1 manhattan
+        """
+        return alpha * sum([weight_list[n]**h_Cp * VF_list[n]**h_Cp for n in range(len(weight_list))])**(1/h_Cp)
+
+   
+
+
+ 
