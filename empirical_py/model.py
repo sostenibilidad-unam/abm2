@@ -90,23 +90,33 @@ class AGEB(Base):
     d_water_distribution = Column(Float) #distance from ideal point for decision to distribute water
     d_water_importacion = Column(Float)
 
-    def update_d_rep(self, c1_max):
+    
+    def update_d_reparation(self, c1_max, value_function):
         #calcular las las tres listas c1 c1_max y V
         # y con eso distance_ideal para definir el valor de d_reparacion
-
-        c1 = [self.antiguedad_infra,
-              self.capacidad,
-              self.falla,
-              self.falta,
-              self.presion_hidraulica,
-              self.monto,
-              self.water_quality,
-              self.scarcity,
-              self.flooding,
-              self.abastecimiento,
-              1, # petición de delegaciones
-              presion_de_medios,
-              self.presion_social]
+        
+        wf  = [0.0625, 0.125, 0.2,5 0.5, 1]
+        wfi = [1, 0.5, 0.25, 0.125, 0.0625]
+        
+        V = [
+            value_function(self.antiguedad_infra,   [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], c1_max[0], wf),
+            value_function(self.capacidad,          [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], c1_max[1], wfi),
+            value_function(self.falla,              [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], c1_max[2], wf),
+            value_function(self.falta,           [0.9, 0.95, 0.97, 0.99], ["", "", "", ""], c1_max[3], wf),
+            value_function(self.presion_hidraulica, [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], c1_max[4], wfi),
+            value_function(self.monto,              [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], c1_max[5], wf),
+            value_function(self.water_quality,      [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], c1_max[6], wfi),
+            value_function(self.scarcity,           [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], c1_max[7], wf),
+            value_function(self.flooding,           [0.1, 0.4, 0.6, 0.8], ["", "", "", ""], c1_max[8], wf),
+            value_function(self.abastecimiento,     [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], c1_max[9], wf),
+            value_function(1,                       [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], c1_max[10], wf), # petición de delegaciones
+            value_function(presion_de_medios,       [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], c1_max[11], wf),
+            value_function(self.presion_social,     [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], c1_max[12], wf)]
+        
+        self.d_reparation = ideal_distance(self.SACMEX_Matrix.w_limit,
+                                           V,
+                                           self.SACMEX_Matrix.weighted_criteria,
+                                           2)
     
 
     def __repr__(self):
@@ -154,14 +164,11 @@ class SACMEX:
                         session.query(AGEB).order_by(AGEB.presion_de_medios.desc()).first().presion_de_medios,
                         session.query(AGEB).order_by(AGEB.presion_social.desc()).first().presion_social
                     ]
-                  
+        
 
-        
-   
-        
     # def decide(self):
     #     for a in session.query(AGEB).all():
-    #         a.update_d_rep(self.c1_max)
+    #         a.update_d_rep(self.c1_max, value_function)
             
     
     def reparar_infra(self):
@@ -171,7 +178,6 @@ class SACMEX:
                 ageb.antiguedad_infra = 0.8 * ageb.antiguedad_infra
                 budget += 1
                 session.commit()
-
 
 
 
@@ -214,39 +220,42 @@ class LimitMatrix:
         
         self.weighted_criteria = pd.to_numeric(df.ix[firstCriteriaRow:,2]).apply(lambda x:x/w_sum)
 
+        self.w_limit = df[5,2] / sum(pd.to_numeric(df.ix[2:6,2]))    #esto talvez deberia ser una lista (un valor para cada alternativa), por ahora el 5 es para la alternativa mantenimiento
+
         
 
 
-    def ideal_distance(self,alpha, VF_list, weight_list, h_Cp):
-        """
-        this function calcualtes a distance to ideal point using compromized programing metric
-        arguments:
-         - VF_list: a list of value functions
-         - weight_list a list of weights from the alternatives criteria links (CA_links)
-         - h_Cp to control the type of distance h_Cp=2 euclidian; h_Cp=1 manhattan
-        """
-        return alpha * sum([weight_list[n]**h_Cp * VF_list[n]**h_Cp for n in range(len(weight_list))])**(1/h_Cp)
+
+def ideal_distance(alpha, VF_list, weight_list, h_Cp):
+    """
+    this function calcualtes a distance to ideal point using compromized programing metric
+    arguments:
+    - VF_list: a list of value functions
+    - weight_list a list of weights from the alternatives criteria links (CA_links)
+    - h_Cp to control the type of distance h_Cp=2 euclidian; h_Cp=1 manhattan
+    """
+    return alpha * sum([weight_list[n]**h_Cp * VF_list[n]**h_Cp for n in range(len(weight_list))])**(1/h_Cp)
 
    
-    def value_function(A, B, C, D, EE):
-        """This function reports a standarized value for the relationship between value of criteria and motivation to acta
-        A the value of a biophysical variable in its natural scale
-        B a list of percentage values of the biofisical variable that reflexts on the cut-offs to define the limits of the range in the linguistic scale
-        C list of streengs that define the lisguistice scale associate with a viobisical variable
-        D the ideal or anti ideal point of the criteria define based on the linguistic scale (e.g. intolerable ~= anti-ideal)
-        EE a list of standard values to map the natural scales
-        """
-        if A > B[3] * D:
-          SM = EE[4]
-        if A > B[2] * D and  A <= B[3] * D:
-          SM = EE[3]
-        if A > B[1] * D and  A <= B[2] * D:
-          SM = E[2]
-        if A > B[0] * D and  A <= B[1] * D:
-          SM = E[1]
-        if A <= B[0] * D:
-          SM = E[0]
-
-        return SM
+def value_function(A, B, C, D, EE):
+    """
+    This function reports a standarized value for the relationship between value of criteria and motivation to acta
+    A the value of a biophysical variable in its natural scale
+    B a list of percentage values of the biofisical variable that reflexts on the cut-offs to define the limits of the range in the linguistic scale
+    C list of streengs that define the lisguistice scale associate with a viobisical variable
+    D the ideal or anti ideal point of the criteria define based on the linguistic scale (e.g. intolerable ~= anti-ideal)
+    EE a list of standard values to map the natural scales
+  """
+    if A > B[3] * D:
+        SM = EE[4]
+    if A > B[2] * D and  A <= B[3] * D:
+        SM = EE[3]
+    if A > B[1] * D and  A <= B[2] * D:
+        SM = E[2]
+    if A > B[0] * D and  A <= B[1] * D:
+        SM = E[1]
+    if A <= B[0] * D:
+        SM = E[0]
+    return SM
 
  
