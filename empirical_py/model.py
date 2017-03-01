@@ -9,6 +9,11 @@ import pandas as pd
 Base = declarative_base()
 
 class AGEB(Base):
+
+    def __init__(self, SacmexMatrixPath, residentMatrixPath=None):
+        self.SACMEX_Matrix = LimitMatrix(SacmexMatrixPath)
+        
+    
     __tablename__ = 'agebs'
     id = Column(Integer, primary_key=True)
 
@@ -83,7 +88,26 @@ class AGEB(Base):
     d_reparation = Column(Float) #distance from ideal point for decision to repare infrastructure
     d_new = Column(Float) #distance from ideal point for decision to create new infrastructure
     d_water_distribution = Column(Float) #distance from ideal point for decision to distribute water
-    d_water_importacion = Column(Float) 
+    d_water_importacion = Column(Float)
+
+    def update_d_rep(self, c1_max):
+        #calcular las las tres listas c1 c1_max y V
+        # y con eso distance_ideal para definir el valor de d_reparacion
+
+        c1 = [self.antiguedad_infra,
+              self.capacidad,
+              self.falla,
+              self.falta,
+              self.presion_hidraulica,
+              self.monto,
+              self.water_quality,
+              self.scarcity,
+              self.flooding,
+              self.abastecimiento,
+              1, # petición de delegaciones
+              presion_de_medios,
+              self.presion_social]
+    
 
     def __repr__(self):
         return "AGEB%s" % (self.id)
@@ -112,6 +136,33 @@ class AGEB(Base):
 
 class SACMEX:
     recursos_para_mantencion = 40
+
+    def update_c1_max(self):
+       
+
+        self.c1_max = [ session.query(AGEB).order_by(AGEB.antiguedad_infra.desc()).first().antiguedad_infra,
+                        session.query(AGEB).order_by(AGEB.capacidad.desc()).first().capacidad,
+                        session.query(AGEB).order_by(AGEB.falla.desc()).first().falla,
+                        session.query(AGEB).order_by(AGEB.falta.desc()).first().falta,
+                        session.query(AGEB).order_by(AGEB.presion_hidraulica.desc()).first().presion_hidraulica,
+                        session.query(AGEB).order_by(AGEB.monto.desc()).first().monto,
+                        session.query(AGEB).order_by(AGEB.water_quality.desc()).first().water_quality,
+                        session.query(AGEB).order_by(AGEB.scarcity.desc()).first().scarcity,
+                        session.query(AGEB).order_by(AGEB.flooding.desc()).first().flooding,
+                        session.query(AGEB).order_by(AGEB.abastecimiento.desc()).first().abastecimiento,
+                        1,
+                        session.query(AGEB).order_by(AGEB.presion_de_medios.desc()).first().presion_de_medios,
+                        session.query(AGEB).order_by(AGEB.presion_social.desc()).first().presion_social
+                    ]
+                  
+
+        
+   
+        
+    # def decide(self):
+    #     for a in session.query(AGEB).all():
+    #         a.update_d_rep(self.c1_max)
+            
     
     def reparar_infra(self):
         budget = 0
@@ -125,26 +176,7 @@ class SACMEX:
 
 
 
-def value_function(A, B, C, D, EE):
-  """This function reports a standarized value for the relationship between value of criteria and motivation to acta
-  A the value of a biophysical variable in its natural scale
-  B a list of percentage values of the biofisical variable that reflexts on the cut-offs to define the limits of the range in the linguistic scale
-  C list of streengs that define the lisguistice scale associate with a viobisical variable
-  D the ideal or anti ideal point of the criteria define based on the linguistic scale (e.g. intolerable ~= anti-ideal)
-  EE a list of standard values to map the natural scales
-  """
-    if A > B[3] * D:
-      SM = EE[4]
-    if A > B[2] * D and  A <= B[3] * D:
-      SM = EE[3]
-    if A > B[1] * D and  A <= B[2] * D:
-      SM = E[2]
-    if A > B[0] * D and  A <= B[1] * D:
-      SM = E[1]
-    if A <= B[0] * D:
-      SM = E[0]
 
-    return SM
 
     
 class Pozo(Base):
@@ -170,18 +202,19 @@ class Pozo(Base):
 
 
 
-a = Alternative('weighted.csv', 5)
-a.createSpesificAlternativeIZ()
 
-class Alternative:
-    def __init__(self, csv_path, last_alternative_row):
+
+class LimitMatrix:
+    def __init__(self, csv_path):
         df = pd.read_csv(csv_path, encoding="latin1")
-        self.alternatives = df.ix[1:last_alternative_row,1]
-        w_sum = sum(pd.to_numeric(df.ix[last_alternative_row+1:,2]))
-    
-        self.weighted_C1 = df.ix[last_alternative_row+1:,2].apply(lambda x:x/w_sum)
+        firstCriteriaRow = [i for i, x in enumerate(df.ix[:,0]) if "nan" not in str(x)][1]  #the index of the second non null cell in first column
+        self.alternative_names = df.ix[1:firstCriteriaRow-1,1]
+        self.criteria_names = df.ix[firstCriteriaRow:,1]
+        w_sum = sum(pd.to_numeric(df.ix[firstCriteriaRow:,2]))
+        
+        self.weighted_criteria = pd.to_numeric(df.ix[firstCriteriaRow:,2]).apply(lambda x:x/w_sum)
 
-
+        
 
 
     def ideal_distance(self,alpha, VF_list, weight_list, h_Cp):
@@ -195,6 +228,25 @@ class Alternative:
         return alpha * sum([weight_list[n]**h_Cp * VF_list[n]**h_Cp for n in range(len(weight_list))])**(1/h_Cp)
 
    
+    def value_function(A, B, C, D, EE):
+        """This function reports a standarized value for the relationship between value of criteria and motivation to acta
+        A the value of a biophysical variable in its natural scale
+        B a list of percentage values of the biofisical variable that reflexts on the cut-offs to define the limits of the range in the linguistic scale
+        C list of streengs that define the lisguistice scale associate with a viobisical variable
+        D the ideal or anti ideal point of the criteria define based on the linguistic scale (e.g. intolerable ~= anti-ideal)
+        EE a list of standard values to map the natural scales
+        """
+        if A > B[3] * D:
+          SM = EE[4]
+        if A > B[2] * D and  A <= B[3] * D:
+          SM = EE[3]
+        if A > B[1] * D and  A <= B[2] * D:
+          SM = E[2]
+        if A > B[0] * D and  A <= B[1] * D:
+          SM = E[1]
+        if A <= B[0] * D:
+          SM = E[0]
 
+        return SM
 
  
