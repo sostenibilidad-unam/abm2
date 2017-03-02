@@ -12,7 +12,21 @@ class AGEB(Base):
 
     def __init__(self, SacmexMatrixPath, residentMatrixPath=None):
         self.SACMEX_Matrix = LimitMatrix(SacmexMatrixPath)
-        
+#        self.abastecimiento = poblacion * water_requirement_perPerson
+        # capas que falta incluir
+        self.desviacion_agua = 1 
+        self.eficacia_servicio = 1 # Gestión del servicio de Drenaje y agua potable (ej. interferencia política, no llega la pipa, horario del tandeo, etc)
+        self.desperdicio_agua = 1 # Por fugas, falta de conciencia del uso del agua
+        self.presion_hidraulica = 1
+        self.garbage = 1
+        self.urban_growth = 1
+        self.capacidad = 1
+        self.Falla = 1
+        self.Monto = 1
+        self.water_quality = 1
+
+
+                
     
     __tablename__ = 'agebs'
     id = Column(Integer, primary_key=True)
@@ -26,12 +40,7 @@ class AGEB(Base):
     group_kmean = Column(Integer) # define to witch group an ageb belongs to, based on sosio-economic charactersitics
     zona_aquifera = Column(Integer)
     name_delegation = Column(String) #the name of the delegation the ageb belongs to
-
-    monto = Column(Float) # resources designated to each ageb (delegations?)
-
-    def update_monto(self):
-        self.monto = asdlkfjas;dlk
-    
+    monto = Column(Float) # resources designated to each ageb (delegations?)    
     production_water_perageb = Column(Float) # produccion de agua {definir escala e.g resolucion temporal !!!!}
     abastecimiento = Column(Float) #Necesidad de la población en cuanto a servicios hidráulicos (agua potable, drenaje)
     abastecimiento_b = Column(Float)
@@ -95,7 +104,7 @@ class AGEB(Base):
         #calcular las las tres listas c1 c1_max y V
         # y con eso distance_ideal para definir el valor de d_reparacion
         
-        wf  = [0.0625, 0.125, 0.2,5 0.5, 1]
+        wf  = [0.0625, 0.125, 0.25, 0.5, 1]
         wfi = [1, 0.5, 0.25, 0.125, 0.0625]
         
         V = [
@@ -220,7 +229,7 @@ class LimitMatrix:
         
         self.weighted_criteria = pd.to_numeric(df.ix[firstCriteriaRow:,2]).apply(lambda x:x/w_sum)
 
-        self.w_limit = df[5,2] / sum(pd.to_numeric(df.ix[2:6,2]))    #esto talvez deberia ser una lista (un valor para cada alternativa), por ahora el 5 es para la alternativa mantenimiento
+        self.w_limit = pd.to_numeric(df.ix[5,2]) / sum(pd.to_numeric(df.ix[2:6,2]))    #esto talvez deberia ser una lista (un valor para cada alternativa), por ahora el 5 es para la alternativa mantenimiento
 
         
 
@@ -259,3 +268,6 @@ def value_function(A, B, C, D, EE):
     return SM
 
  
+
+
+
