@@ -100,7 +100,7 @@ class AGEB(Base):
     d_water_importacion = Column(Float)
 
     
-    def update_d_reparation(self, c1_max, value_function):
+    def update_distances_to_ideals_SACMEX(self, c1_max, value_function):
         #calcular las las tres listas c1 c1_max y V
         # y con eso distance_ideal para definir el valor de d_reparacion
         
@@ -122,11 +122,13 @@ class AGEB(Base):
             value_function(presion_de_medios,       [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], c1_max[11], wf),
             value_function(self.presion_social,     [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], c1_max[12], wf)]
         
-        self.d_reparation = ideal_distance(self.SACMEX_Matrix.w_limit,
-                                           V,
-                                           self.SACMEX_Matrix.weighted_criteria,
-                                           2)
-    
+        self.d_water_distribution = ideal_distance(self.SACMEX_Matrix.w_limit[0],V,self.SACMEX_Matrix.weighted_criteria,2)
+        self.d_water_extraction = ideal_distance(self.SACMEX_Matrix.w_limit[1],V,self.SACMEX_Matrix.weighted_criteria,2)
+        self.d_water_importacion = ideal_distance(self.SACMEX_Matrix.w_limit[2],V,self.SACMEX_Matrix.weighted_criteria,2)
+        self.d_reparation = ideal_distance(self.SACMEX_Matrix.w_limit[3],V,self.SACMEX_Matrix.weighted_criteria,2)
+        self.d_new = ideal_distance(self.SACMEX_Matrix.w_limit[4],V,self.SACMEX_Matrix.weighted_criteria,2)   # aqui estamos pasandole dos parametros que nunca cambian que son w_limit y weighted_criteria, talvez ideal distance deberia ser una funcion de la clase limitMatrix y asi solo le pasariamos la V y el exponente 2 en este caso
+       
+  
 
     def __repr__(self):
         return "AGEB%s" % (self.id)
@@ -228,8 +230,9 @@ class LimitMatrix:
         w_sum = sum(pd.to_numeric(df.ix[firstCriteriaRow:,2]))
         
         self.weighted_criteria = pd.to_numeric(df.ix[firstCriteriaRow:,2]).apply(lambda x:x/w_sum)
-
-        self.w_limit = pd.to_numeric(df.ix[5,2]) / sum(pd.to_numeric(df.ix[2:6,2]))    #esto talvez deberia ser una lista (un valor para cada alternativa), por ahora el 5 es para la alternativa mantenimiento
+        self.w_limit = []
+        for i in range(2,6):
+            self.w_limit.append( pd.to_numeric(df.ix[i,2]) / sum(pd.to_numeric(df.ix[2:6,2])) )  #esto talvez deberia ser una lista (un valor para cada alternativa), por ahora el 5 es para la alternativa mantenimiento
 
         
 
