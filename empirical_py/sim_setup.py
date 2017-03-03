@@ -14,6 +14,9 @@ parser = argparse.ArgumentParser(description='Setup party simulation by creating
 parser.add_argument('--db_url', default='sqlite:///:memory:', help='DB URL, default: sqlite:///:memory:')
 parser.add_argument('--inittable', default='ageb8', help='name of init table')
 parser.add_argument('--sacmex_matrix', type=argparse.FileType('r'), required=True, help='path to SACMEX matrix')
+parser.add_argument('--xochimilco_matrix', type=argparse.FileType('r'), required=True, help='path to Xochimilco matrix')
+parser.add_argument('--iztapalapa_matrix', type=argparse.FileType('r'), required=True, help='path to Ixtapalapa matrix')
+parser.add_argument('--contreras_matrix', type=argparse.FileType('r'), required=True, help='path to Contreras matrix')
 args = parser.parse_args()
 
 ####################
@@ -38,7 +41,17 @@ conn = engine.connect()
 s = text("select * from %s" % args.inittable)
 for row in conn.execute(s).fetchall():
     ageb = dict(row)
-    a = model.AGEB(args.sacmex_matrix.name)
+    residentMatrixPath = ""
+    if  (ageb['KMEANS5'] == 1) or (ageb['KMEANS5'] == 3):
+        residentMatrixPath = xochimilco_matrix.name
+    if (ageb['KMEANS5'] == 2) or (ageb['KMEANS5'] == 0):
+        residentMatrixPath = iztapalapa_matrix.name
+    if (ageb['KMEANS5'] == 4):
+        residentMatrixPath = contreras_matrix.name
+
+
+    
+    a = model.AGEB(args.sacmex_matrix.name, residentMatrixPath)
     a.ID = ageb['ageb_id']
     a.poblacion = ageb['POBTOT'] if ageb['POBTOT'] > 0 else 1
     a.houses_with_abastecimiento = ageb['VPH_AGUADV'] / (1 + ageb['VPH_AGUADV'] + ageb['VPH_AGUAFV'])
@@ -46,10 +59,11 @@ for row in conn.execute(s).fetchall():
     ## a.hundimientos = ageb['HUND']
     ##a.group_kmean = ageb['KMEANS5']
     a.disease_burden = (ageb["N04_TODAS"] + ageb["X05_TOTAL"] + ageb["X06_TODAS"] + ageb["X07_TODAS"]+ ageb["X08_TODAS"]+ ageb["X09_TODAS"]+ ageb["N10_TODAS"]+ ageb["N11_TODAS"]+ ageb["N12_TODAS"] + ageb["N13_TODAS"] + ageb["N14_TODAS"]) / 11 
-    a.income_index = 0 if ageb['I05_INGRES'] == 'nobody' else ageb['I05_INGRES']
+    a.income_index = 0 if ageb['I05_INGRES'] == 'nobody' else ageb['I05_INGRES'] #nobody????
     ##a.flooding = 0 if ageb['Mean_encha'] == 'nobody' else ageb['Mean_encha']
     ##a.antiguedad_infra = ageb['edad_infra']
     ##a.zona_aquifera = ageb['zonas']
+    
     
     session.add(a)
 session.commit()
