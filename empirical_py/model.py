@@ -88,7 +88,6 @@ class AGEB(Base):
     H_s = Column(Float) #undesire state no water
 
 
-
     
     #sdmatrix = Column(Pickle)
     #def update_sdmatrix(self):
@@ -106,12 +105,12 @@ class AGEB(Base):
             value_function(self.water_quality,   [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['water_quality'], wf),
             value_function(self.urban_growth,          [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['urban_growth'], wf),
             value_function(self.desperdicio_agua,              [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['desperdicio_agua'], wf),
-            value_function( (self.houses_with_dranage + self.houses_with_abastecimiento), [0.9 0.94 0.97 0.99], ["", "", "", ""], criteria_max['houses_with_dranage'] + criteria_max['houses_with_abastecimiento']  , wfi),
+            value_function( (self.houses_with_dranage + self.houses_with_abastecimiento), [0.9, 0.94, 0.97, 0.99], ["", "", "", ""], criteria_max['houses_with_dranage'] + criteria_max['houses_with_abastecimiento']  , wfi),
             value_function( (self.houses_with_dranage + self.houses_with_abastecimiento),  [0.8, 0.9, 0.95, 0.99], ["", "", "", ""], criteria_max['houses_with_dranage'] + criteria_max['houses_with_abastecimiento']  , wfi),
             0,
-            value_function(self.scarcity,      [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['water_quality'], wf),
-            value_function(self.flooding,           [0.1, 0.4, 0.6, 0.8], ["", "", "", ""], criteria_max['scarcity'], wf),
-            value_function(self.disease_burden,           [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['flooding'], wf)
+            value_function(self.scarcity,      [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['scarcity'], wf),
+            value_function(self.flooding,           [0.1, 0.4, 0.6, 0.8], ["", "", "", ""], criteria_max['flooding'], wf),
+            value_function(self.disease_burden,           [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['disease_burden'], wf)
             ]
 
         self.d_accion_colectiva = ideal_distance(self.resident_Matrix.weighted_alternatives[0],V_residents,self.resident_Matrix.weighted_criteria,2)
@@ -126,9 +125,9 @@ class AGEB(Base):
             value_function( (self.houses_with_dranage + self.houses_with_abastecimiento),  [0.9, 0.94, 0.97, 0.99], ["", "", "", ""], criteria_max['houses_with_dranage'] + criteria_max['houses_with_abastecimiento']  , wf),
             value_function( (self.houses_with_dranage + self.houses_with_abastecimiento),  [0.9, 0.94, 0.97, 0.99], ["", "", "", ""], criteria_max['houses_with_dranage'] + criteria_max['houses_with_abastecimiento']  , wfi),
             0,
-            value_function(self.scarcity,      [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['water_quality'], wf),
-            value_function(self.flooding,           [0.1, 0.4, 0.6, 0.8], ["", "", "", ""], criteria_max['scarcity'], wf),
-            value_function(self.disease_burden,           [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['flooding'], wf)
+            value_function(self.scarcity,      [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['scarcity'], wf),
+            value_function(self.flooding,           [0.1, 0.4, 0.6, 0.8], ["", "", "", ""], criteria_max['flooding'], wf),
+            value_function(self.disease_burden,           [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['disease_burden'], wf)
             ]
 
         self.d_captacion_agua = ideal_distance(self.resident_Matrix.weighted_alternatives[1],V_residents,self.resident_Matrix.weighted_criteria,2)
@@ -143,9 +142,9 @@ class AGEB(Base):
             value_function( (self.houses_with_dranage + self.houses_with_abastecimiento),  [0.9, 0.94, 0.97, 0.99], ["", "", "", ""], criteria_max['houses_with_dranage'] + criteria_max['houses_with_abastecimiento']  , wf),
             value_function( (self.houses_with_dranage + self.houses_with_abastecimiento),  [0.9, 0.94, 0.97, 0.99], ["", "", "", ""], criteria_max['houses_with_dranage'] + criteria_max['houses_with_abastecimiento']  , wfi),
             0,
-            value_function(self.scarcity,      [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['water_quality'], wf),
-            value_function(self.flooding,           [0.1, 0.4, 0.6, 0.8], ["", "", "", ""], criteria_max['scarcity'], wf),
-            value_function(self.disease_burden,           [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['flooding'], wf)
+            value_function(self.scarcity,      [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['scarcity'], wf),
+            value_function(self.flooding,           [0.1, 0.4, 0.6, 0.8], ["", "", "", ""], criteria_max['flooding'], wf),
+            value_function(self.disease_burden,           [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['disease_burden'], wf)
             ]
 
         self.d_compra_agua = ideal_distance(self.resident_Matrix.weighted_alternatives[2],V_residents,self.resident_Matrix.weighted_criteria,2)
@@ -160,9 +159,9 @@ class AGEB(Base):
             value_function( (self.houses_with_dranage + self.houses_with_abastecimiento),  [0.9, 0.94, 0.97, 0.99], ["", "", "", ""], criteria_max['houses_with_dranage'] + criteria_max['houses_with_abastecimiento']  , wf),
             value_function( (self.houses_with_dranage + self.houses_with_abastecimiento),  [0.9, 0.94, 0.97, 0.99], ["", "", "", ""], criteria_max['houses_with_dranage'] + criteria_max['houses_with_abastecimiento']  , wfi),
             0,
-            value_function(self.scarcity,      [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['water_quality'], wf),
-            value_function(self.flooding,           [0.1, 0.4, 0.6, 0.8], ["", "", "", ""], criteria_max['scarcity'], wf),
-            value_function(self.disease_burden,           [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['flooding'], wf)
+            value_function(self.scarcity,      [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['scarcity'], wf),
+            value_function(self.flooding,           [0.1, 0.4, 0.6, 0.8], ["", "", "", ""], criteria_max['flooding'], wf),
+            value_function(self.disease_burden,           [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['disease_burden'], wf)
             ]
 
         self.d_modificacion_vivienda = ideal_distance(self.resident_Matrix.weighted_alternatives[3],V_residents,self.resident_Matrix.weighted_criteria,2)
@@ -177,9 +176,9 @@ class AGEB(Base):
             value_function( (self.houses_with_dranage + self.houses_with_abastecimiento),  [0.9, 0.94, 0.97, 0.99], ["", "", "", ""], criteria_max['houses_with_dranage'] + criteria_max['houses_with_abastecimiento']  , wf),
             value_function( (self.houses_with_dranage + self.houses_with_abastecimiento),  [0.9, 0.94, 0.97, 0.99], ["", "", "", ""], criteria_max['houses_with_dranage'] + criteria_max['houses_with_abastecimiento']  , wfi),
             0,
-            value_function(self.scarcity,      [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['water_quality'], wf),
-            value_function(self.flooding,           [0.1, 0.4, 0.6, 0.8], ["", "", "", ""], criteria_max['scarcity'], wf),
-            value_function(self.disease_burden,           [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['flooding'], wf)
+            value_function(self.scarcity,      [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['scarcity'], wf),
+            value_function(self.flooding,           [0.1, 0.4, 0.6, 0.8], ["", "", "", ""], criteria_max['flooding'], wf),
+            value_function(self.disease_burden,           [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['disease_burden'], wf)
             ]
 
         self.d_movilizaciones = ideal_distance(self.resident_Matrix.weighted_alternatives[4],V_residents,self.resident_Matrix.weighted_criteria,2)
@@ -205,7 +204,7 @@ class AGEB(Base):
             value_function(self.abastecimiento,     [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['abastecimiento'], wf),
             value_function(1,                       [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['peticion_delegaciones'], wf), # petición de delegaciones
             value_function(presion_de_medios,       [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['presion_de_medios'], wf),
-            value_function(self.presion_social,     [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max[1'presion_social'], wf)]
+            value_function(self.presion_social,     [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['presion_social'], wf)]
 
         self.d_water_distribution = ideal_distance(self.SACMEX_Matrix.weighted_alternatives[0],V_SACMEX,self.SACMEX_Matrix.weighted_criteria,2)
         session.commit()
@@ -226,7 +225,7 @@ class AGEB(Base):
             value_function(self.abastecimiento,     [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['abastecimiento'], wf),
             value_function(1,                       [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['peticion_delegaciones'], wf), # petición de delegaciones
             value_function(presion_de_medios,       [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['presion_de_medios'], wf),
-            value_function(self.presion_social,     [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max[1'presion_social'], wf)]
+            value_function(self.presion_social,     [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['presion_social'], wf)]
 
         self.d_water_extraction = ideal_distance(self.SACMEX_Matrix.weighted_alternatives[1],V_SACMEX,self.SACMEX_Matrix.weighted_criteria,2)
         session.commit()
@@ -246,7 +245,7 @@ class AGEB(Base):
             value_function(self.abastecimiento,     [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['abastecimiento'], wf),
             value_function(1,                       [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['peticion_delegaciones'], wf), # petición de delegaciones
             value_function(presion_de_medios,       [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['presion_de_medios'], wf),
-            value_function(self.presion_social,     [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max[1'presion_social'], wf)]
+            value_function(self.presion_social,     [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['presion_social'], wf)]
 
         self.d_water_importacion = ideal_distance(self.SACMEX_Matrix.weighted_alternatives[2],V_SACMEX,self.SACMEX_Matrix.weighted_criteria,2)
         session.commit()
@@ -267,7 +266,7 @@ class AGEB(Base):
             value_function(self.abastecimiento,     [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['abastecimiento'], wf),
             value_function(1,                       [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['peticion_delegaciones'], wf), # petición de delegaciones
             value_function(presion_de_medios,       [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['presion_de_medios'], wf),
-            value_function(self.presion_social,     [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max[1'presion_social'], wf)]
+            value_function(self.presion_social,     [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['presion_social'], wf)]
 
         self.d_reparation = ideal_distance(self.SACMEX_Matrix.weighted_alternatives[3],V_SACMEX,self.SACMEX_Matrix.weighted_criteria,2)
         session.commit()
@@ -288,7 +287,7 @@ class AGEB(Base):
             value_function(self.abastecimiento,     [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['abastecimiento'], wf),
             value_function(1,                       [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['peticion_delegaciones'], wf), # petición de delegaciones
             value_function(presion_de_medios,       [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['presion_de_medios'], wf),
-            value_function(self.presion_social,     [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max[1'presion_social'], wf)]
+            value_function(self.presion_social,     [0.1, 0.3, 0.7, 0.9], ["", "", "", ""], criteria_max['presion_social'], wf)]
             
         self.d_new = ideal_distance(self.SACMEX_Matrix.weighted_alternatives[4],V_SACMEX,self.SACMEX_Matrix.weighted_criteria,2)
         session.commit()
@@ -337,7 +336,7 @@ class SACMEX:
                                 'flooding': session.query(AGEB).order_by(AGEB.flooding.desc()).first().flooding,
                                 'abastecimiento': session.query(AGEB).order_by(AGEB.abastecimiento.desc()).first().abastecimiento,
                                 'peticion_delegaciones' : 1, # TODO
-                                'presion_de_medios': session.query(AGEB).order_by(AGEB.presion_de_medios.desc()).first().presion_de_medios,
+                                'presion_de_medios': 1,
                                 'presion_social': session.query(AGEB).order_by(AGEB.presion_social.desc()).first().presion_social}
                     
         
@@ -358,21 +357,17 @@ class SACMEX:
 
 
 class Resident:
-
-def update_criteria_max(self):
-       
-
-        self.criteria_max = [ session.query(AGEB).order_by(AGEB.antiguedad_infra.desc()).first().antiguedad_infra,
-                        session.query(AGEB).order_by(AGEB.capacidad.desc()).first().capacidad,
-                        session.query(AGEB).order_by(AGEB.falla.desc()).first().falla,
-                        session.query(AGEB).order_by(AGEB.falta.desc()).first().falta,
-                        session.query(AGEB).order_by(AGEB.presion_hidraulica.desc()).first().presion_hidraulica,
-                        session.query(AGEB).order_by(AGEB.monto.desc()).first().monto,
-                        session.query(AGEB).order_by(AGEB.water_quality.desc()).first().water_quality,
-                        session.query(AGEB).order_by(AGEB.scarcity.desc()).first().scarcity,
-                        session.query(AGEB).order_by(AGEB.flooding.desc()).first().flooding,
-                       
-                    ]
+    
+    def update_criteria_max(self):
+        self.criteria_max = { 'water_quality': session.query(AGEB).order_by(AGEB.water_quality.desc()).first().water_quality,
+                        'urban_growth': session.query(AGEB).order_by(AGEB.urban_growth.desc()).first().urban_growth,
+                        'desperdicio_agua': session.query(AGEB).order_by(AGEB.desperdicio_agua.desc()).first().desperdicio_agua,
+                        'houses_with_dranage': session.query(AGEB).order_by(AGEB.houses_with_dranage.desc()).first().houses_with_dranage,
+                        'houses_with_abastecimiento': session.query(AGEB).order_by(AGEB.houses_with_abastecimiento.desc()).first().houses_with_abastecimiento,
+                        'scarcity': session.query(AGEB).order_by(AGEB.scarcity.desc()).first().scarcity,
+                        'flooding': session.query(AGEB).order_by(AGEB.flooding.desc()).first().flooding,
+                        'disease_burden': session.query(AGEB).order_by(AGEB.disease_burden.desc()).first().disease_burden
+                   } 
 
 
     
@@ -451,8 +446,3 @@ def value_function(A, B, C, D, EE):
     return SM
 
  
-
-
-
-class Criterion:
-     def __init__(self):
