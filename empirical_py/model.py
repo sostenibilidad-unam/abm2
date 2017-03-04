@@ -8,6 +8,8 @@ import pandas as pd
 
 Base = declarative_base()
 
+wf  = [0.0625, 0.125, 0.25, 0.5, 1]
+wfi = [1, 0.5, 0.25, 0.125, 0.0625]
 
 class AGEB(Base):
 
@@ -94,8 +96,7 @@ class AGEB(Base):
     #    pass
 
 
-    wf  = [0.0625, 0.125, 0.25, 0.5, 1]
-    wfi = [1, 0.5, 0.25, 0.125, 0.0625]
+
 
     
     #residents decisions metrics
@@ -438,11 +439,11 @@ def value_function(A, B, C, D, EE):
     if A > B[2] * D and  A <= B[3] * D:
         SM = EE[3]
     if A > B[1] * D and  A <= B[2] * D:
-        SM = E[2]
+        SM = EE[2]
     if A > B[0] * D and  A <= B[1] * D:
-        SM = E[1]
+        SM = EE[1]
     if A <= B[0] * D:
-        SM = E[0]
+        SM = EE[0]
     return SM
 
  
