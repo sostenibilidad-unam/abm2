@@ -69,3 +69,33 @@ for row in conn.execute(s).fetchall():
 session.commit()
 
 
+sacmex = model.SACMEX()
+
+#to GO :)
+
+for year in range(2017,2048):
+    for month in range(1,13):
+        for ageb in agebs: #esto deberia ser un query
+            ageb.update_criteria_max()
+            
+            ageb.update_d_accion_colectiva()
+            ageb.update_d_captacion_agua()
+            ageb.update_d_compra_agua()
+            ageb.update_d_modificacion_vivienda()
+            ageb.update_d_movilizaciones()
+
+            ageb.protest()
+            #aqui falta agregar acciones asociadas a accion_colectiva captacion_agua compra_agua y modificacion_vivienda?
+            
+            
+            
+    sacmex.update_criteria_max()
+    
+    ageb.update_d_water_distribution()
+    ageb.update_d_water_extraction()
+    ageb.update_d_water_importacion()
+    ageb.update_d_reparation()
+    ageb.update_d_new()
+
+    sacmex.reparar_infra()
+    #aqui falta agregar acciones asociadas a d_water_distribution d_water_extraction d_water_importacion y d_new?
