@@ -4,7 +4,7 @@
   <experiment name="experiment" repetitions="20" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="500"/>
+    <timeLimit steps="600"/>
     <metric>InequalityExposureIndex</metric>
     <metric>ExposureIndex</metric>
     <metric>ExposureIndex_S</metric>
@@ -22,6 +22,7 @@
     <metric>w5</metric>
     <metric>w6</metric>
     <metric>w7</metric>
+    <metric>w8</metric>
     <metric>alpha1</metric>
     <metric>alpha2</metric>
     <metric>alpha3</metric>
@@ -36,7 +37,7 @@
       <value value="&quot;{landscape}&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Initial-Condition-Infrastructure">
-      <value value="&quot;Worse&quot;"/>
+      <value value="&quot;New&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="semilla-aleatoria">
       <value value="{random_seed}"/>
@@ -44,11 +45,17 @@
     <enumeratedValueSet variable="budget-distribution">
       <value value="&quot;{budget_distribution}&quot;"/>
     </enumeratedValueSet>
+    <enumeratedValueSet variable="intensity_protest">
+      <value value="1"/>
+    </enumeratedValueSet>
     <enumeratedValueSet variable="p_rain">
       <value value="0.5"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="simulation_number">
       <value value="{simulation_number}"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="motivation_to_protest">
+      <value value="0.5"/>
     </enumeratedValueSet>
   </experiment>
 </experiments>
