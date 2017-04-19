@@ -1,4 +1,4 @@
-extensions [matrix csv profiler]
+extensions [matrix csv]
 globals [              ;;DEFINE GLOBAL VARIABLES
   real_rain            ;; real annual rainfall
   R                    ;; climatic risk (rainfall transformed into a normalized [0-1] scale)
@@ -278,7 +278,7 @@ to setup
   Create-Districts-Infra      ;;define the properties of the infrastructure and the neighborhoods
   ;read_weightsfrom_matrix
   ;read_weights_from_csv
-;  read_new_weights_from_csv
+  read_new_weights_from_csv
 
 ;if GOVERNMENT_DECISION_MAKING = "Increase Infra Coverage"[set w1 0.1 set w2 0.1 set w3 0.1 set w4 0.7 set w5 0.1 set w6 0.1 set w7 0.1 set w8 0.7]
 ;if GOVERNMENT_DECISION_MAKING = "Reduce age infrastructure"[set w1 0.1 set w2 0.1 set w3 0.7 set w4 0.1 set w5 0.1 set w6 0.1 set w7 0.7 set w8 0.1]
@@ -1001,7 +1001,7 @@ to update_weights                                   ;generate a change in the su
   set w5  w5 / tot_weights
   set w6  w6 / tot_weights
   set w7  w7 / tot_weights
-  ;set w8  w8 / tot_weights
+  set w8  w8 / tot_weights
 
 print (list alpha1 alpha2 alpha3 alpha4)
 
@@ -1012,7 +1012,7 @@ end
 
 to read_new_weights_from_csv
   ;  let tot_S csv:from-file "c:/Users/abaezaca/Documents/MEGADAPT/ABM_V2/sampling_scenarios_Weights.csv"
-  let tot_S csv:from-file "c:/Users/abaezaca/Documents/MEGADAPT/abm2/sampling_scenarios_Weights_all.csv"
+  let tot_S csv:from-file "sampling_scenarios_Weights_all.csv"
   ;let tot_S csv:from-file "c:/Users/abaezaca/Documents/MEGADAPT/ABM_V2/sampling_scenarios_Weights_var_WandD.csv"
   ;let tot_S csv:from-file "c:/Users/abaezaca/Documents/MEGADAPT/ABM_V2/sampling_scenarios_Weights_var_D.csv"
   let weigh_list but-first (item simulation_number (but-first tot_S))
@@ -1043,7 +1043,7 @@ end
 
 to export_value_patches
 
-file-open "c:/Users/abaezaca/Documents/MEGADAPT/abm2/landscape.txt"
+file-open "landscape.txt"
 foreach sort patches
   [
     ask ? [
@@ -1458,7 +1458,7 @@ simulation_number
 simulation_number
 0
 5999
-545
+3839
 1
 1
 NIL
@@ -1483,7 +1483,7 @@ motivation_to_protest
 motivation_to_protest
 0
 1
-0
+0.5
 0.1
 1
 NIL
@@ -1949,7 +1949,7 @@ NetLogo 5.2.1
 @#$#@#$#@
 @#$#@#$#@
 <experiments>
-  <experiment name="experiment1" repetitions="1" runMetricsEveryStep="false">
+  <experiment name="experiment1" repetitions="20" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="600"/>
@@ -2010,6 +2010,9 @@ NetLogo 5.2.1
     </enumeratedValueSet>
     <enumeratedValueSet variable="landscape-type">
       <value value="&quot;closed-watershed&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="motivation_to_protest">
+      <value value="0.5"/>
     </enumeratedValueSet>
   </experiment>
 </experiments>
