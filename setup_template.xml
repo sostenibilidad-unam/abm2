@@ -46,7 +46,7 @@
       <value value="&quot;{budget_distribution}&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="intensity_protest">
-      <value value="1"/>
+      <value value="0.1"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="p_rain">
       <value value="0.5"/>
@@ -55,7 +55,7 @@
       <value value="{simulation_number}"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="motivation_to_protest">
-      <value value="0.5"/>
+      <value value="0.2"/>
     </enumeratedValueSet>
   </experiment>
 </experiments>
