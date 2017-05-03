@@ -8,6 +8,7 @@ import random
 parser = argparse.ArgumentParser(description='Setup simulation.')
 parser.add_argument('--db', help='DB URL', required=True)
 parser.add_argument('--presupuesto', default=300)
+parser.add_argument('--mode', help='reset or init', default='reset')
 args = parser.parse_args()
 
 
@@ -16,9 +17,12 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 
+if args.mode == 'reset':
+    model.AGEB.__table__.drop(engine)
+    model.SACMEX.__table__.drop(engine)
+
 # setup orm
 model.Base.metadata.create_all(engine)
-
 
 
 # crear 2400 agebs
@@ -28,6 +32,7 @@ for n in range(100):
     session.commit()
 
 # crear sacmex
-s = model.SACMEX(presupuesto=args.presupuesto)
+s = model.SACMEX(presupuesto=args.presupuesto,
+                 status='wait')
 session.add(s)
 session.commit()

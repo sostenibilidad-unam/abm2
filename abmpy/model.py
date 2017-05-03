@@ -55,6 +55,8 @@ class SACMEX(Base):
 
     presupuesto = Column(Float)
 
+    status = Column(String)
+    
     def repara_infras(self):
         for a in session.query(AGEB).filter(AGEB.protestante==True).order_by(AGEB.deterioro_infra.asc()).all():
             self.repara_infra(a)

@@ -18,9 +18,19 @@ session = Session()
 model.session = session
 
 s = session.query(model.SACMEX).get(args.sid)
+s.status = 'run'
+session.commit()
 
 # as time goes by
-for t in range(100):
-    s.repara_infras()
-    session.commit()
-    sleep(0.4)
+while True:
+    try:
+        if s.status == 'run':
+            s.repara_infras()
+            session.commit()
+            sleep(1)
+    except KeyboardInterrupt:
+        s.status = 'stop'
+        session.commit()
+        exit(0)
+    
+    session.refresh(s)

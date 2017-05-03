@@ -16,11 +16,17 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 a = session.query(model.AGEB).get(args.aid)
-
+s = session.query(model.SACMEX).get(1)
 # as time goes by
-for t in range(100):
-    # pasa el tiempo para los agebs
-    a.deteriora()
-    a.update_protesta()
-    session.commit()
-    sleep(0.1)
+while True:
+    if s.status == 'run':
+        # pasa el tiempo para los agebs
+        a.deteriora()
+        a.update_protesta()
+        session.commit()
+        sleep(0.1)
+
+    if s.status == 'stop':
+        break
+    
+    session.refresh(s)
