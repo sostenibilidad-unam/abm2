@@ -15,8 +15,6 @@ class AGEB(Base):
     __tablename__ = 'agebs'
     id = Column(Integer, primary_key=True)    
 
-#    distancia = Column(Float)
-
     deterioro_infra = Column(Float)
     protestante = Column(Boolean)
 
@@ -31,8 +29,6 @@ class AGEB(Base):
     def deteriora(self):
         if self.deterioro_infra < 1.0:
             self.deterioro_infra = random.uniform(1.01, 1.1) * self.deterioro_infra
-#            session.add(self)
-#            session.commit()
 
     def accion_colectiva(self):
         if self.deteriora_infra > 0:
@@ -42,18 +38,21 @@ class AGEB(Base):
         self.deterioro_infra -= cuanto
 
 
-    def run_to(self, t):
+    def sync_run(self, t):
         self.deteriora()
         self.update_protesta()
         self.t = t
+
+    def async_run(self):
+        self.deteriora()
+        self.update_protesta()
+
         
     def __repr__(self):
         if self.protestante:
             return "<A%s! %0.2f t=%s>" % (self.id, self.deterioro_infra, self.t)
         else:
             return "<A%s  %0.2f t=%s>" % (self.id, self.deterioro_infra, self.t)
-#    def update_distancia(self):
-#        self.distancia = random.random()
     
 
 
