@@ -31,7 +31,7 @@ for n in range(200):
                    protestante=False,
                    t=0)
     session.add(a)
-    session.commit()
+session.commit()
 
 # crear sacmex
 s = model.SACMEX(presupuesto=args.presupuesto,
