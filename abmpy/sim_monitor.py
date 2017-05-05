@@ -1,6 +1,6 @@
 import model
 import argparse
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
 from time import sleep
 
@@ -13,6 +13,12 @@ args = parser.parse_args()
 
 
 engine  = create_engine(args.db)
+
+@event.listens_for(engine, 'begin')
+def receive_begin(conn):
+        conn.execute('SET TRANSACTION READ ONLY')
+
+        
 Session = sessionmaker(bind=engine)
 session = Session()
 

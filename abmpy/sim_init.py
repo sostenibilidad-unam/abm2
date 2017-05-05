@@ -26,7 +26,7 @@ model.Base.metadata.create_all(engine)
 
 
 # crear 2400 agebs
-for n in range(40):
+for n in range(200):
     a = model.AGEB(deterioro_infra=random.uniform(0.1,0.8),
                    protestante=False,
                    t=0)
