@@ -20,6 +20,8 @@ class AGEB(Base):
     deterioro_infra = Column(Float)
     protestante = Column(Boolean)
 
+    t = Column(Integer)
+    
     def update_protesta(self):
         if random.random() < self.deterioro_infra:
             self.protestante = True
@@ -39,11 +41,17 @@ class AGEB(Base):
     def repara_infra(self, cuanto):
         self.deterioro_infra -= cuanto
 
+
+    def run_to(self, t):
+        self.deteriora()
+        self.update_protesta()
+        self.t = t
+        
     def __repr__(self):
         if self.protestante:
-            return "<A%s! %s>" % (self.id, self.deterioro_infra)
+            return "<A%s! %0.2f t=%s>" % (self.id, self.deterioro_infra, self.t)
         else:
-            return "<A%s %s>" % (self.id, self.deterioro_infra)
+            return "<A%s  %0.2f t=%s>" % (self.id, self.deterioro_infra, self.t)
 #    def update_distancia(self):
 #        self.distancia = random.random()
     
@@ -55,7 +63,9 @@ class SACMEX(Base):
 
     presupuesto = Column(Float)
 
-    status = Column(String)
+    status = Column(String) # play, pause, stop
+
+    t = Column(Integer)
     
     def repara_infras(self):
         for a in session.query(AGEB).filter(AGEB.protestante==True).order_by(AGEB.deterioro_infra.asc()).all():

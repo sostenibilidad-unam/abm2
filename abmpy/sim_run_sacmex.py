@@ -18,15 +18,17 @@ session = Session()
 model.session = session
 
 s = session.query(model.SACMEX).get(args.sid)
-s.status = 'run'
+s.status = 'play'
 session.commit()
 
 # as time goes by
 while True:
     try:
-        if s.status == 'run':
-            s.repara_infras()
-            session.commit()
+        s.repara_infras()
+        s.t += 1
+        print s.t        
+        session.commit()
+        while session.query(model.AGEB).filter(model.AGEB.t != s.t).count()>0:
             sleep(1)
     except KeyboardInterrupt:
         s.status = 'stop'

@@ -19,4 +19,3 @@ session = Session()
 while True:
     print [session.query(model.AGEB).get(aid) for aid in args.ids]
     sleep(args.sleep)
-

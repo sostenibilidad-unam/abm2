@@ -19,14 +19,13 @@ a = session.query(model.AGEB).get(args.aid)
 s = session.query(model.SACMEX).get(1)
 # as time goes by
 while True:
-    if s.status == 'run':
+    if s.status == 'play':
         # pasa el tiempo para los agebs
-        a.deteriora()
-        a.update_protesta()
-        session.commit()
-        sleep(0.1)
-
+        if a.t != s.t:
+            a.run_to(s.t)        
+            session.commit()
     if s.status == 'stop':
         break
     
+    sleep(0.1)    
     session.refresh(s)

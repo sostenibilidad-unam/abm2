@@ -26,13 +26,16 @@ model.Base.metadata.create_all(engine)
 
 
 # crear 2400 agebs
-for n in range(100):
-    a = model.AGEB(deterioro_infra=random.uniform(0.1,0.8), protestante=False)
+for n in range(40):
+    a = model.AGEB(deterioro_infra=random.uniform(0.1,0.8),
+                   protestante=False,
+                   t=0)
     session.add(a)
     session.commit()
 
 # crear sacmex
 s = model.SACMEX(presupuesto=args.presupuesto,
-                 status='wait')
+                 status='pause',
+                 t=0)
 session.add(s)
 session.commit()
