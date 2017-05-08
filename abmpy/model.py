@@ -18,6 +18,8 @@ class AGEB(Base):
     deterioro_infra = Column(Float)
     protestante = Column(Boolean)
 
+    running_host = Column(String)
+    
     t = Column(Integer)
     
     def update_protesta(self):
@@ -50,9 +52,9 @@ class AGEB(Base):
         
     def __repr__(self):
         if self.protestante:
-            return "<A%s! %0.2f t=%s>" % (self.id, self.deterioro_infra, self.t)
+            return "<A%s! %0.2f t=%s %s>" % (self.id, self.deterioro_infra, self.t, self.running_host)
         else:
-            return "<A%s  %0.2f t=%s>" % (self.id, self.deterioro_infra, self.t)
+            return "<A%s  %0.2f t=%s %s>" % (self.id, self.deterioro_infra, self.t, self.running_host)
     
 
 

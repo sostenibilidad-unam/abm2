@@ -9,6 +9,7 @@ parser = argparse.ArgumentParser(description='Setup simulation.')
 parser.add_argument('--db', help='DB URL', required=True)
 parser.add_argument('--presupuesto', default=300)
 parser.add_argument('--mode', help='reset or init', default='reset')
+parser.add_argument('--agebs', default=2400, type=int)
 args = parser.parse_args()
 
 
@@ -25,10 +26,11 @@ if args.mode == 'reset':
 model.Base.metadata.create_all(engine)
 
 
-# crear 2400 agebs
-for n in range(200):
-    a = model.AGEB(deterioro_infra=random.uniform(0.1,0.8),
+# crear agebs
+for n in range(args.agebs):
+    a = model.AGEB(deterioro_infra=random.uniform(0.1,0.5),
                    protestante=False,
+                   running_host=None,
                    t=0)
     session.add(a)
 session.commit()
