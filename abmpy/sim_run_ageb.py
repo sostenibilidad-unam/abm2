@@ -1,3 +1,6 @@
+activate_this = '/srv/home/rgarcia/abm2/abmpy/venv2/bin/activate_this.py'
+execfile(activate_this, dict(__file__=activate_this))
+
 import model
 import argparse
 from sqlalchemy import create_engine
@@ -9,16 +12,16 @@ from socket import gethostname
 parser = argparse.ArgumentParser(description='Setup simulation.')
 parser.add_argument('--db', default='sqlite:///:memory:', help='DB URL, default: sqlite:///:memory:')
 parser.add_argument('--mode', default='sync')
-parser.add_argument('--agebs', type=int, default=5)
+parser.add_argument('--ids', type=int, nargs="+", required=True)
 parser.add_argument('--sleep', type=float, default=0.1)
 args = parser.parse_args()
+
 
 
 def set_running_host(host):
     for a in agebs:
         a.running_host = host
         session.add(a)
-
     session.commit()
 
 
@@ -26,7 +29,7 @@ engine  = create_engine(args.db)
 Session = sessionmaker(bind=engine)
 session = Session()
 
-agebs = session.query(model.AGEB).filter(model.AGEB.running_host==None).limit(args.agebs).all()
+agebs = [session.query(model.AGEB).get(aid) for aid in args.ids]
 
 set_running_host(gethostname())
 
