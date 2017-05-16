@@ -3,7 +3,7 @@ from ageb_ids import ageb_ids
 plantilla = """
 executable = /srv/home/rgarcia/abm2/abmpy/venv2/bin/python
 
-arguments = sim_run_ageb.py --db {db} --ids {ids}
+arguments = sim_run_ageb.py --db {db} --ids {ids} --sleep 0.5
 
 output    = r_{idss}.out
 error     = r_{idss}.err
@@ -14,6 +14,8 @@ queue
 """
 
 db="postgres+psycopg2://abm:abm@katsina1"
+
+ageb_ids = range(1, 2433)
 
 while len(ageb_ids) > 0:
     ids = []

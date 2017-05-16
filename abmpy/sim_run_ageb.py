@@ -7,7 +7,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import random
 from time import sleep
-from socket import gethostname
 
 parser = argparse.ArgumentParser(description='Setup simulation.')
 parser.add_argument('--db', default='sqlite:///:memory:', help='DB URL, default: sqlite:///:memory:')
@@ -16,22 +15,11 @@ parser.add_argument('--ids', type=int, nargs="+", required=True)
 parser.add_argument('--sleep', type=float, default=0.1)
 args = parser.parse_args()
 
-
-
-def set_running_host(host):
-    for a in agebs:
-        a.running_host = host
-        session.add(a)
-    session.commit()
-
-
 engine  = create_engine(args.db)
 Session = sessionmaker(bind=engine)
 session = Session()
 
 agebs = [session.query(model.AGEB).get(aid) for aid in args.ids]
-
-set_running_host(gethostname())
 
 s = session.query(model.SACMEX).get(1)
 
@@ -60,4 +48,4 @@ else:
         sleep(args.sleep)
         session.refresh(s)
 
-set_running_host(None)
+
