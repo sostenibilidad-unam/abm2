@@ -1,5 +1,5 @@
 plantilla = """
-executable = /srv/home/rgarcia/abm2/abm_redis/venv/bin/python
+executable = /srv/home/opalacios/abm2/abm_redis/venv/bin/python
 
 arguments = sim_run_ageb.py --ids {ids} --sleep 0.05
 
