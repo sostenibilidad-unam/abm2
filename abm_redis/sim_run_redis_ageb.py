@@ -9,26 +9,35 @@ parser = argparse.ArgumentParser(description='Welcome to the Redis version of th
 parser.add_argument('-f', '--flush', help='Use if you want to start from anew. All Redis keys are flushed.', action='store_true')
 parser.add_argument('-a', '--ageb', help='Use in conjunction with -f/--flush option to set number of AGEB agents. Defaults to 2000.', type=int, default=2000)
 parser.add_argument('-i', '--iterations', help='Number of SACMEX iterations. Defaults to 5000.', type=int, default=5000)
+parser.add_argument('-v', '--verbose', help='Print extra info about the process. Will remain completly quiet if omitted.', action='store_true')
 args = parser.parse_args()
 
+def toCli(message):
+	if args.verbose: print message
+
 if args.flush:
-	print 'Will now flush Redis.'
+	# Flushing entire DB
+	toCli('Will now flush Redis')
 	r.flushall()
 	# We set the SACMEX state to 1
 	r.set('sacmex_t', 0)
 	# Here we add new, empty AGEBs
+	toCli('Adding empty AGEBs')
 	ageb_count = 0
 	ageb = Redis_AGEB()
 	while ageb_count < args.ageb:
 		ageb.createNew()
 		ageb_count += 1
 
+toCli('Beginning SACMEX iterations\n\n**********\n')
 sacmex_t = 0
 while sacmex_t < args.iterations:
-	sacmex_t += 1
 	# We update the value for sacmex.
+	sacmex_t += 1
+	toCli('\n------- iteration '+str(sacmex_t))
 	r.set('sacmex_t', sacmex_t)
 	# AGEB wear and tear
+	toCli('Adding wear and tear')
 	ageb_count = 0
 	ageb = Redis_AGEB()
 	while ageb_count < args.ageb:
@@ -38,6 +47,10 @@ while sacmex_t < args.iterations:
 		ageb.save()
 	# SACMEX will now repair broken AGEBs
 	ageb_to_repair = r.zrevrange('ageb_reparar', 0, -1, True)
+	if len(ageb_to_repair) == 0:
+		toCli('No AGEBs to repair on this iteration')
+		continue
+	toCli('Beginning repairs in '+ str(len(ageb_to_repair)) + ' AGEBs')
 	for ageb_element in ageb_to_repair:
 		repair = Redis_AGEB(ageb_element[0])
 		# Repair wear and tear
@@ -47,3 +60,4 @@ while sacmex_t < args.iterations:
 			repair.protestando = False
 			r.zrem('ageb_reparar', ageb_element[0])
 		repair.save()
+toCli('\n')
