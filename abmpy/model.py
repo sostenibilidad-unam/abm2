@@ -89,13 +89,12 @@ class SACMEX(Base):
     t = Column(Integer)
 
     def repara_infras(self):
-        for a in session.query(AGEB).filter(AGEB.protestant==True).order_by(AGEB.d_infra.asc()).all():
+        for a in session.query(AGEB).filter(AGEB.protestant==True).all():
             self.repara_infra(a)
 
     def repara_infra(self, ageb):
         cuanto = random.uniform(0.7, 0.8) * ageb.d_infra
         ageb.repara_infra(cuanto)
-        session.commit()
 
     def __repr__(self):
         return "<SACMEX%s>" % self.id
