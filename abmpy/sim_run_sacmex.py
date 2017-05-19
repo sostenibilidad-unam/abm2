@@ -4,6 +4,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import random
 from time import sleep
+import timeit
 
 parser = argparse.ArgumentParser(description='Setup simulation.')
 parser.add_argument('--db', default='sqlite:///:memory:', help='DB URL, default: sqlite:///:memory:', required=True)
@@ -27,6 +28,7 @@ print "status set to play"
 # as time goes by
 while True:
     try:
+        tic = timeit.default_timer()
         if args.mode == 'sync':
             s.repara_infras()
             s.t += 1
@@ -38,6 +40,8 @@ while True:
             s.repara_infras()
             session.commit()
             sleep(args.sleep)
+        toc = timeit.default_timer()
+        print toc - tic
     except KeyboardInterrupt:
         s.status = 'stop'
         session.commit()
