@@ -5,6 +5,8 @@ from sqlalchemy.orm import sessionmaker
 import random
 from time import sleep
 import timeit
+import value_function_dicts
+
 
 parser = argparse.ArgumentParser(description='Setup simulation.')
 parser.add_argument('--db', default='sqlite:///:memory:', help='DB URL, default: sqlite:///:memory:', required=True)
@@ -21,13 +23,13 @@ session = Session()
 model.session = session
 
 s = session.query(model.SACMEX).get(args.sid)
-while True:
+for t in range(50):
     with session.begin():
-        s.repara_infras()
-        s.t += 1
+        if t % 5:
+            s.step()
         for a in session.query(model.AGEB).all():
-            a.deteriora()
-            a.update_protesta()
-        print s.t            
+            a.step()
+            
+        print t
 
 
