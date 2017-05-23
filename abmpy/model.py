@@ -5,7 +5,7 @@ from sqlalchemy.orm import mapper, relationship
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
+import alternatives as alts
 
 import random
 import pandas as pd
@@ -15,19 +15,6 @@ from pprint import pprint
 import value_functions_per_alternative as vf_alt
 
 Base = declarative_base()
-
-
-def ideal_distance(alpha, criteria, criteria_weights, exponent):
-    """
-    this function calcualtes a distance to ideal point using compromized programing metric
-    arguments:
-    - VF_list: a list of value functions
-    - weight_list a list of weights from the alternatives criteria links (CA_links)
-    - h_Cp to control the type of distance h_Cp=2 euclidian; h_Cp=1 manhattan
-    """
-    return alpha * sum([(criteria[n] * criteria_weights[n]) ** float(exponent)
-                         for n in range(len(criteria))]) ** (1 / float(exponent))
-
 
 class AGEB(Base):
     __tablename__ = 'ageb13_a'
@@ -56,9 +43,8 @@ class AGEB(Base):
     escasez = Column(Float)
     subside = Column(Float)
     disease_bu = Column(Float)
+
     protestant = Column(Boolean)
-    d_infra = Column(Float)
-    host = Column(String)
 
     t = Column(Integer)
     limit_matrix = None
@@ -85,49 +71,14 @@ class AGEB(Base):
         if self.d_infra < 1.0:
             self.d_infra = random.uniform(1.01, 1.1) * self.d_infra
 
-
-    def get_distancia(self, alpha, vf, criteria):
-        """
-        vf is a dictionary of value functions, defined in value_functiion_dicts
-        criteria is a list of criteria keys that must also be class attibutes
-        """
-        v = [vf[criterion](self.__dict__[criterion]) for criterion in criteria]
-
-        return ideal_distance(alpha,
-                              v,
-                              self.limit_matrix.criteria.values(),
-                              2)
-
-
-    # crit_catp_agua=
-    # vf=vf.capt_agua
-    # get_distancia(vf, crit_capt_agua)
         
     def decide(self):
 
-        accion_colectiva = ['escasez', 'edad_infra', 'total_ench', 'faltain', 'escasez', 'disease_bu']
-        captacion_de_agua = ['escasez', 'edad_infra', 'total_ench', 'faltain', 'escasez', 'disease_bu']
-        compra_de_agua = ['escasez', 'edad_infra', 'total_ench', 'faltain', 'escasez', 'disease_bu']
-        modificacion_de_vivienda = ['escasez', 'edad_infra', 'total_ench', 'faltain', 'escasez', 'disease_bu']
-        movilizaciones = ['escasez', 'edad_infra', 'total_ench', 'faltain', 'escasez', 'disease_bu']
-
-        distances = {
-            'accion_colectiva': self.get_distancia(self.limit_matrix.alternatives['accion_colectiva'],
-                                                   vf_alt.accion_colectiva,
-                                                   accion_colectiva),
-            'captacion_de_agua': self.get_distancia(self.limit_matrix.alternatives['captacion_de_agua'],
-                                                    vf_alt.captacion_de_agua,
-                                                    captacion_de_agua),
-            'compra_de_agua': self.get_distancia(self.limit_matrix.alternatives['compra_de_agua'],
-                                                 vf_alt.compra_de_agua,
-                                                 compra_de_agua),
-            'modificacion_de_vivienda': self.get_distancia(self.limit_matrix.alternatives['modificacion_de_vivienda'],
-                                                    vf_alt.modificacion_de_vivienda,
-                                                    modificacion_de_vivienda),
-            'movilizaciones': self.get_distancia(self.limit_matrix.alternatives['movilizaciones'],
-                                        vf_alt.movilizaciones,
-                                        movilizaciones)
-            }
+        distances = {'accion_colectiva': alts.AccionColectiva(self.limit_matrix, self.context, self).get_distance(),
+                     'captacion_de_agua': alts.CaptacionAgua(self.limit_matrix, self.context, self).get_distance(),
+                     'compra_de_agua' :alts.CompraAgua(self.limit_matrix, self.context, self).get_distance(),
+                     'modificacion_de_vivienda' :alts.ModificacionVivienda(self.limit_matrix, self.context, self).get_distance(),
+                     'movilizaciones' :alts.Movilizaciones(self.limit_matrix, self.context, self).get_distance()}
 
         max_distance = sorted(distances, key=distances.__getitem__)[-1]
         
@@ -155,11 +106,7 @@ class AGEB(Base):
 
 
     def __repr__(self):
-        if self.protestant:
-            return "<A%s! %0.2f t=%s>" % (self.gid, self.d_infra, self.t)
-        else:
-            return "<A%s  %0.2f t=%s>" % (self.gid, self.d_infra, self.t)
-
+        return "<A%s>" % (self.gid)
 
 
 class SACMEX(Base):
