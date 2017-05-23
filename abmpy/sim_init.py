@@ -22,7 +22,6 @@ if args.mode == 'reset':
 model.Base.metadata.create_all(engine)
 
 # crear sacmex
-s = model.SACMEX(status='pause',
-                 t=0)
+s = model.SACMEX(presupuesto=1000)
 session.add(s)
 session.commit()

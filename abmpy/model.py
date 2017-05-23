@@ -1,18 +1,15 @@
 # coding: utf-8
 
-from sqlalchemy import Column, Integer, ForeignKey, Float, Boolean, String
-from sqlalchemy.orm import mapper, relationship
+from sqlalchemy import Column, Integer, Float, Boolean, String
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-import alternatives as alts
-
 import random
-import pandas as pd
+
+import alternatives as alts
+import sacmex_alternatives as salts
 
 from pprint import pprint
 
-import value_functions_per_alternative as vf_alt
+session = None
 
 Base = declarative_base()
 
@@ -68,9 +65,7 @@ class AGEB(Base):
         
 
     def deteriora(self):
-        if self.d_infra < 1.0:
-            self.d_infra = random.uniform(1.01, 1.1) * self.d_infra
-
+        pass
         
     def decide(self):
 
@@ -101,8 +96,9 @@ class AGEB(Base):
         accion = self.decide()
         accion()
         
+        #
         self.deteriora()
-        self.update_protesta()
+        #self.update_protesta()
 
 
     def __repr__(self):
@@ -112,55 +108,42 @@ class AGEB(Base):
 class SACMEX(Base):
     __tablename__ = 'sacmex'
     id = Column(Integer, primary_key=True)
-
     status = Column(String) # play, pause, stop
+    presupuesto = Column(Float)
 
-    t = Column(Integer)
+    context = None
+    limit_matrix = None
 
-    def repara_infras(self):
-        for a in session.query(AGEB).filter(AGEB.protestant==True).all():
-            self.repara_infra(a)
-
+    # acciones
     def repara_infra(self, ageb):
-        cuanto = random.uniform(0.7, 0.8) * ageb.d_infra
-        ageb.repara_infra(cuanto)
+        pass
+    def distribucion_agua(self):
+        pass
+    def extraccion_agua(self):
+        pass
+    def importacion_agua(self):
+        pass
+    
+    def mantenimiento(self):
+        pass
+        
+    def nueva_infraestructura(self):
+        pass
 
+
+
+    def get_maintenance_distances(self):
+        return {a: salts.Mantenimiento(self.limit_matrix, self.context, a).get_distance()
+                for a in session.query(AGEB).all()}
+            
+    
     def __repr__(self):
         return "<SACMEX%s>" % self.id
 
-    # distancias
-
-    def dist_mant(self, ageb):
-        """
-        compute distance to ideal maintenance
-        """
-        distance = value_function(random.random())
-        return distance
-
-
-    def update_criteria_max(self):
-        self.criteria_max = {
-            'antiguedad_infra': session.query(AGEB).order_by(AGEB.antiguedad_infra.desc()).first().antiguedad_infra,
-            'capacidad': session.query(AGEB).order_by(AGEB.capacidad.desc()).first().capacidad,
-            'falla': session.query(AGEB).order_by(AGEB.falla.desc()).first().falla,
-            'falta': session.query(AGEB).order_by(AGEB.falta.desc()).first().falta,
-            'presion_hidraulica': session.query(AGEB).order_by(AGEB.presion_hidraulica.desc()).first().presion_hidraulica,
-            'monto': session.query(AGEB).order_by(AGEB.monto.desc()).first().monto,
-            'water_quality': session.query(AGEB).order_by(AGEB.water_quality.desc()).first().water_quality,
-            'scarcity': session.query(AGEB).order_by(AGEB.scarcity.desc()).first().scarcity,
-            'flooding': session.query(AGEB).order_by(AGEB.flooding.desc()).first().flooding,
-            'abastecimiento': session.query(AGEB).order_by(AGEB.abastecimiento.desc()).first().abastecimiento,
-            'peticion_delegaciones' : 1, # TODO
-            'presion_de_medios': 1,
-            'presion_social': session.query(AGEB).order_by(AGEB.presion_social.desc()).first().presion_social
-            }
-
-
     def step(self):
-        s.update_criteria_max()
-        distancias_mant = [s.dist_mant(a) for a in agebs]
-        
-        self.t += 1
+        #distancias_mant = [s.dist_mant(a) for a in agebs]
+        pass
+
 
 
 

@@ -21,40 +21,40 @@ class AccionColectiva:
         self.ageb = ageb
 
     def get_contaminacion_agua(self):
-        return lineal(self.ageb.escasez,
-                      self.context['contaminacion_agua']['min'],
-                      self.context['contaminacion_agua']['max'])
+        return lineal(self.ageb.edad_infra,
+                      self.context['edad_infra']['min'],
+                      self.context['edad_infra']['max'])
 
     def get_crecimiento_urbano(self):
-        return lineal(self.ageb.escasez,
-                      self.context['crecimiento_urbano']['min'],
-                      self.context['crecimiento_urbano']['max'])
+        return lineal(self.ageb.edad_infra,
+                      self.context['edad_infra']['min'],
+                      self.context['edad_infra']['max'])
         
 
     def get_desperdicio_agua(self):
-        return lineal(self.ageb.escasez,
-                      self.context['desperdicio_agua']['min'],
-                      self.context['desperdicio_agua']['max'])
+        return lineal(self.ageb.edad_infra,
+                      self.context['edad_infra']['min'],
+                      self.context['edad_infra']['max'])
 
     def get_desviacion_agua(self):
-        return lineal(self.ageb.escasez,
-                      self.context['desviacion_agua']['min'],
-                      self.context['desviacion_agua']['max'])
+        return lineal(self.ageb.edad_infra,
+                      self.context['edad_infra']['min'],
+                      self.context['edad_infra']['max'])
 
     def get_eficacia_servicio(self):
-        return lineal(self.ageb.escasez,
-                      self.context['eficacia_servicio']['min'],
-                      self.context['eficacia_servicio']['max'])
+        return lineal(self.ageb.edad_infra,
+                      self.context['edad_infra']['min'],
+                      self.context['edad_infra']['max'])
 
     def get_falta_infraestructura(self):
-        return lineal(self.ageb.escasez,
+        return lineal(self.ageb.faltain,
                       self.context['falta_infraestructura']['min'],
                       self.context['falta_infraestructura']['max'])
 
     def get_obstruccion_alcantarillado(self):
-        return lineal(self.ageb.escasez,
-                      self.context['obstruccion_alcantarillado']['min'],
-                      self.context['obstruccion_alcantarillado']['max'])
+        return lineal(self.ageb.edad_infra,
+                      self.context['edad_infra']['min'],
+                      self.context['edad_infra']['max'])
 
     def get_escasez_agua(self):
         return lineal(self.ageb.escasez,
@@ -62,12 +62,12 @@ class AccionColectiva:
                       self.context['escasez_agua']['max'])
 
     def get_inundaciones(self):
-        return lineal(self.ageb.escasez,
+        return lineal(self.ageb.total_ench,
                       self.context['inundaciones']['min'],
                       self.context['inundaciones']['max'])
 
     def get_salud(self):
-        return lineal(self.ageb.escasez,
+        return lineal(self.ageb.disease_bu,
                       self.context['salud']['min'],
                       self.context['salud']['max'])
 
@@ -96,41 +96,42 @@ class CaptacionAgua:
         self.context = context
         self.ageb = ageb
 
+
     def get_contaminacion_agua(self):
-        return lineal(self.ageb.escasez,
-                      self.context['contaminacion_agua']['min'],
-                      self.context['contaminacion_agua']['max'])
+        return lineal(self.ageb.edad_infra,
+                      self.context['edad_infra']['min'],
+                      self.context['edad_infra']['max'])
 
     def get_crecimiento_urbano(self):
-        return lineal(self.ageb.escasez,
-                      self.context['crecimiento_urbano']['min'],
-                      self.context['crecimiento_urbano']['max'])
+        return lineal(self.ageb.edad_infra,
+                      self.context['edad_infra']['min'],
+                      self.context['edad_infra']['max'])
         
 
     def get_desperdicio_agua(self):
-        return lineal(self.ageb.escasez,
-                      self.context['desperdicio_agua']['min'],
-                      self.context['desperdicio_agua']['max'])
+        return lineal(self.ageb.edad_infra,
+                      self.context['edad_infra']['min'],
+                      self.context['edad_infra']['max'])
 
     def get_desviacion_agua(self):
-        return lineal(self.ageb.escasez,
-                      self.context['desviacion_agua']['min'],
-                      self.context['desviacion_agua']['max'])
+        return lineal(self.ageb.edad_infra,
+                      self.context['edad_infra']['min'],
+                      self.context['edad_infra']['max'])
 
     def get_eficacia_servicio(self):
-        return lineal(self.ageb.escasez,
-                      self.context['eficacia_servicio']['min'],
-                      self.context['eficacia_servicio']['max'])
+        return lineal(self.ageb.edad_infra,
+                      self.context['edad_infra']['min'],
+                      self.context['edad_infra']['max'])
 
     def get_falta_infraestructura(self):
-        return lineal(self.ageb.escasez,
+        return lineal(self.ageb.faltain,
                       self.context['falta_infraestructura']['min'],
                       self.context['falta_infraestructura']['max'])
 
     def get_obstruccion_alcantarillado(self):
-        return lineal(self.ageb.escasez,
-                      self.context['obstruccion_alcantarillado']['min'],
-                      self.context['obstruccion_alcantarillado']['max'])
+        return lineal(self.ageb.edad_infra,
+                      self.context['edad_infra']['min'],
+                      self.context['edad_infra']['max'])
 
     def get_escasez_agua(self):
         return lineal(self.ageb.escasez,
@@ -138,15 +139,14 @@ class CaptacionAgua:
                       self.context['escasez_agua']['max'])
 
     def get_inundaciones(self):
-        return lineal(self.ageb.escasez,
+        return lineal(self.ageb.total_ench,
                       self.context['inundaciones']['min'],
                       self.context['inundaciones']['max'])
 
     def get_salud(self):
-        return lineal(self.ageb.escasez,
+        return lineal(self.ageb.disease_bu,
                       self.context['salud']['min'],
                       self.context['salud']['max'])
-
 
     def get_distance(self):
         return ideal_distance(alpha=self.limit_matrix.alternatives['captacion_de_agua'],
@@ -173,40 +173,40 @@ class CompraAgua:
         self.ageb = ageb
 
     def get_contaminacion_agua(self):
-        return lineal(self.ageb.escasez,
-                      self.context['contaminacion_agua']['min'],
-                      self.context['contaminacion_agua']['max'])
+        return lineal(self.ageb.edad_infra,
+                      self.context['edad_infra']['min'],
+                      self.context['edad_infra']['max'])
 
     def get_crecimiento_urbano(self):
-        return lineal(self.ageb.escasez,
-                      self.context['crecimiento_urbano']['min'],
-                      self.context['crecimiento_urbano']['max'])
+        return lineal(self.ageb.edad_infra,
+                      self.context['edad_infra']['min'],
+                      self.context['edad_infra']['max'])
         
 
     def get_desperdicio_agua(self):
-        return lineal(self.ageb.escasez,
-                      self.context['desperdicio_agua']['min'],
-                      self.context['desperdicio_agua']['max'])
+        return lineal(self.ageb.edad_infra,
+                      self.context['edad_infra']['min'],
+                      self.context['edad_infra']['max'])
 
     def get_desviacion_agua(self):
-        return lineal(self.ageb.escasez,
-                      self.context['desviacion_agua']['min'],
-                      self.context['desviacion_agua']['max'])
+        return lineal(self.ageb.edad_infra,
+                      self.context['edad_infra']['min'],
+                      self.context['edad_infra']['max'])
 
     def get_eficacia_servicio(self):
-        return lineal(self.ageb.escasez,
-                      self.context['eficacia_servicio']['min'],
-                      self.context['eficacia_servicio']['max'])
+        return lineal(self.ageb.edad_infra,
+                      self.context['edad_infra']['min'],
+                      self.context['edad_infra']['max'])
 
     def get_falta_infraestructura(self):
-        return lineal(self.ageb.escasez,
+        return lineal(self.ageb.faltain,
                       self.context['falta_infraestructura']['min'],
                       self.context['falta_infraestructura']['max'])
 
     def get_obstruccion_alcantarillado(self):
-        return lineal(self.ageb.escasez,
-                      self.context['obstruccion_alcantarillado']['min'],
-                      self.context['obstruccion_alcantarillado']['max'])
+        return lineal(self.ageb.edad_infra,
+                      self.context['edad_infra']['min'],
+                      self.context['edad_infra']['max'])
 
     def get_escasez_agua(self):
         return lineal(self.ageb.escasez,
@@ -214,12 +214,12 @@ class CompraAgua:
                       self.context['escasez_agua']['max'])
 
     def get_inundaciones(self):
-        return lineal(self.ageb.escasez,
+        return lineal(self.ageb.total_ench,
                       self.context['inundaciones']['min'],
                       self.context['inundaciones']['max'])
 
     def get_salud(self):
-        return lineal(self.ageb.escasez,
+        return lineal(self.ageb.disease_bu,
                       self.context['salud']['min'],
                       self.context['salud']['max'])
 
@@ -248,40 +248,40 @@ class ModificacionVivienda:
         self.ageb = ageb
 
     def get_contaminacion_agua(self):
-        return lineal(self.ageb.escasez,
-                      self.context['contaminacion_agua']['min'],
-                      self.context['contaminacion_agua']['max'])
+        return lineal(self.ageb.edad_infra,
+                      self.context['edad_infra']['min'],
+                      self.context['edad_infra']['max'])
 
     def get_crecimiento_urbano(self):
-        return lineal(self.ageb.escasez,
-                      self.context['crecimiento_urbano']['min'],
-                      self.context['crecimiento_urbano']['max'])
+        return lineal(self.ageb.edad_infra,
+                      self.context['edad_infra']['min'],
+                      self.context['edad_infra']['max'])
         
 
     def get_desperdicio_agua(self):
-        return lineal(self.ageb.escasez,
-                      self.context['desperdicio_agua']['min'],
-                      self.context['desperdicio_agua']['max'])
+        return lineal(self.ageb.edad_infra,
+                      self.context['edad_infra']['min'],
+                      self.context['edad_infra']['max'])
 
     def get_desviacion_agua(self):
-        return lineal(self.ageb.escasez,
-                      self.context['desviacion_agua']['min'],
-                      self.context['desviacion_agua']['max'])
+        return lineal(self.ageb.edad_infra,
+                      self.context['edad_infra']['min'],
+                      self.context['edad_infra']['max'])
 
     def get_eficacia_servicio(self):
-        return lineal(self.ageb.escasez,
-                      self.context['eficacia_servicio']['min'],
-                      self.context['eficacia_servicio']['max'])
+        return lineal(self.ageb.edad_infra,
+                      self.context['edad_infra']['min'],
+                      self.context['edad_infra']['max'])
 
     def get_falta_infraestructura(self):
-        return lineal(self.ageb.escasez,
+        return lineal(self.ageb.faltain,
                       self.context['falta_infraestructura']['min'],
                       self.context['falta_infraestructura']['max'])
 
     def get_obstruccion_alcantarillado(self):
-        return lineal(self.ageb.escasez,
-                      self.context['obstruccion_alcantarillado']['min'],
-                      self.context['obstruccion_alcantarillado']['max'])
+        return lineal(self.ageb.edad_infra,
+                      self.context['edad_infra']['min'],
+                      self.context['edad_infra']['max'])
 
     def get_escasez_agua(self):
         return lineal(self.ageb.escasez,
@@ -289,12 +289,12 @@ class ModificacionVivienda:
                       self.context['escasez_agua']['max'])
 
     def get_inundaciones(self):
-        return lineal(self.ageb.escasez,
+        return lineal(self.ageb.total_ench,
                       self.context['inundaciones']['min'],
                       self.context['inundaciones']['max'])
 
     def get_salud(self):
-        return lineal(self.ageb.escasez,
+        return lineal(self.ageb.disease_bu,
                       self.context['salud']['min'],
                       self.context['salud']['max'])
 
@@ -323,40 +323,40 @@ class Movilizaciones:
         self.ageb = ageb
 
     def get_contaminacion_agua(self):
-        return lineal(self.ageb.escasez,
-                      self.context['contaminacion_agua']['min'],
-                      self.context['contaminacion_agua']['max'])
+        return lineal(self.ageb.edad_infra,
+                      self.context['edad_infra']['min'],
+                      self.context['edad_infra']['max'])
 
     def get_crecimiento_urbano(self):
-        return lineal(self.ageb.escasez,
-                      self.context['crecimiento_urbano']['min'],
-                      self.context['crecimiento_urbano']['max'])
+        return lineal(self.ageb.edad_infra,
+                      self.context['edad_infra']['min'],
+                      self.context['edad_infra']['max'])
         
 
     def get_desperdicio_agua(self):
-        return lineal(self.ageb.escasez,
-                      self.context['desperdicio_agua']['min'],
-                      self.context['desperdicio_agua']['max'])
+        return lineal(self.ageb.edad_infra,
+                      self.context['edad_infra']['min'],
+                      self.context['edad_infra']['max'])
 
     def get_desviacion_agua(self):
-        return lineal(self.ageb.escasez,
-                      self.context['desviacion_agua']['min'],
-                      self.context['desviacion_agua']['max'])
+        return lineal(self.ageb.edad_infra,
+                      self.context['edad_infra']['min'],
+                      self.context['edad_infra']['max'])
 
     def get_eficacia_servicio(self):
-        return lineal(self.ageb.escasez,
-                      self.context['eficacia_servicio']['min'],
-                      self.context['eficacia_servicio']['max'])
+        return lineal(self.ageb.edad_infra,
+                      self.context['edad_infra']['min'],
+                      self.context['edad_infra']['max'])
 
     def get_falta_infraestructura(self):
-        return lineal(self.ageb.escasez,
+        return lineal(self.ageb.faltain,
                       self.context['falta_infraestructura']['min'],
                       self.context['falta_infraestructura']['max'])
 
     def get_obstruccion_alcantarillado(self):
-        return lineal(self.ageb.escasez,
-                      self.context['obstruccion_alcantarillado']['min'],
-                      self.context['obstruccion_alcantarillado']['max'])
+        return lineal(self.ageb.edad_infra,
+                      self.context['edad_infra']['min'],
+                      self.context['edad_infra']['max'])
 
     def get_escasez_agua(self):
         return lineal(self.ageb.escasez,
@@ -364,15 +364,14 @@ class Movilizaciones:
                       self.context['escasez_agua']['max'])
 
     def get_inundaciones(self):
-        return lineal(self.ageb.escasez,
+        return lineal(self.ageb.total_ench,
                       self.context['inundaciones']['min'],
                       self.context['inundaciones']['max'])
 
     def get_salud(self):
-        return lineal(self.ageb.escasez,
+        return lineal(self.ageb.disease_bu,
                       self.context['salud']['min'],
                       self.context['salud']['max'])
-
 
     def get_distance(self):
         return ideal_distance(alpha=self.limit_matrix.alternatives['movilizaciones'],
