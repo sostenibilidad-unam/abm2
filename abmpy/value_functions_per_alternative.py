@@ -27,7 +27,7 @@ compra_de_agua  = {
     'disease_bu': value_functions.identity,
 }
 
-compra_infra_agua  = {
+modificacion_de_vivienda  = {
     'escasez': value_functions.identity,
     'edad_infra': value_functions.identity,
     'total_ench': value_functions.identity,
@@ -36,7 +36,7 @@ compra_infra_agua  = {
     'disease_bu': value_functions.identity,
 }
 
-reuso  = {
+movilizaciones  = {
     'escasez': value_functions.identity,
     'edad_infra': value_functions.identity,
     'total_ench': value_functions.identity,

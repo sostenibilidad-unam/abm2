@@ -12,22 +12,14 @@ class LimitMatrix:
           alternatives_sum = sum(pd.to_numeric(df.ix[2:firstCriteriaRow-1,2]))
           self.weighted_criteria = pd.to_numeric(df.ix[firstCriteriaRow:,2]).apply(lambda x:x/criteria_sum)
           self.weighted_alternatives = []
-          self.alternatives = {}
           for i in range(1,firstCriteriaRow):
               self.weighted_alternatives.append( pd.to_numeric(df.ix[i,2]) / alternatives_sum )
-#              self.alternatives[]
-
 
           self.alternatives = {}
           for i in range(1,len(self.alternative_names)+1):
-              #print self.alternative_names[i]
               self.alternatives[self.alternative_names.get_value(i,1)] = self.weighted_alternatives[i-1]
           self.criteria = {}  
           for i in range(len(self.alternative_names)+1,len(self.alternative_names)+len(self.criteria_names)+1):
-              #print self.alternative_names[i]
               self.criteria[self.criteria_names.get_value(i,1)] = self.weighted_criteria.get_value(i,1)
 
 
-
-
-l = LimitMatrix('../data/MC080416_OTR_bb.limit.csv')
