@@ -16,7 +16,6 @@ session = Session()
 
 if args.mode == 'reset':
     model.AGEB.__table__.drop(engine)
-    model.SACMEX.__table__.drop(engine)
 
 # setup orm
 model.Base.metadata.create_all(engine)

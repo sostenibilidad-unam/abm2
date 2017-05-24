@@ -46,22 +46,27 @@ session = Session()
 
 model.session = session
 
-l = LimitMatrix('../data/MC080416_OTR_bb.limit.csv')
+matrixes = {
+    'mc': LimitMatrix('../data/MC080416_OTR_bb.limit.csv'),
+    'iz': LimitMatrix('../data/I080316_OTR_bb.limit.csv'),
+    'xo': LimitMatrix('../data/X062916_OTR_bb.limit.csv') }
+
 ls = LimitMatrix('../data/sacmex_limit.csv')
 s = model.SACMEX()
 
 for t in range(50):
     with session.begin():
         tic = timeit.default_timer()
+        
         context = get_context()
 
         s.limit_matrix = ls
         s.context = context
         s.step()
         for a in session.query(model.AGEB).all():
-            a.limit_matrix = l
+            a.limit_matrix = matrixes[a.get_type()]
             a.context = context
             a.step()
+            
         toc = timeit.default_timer()
-
         print t, toc - tic
