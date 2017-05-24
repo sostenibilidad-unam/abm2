@@ -5,7 +5,7 @@ class LimitMatrix:
       def __init__(self, csv_path):
           df = pd.read_csv(csv_path, encoding="utf-8")
           firstCriteriaRow = [i for i, x in enumerate(df.ix[:,0]) if "nan" not in str(x)][1]  #the index of the second non null cell in first column
-          print firstCriteriaRow
+
           self.alternative_names = df.ix[1:firstCriteriaRow-1,1]
           self.criteria_names = df.ix[firstCriteriaRow:,1]
           criteria_sum = sum(pd.to_numeric(df.ix[firstCriteriaRow:,2]))
