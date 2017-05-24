@@ -46,26 +46,31 @@ class AGEB(Base):
     t = Column(Integer)
     limit_matrix = None
 
+    def get_type(self):
+        if self.kmeans5 == 2 or self.kmeans5 == 0:
+            return 'iz'
+        elif self.kmeans5 == 4:
+            return 'mc'
+        else:
+            return 'xo'
+    
     # acciones
     def accion_colectiva(self):
-        return(" accion_colectiva(self):")
+        pass
     
     def captacion_de_agua(self):
-        return(" captacion_de_agua(self):")
+        self.escasez *= 0.8
 
     def compra_de_agua(self):
-        return(" compra_de_agua(self):")
+        self.escasez *= 0.8        
 
     def modificacion_de_vivienda(self):
-        return(" compra_infra_agua(self):")
+        pass
 
     def movilizaciones(self):
-        return(" reuso(self):")
-
+        self.presmed *= 1.1
+        self.protestant = True
         
-
-    def deteriora(self):
-        pass
         
     def decide(self):
 
@@ -93,12 +98,12 @@ class AGEB(Base):
         
     def step(self):
 
+        # al paso del tiempo hay deterioro
+        self.edad_infra += 1.0
+        
         accion = self.decide()
         accion()
         
-        #
-        self.deteriora()
-        #self.update_protesta()
 
 
     def __repr__(self):
@@ -153,7 +158,7 @@ class SACMEX:
         distances = self.get_nueva_infraestructura_distances()
         for ageb in sorted(distances, key=distances.__getitem__, reverse=True):
             if self.presupuesto_nueva_infraestructura > 0:
-                ageb.faltain *= 0.5
+                ageb.faltain *= 0.8
                 self.presupuesto_nueva_infraestructura -= 1
 
 
@@ -182,14 +187,25 @@ class SACMEX:
 
     def step(self):
         self.mantenimiento()
-        self.distribucion_agua()
-        self.extraccion_agua()
-        self.importacion_agua()
+#        self.distribucion_agua()
+#        self.extraccion_agua()
+#        self.importacion_agua()
         self.nueva_infraestructura()
+        
+        self.presupuesto_distribucion_agua = 500
+        self.presupuesto_extraccion_agua = 500
+        self.presupuesto_importacion_agua = 500
+        self.presupuesto_mantenimiento = 500
+        self.presupuesto_nueva_infraestructura = 500
 
 
 
-
+    def reporta_presupuestos(self):
+        return (self.presupuesto_distribucion_agua,
+                self.presupuesto_extraccion_agua,
+                self.presupuesto_importacion_agua,
+                self.presupuesto_mantenimiento,
+                self.presupuesto_nueva_infraestructura)
 
 
 
