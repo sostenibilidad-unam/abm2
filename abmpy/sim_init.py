@@ -21,7 +21,3 @@ if args.mode == 'reset':
 # setup orm
 model.Base.metadata.create_all(engine)
 
-# crear sacmex
-s = model.SACMEX(presupuesto=1000)
-session.add(s)
-session.commit()

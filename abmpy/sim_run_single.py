@@ -3,7 +3,6 @@ import argparse
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import random
-from time import sleep
 import timeit
 from LimitMatrix import LimitMatrix
 
@@ -11,24 +10,11 @@ from pprint import pprint
 
 parser = argparse.ArgumentParser(description='Setup simulation.')
 parser.add_argument('--db', default='sqlite:///:memory:', help='DB URL, default: sqlite:///:memory:', required=True)
-parser.add_argument('--sid', type=int, required=True)
-parser.add_argument('--mode', default='sync')
-parser.add_argument('--sleep', type=float, default=0.2)
 args = parser.parse_args()
 
 
-engine  = create_engine(args.db)
-Session = sessionmaker(bind=engine, autocommit=True)
-session = Session()
-
-model.session = session
-
-l = LimitMatrix('../data/MC080416_OTR_bb.limit.csv')
-ls = LimitMatrix('../data/sacmex_limit.csv')
-s = session.query(model.SACMEX).get(args.sid)
-for t in range(50):
-    with session.begin():
-        context = {
+def get_context():
+    return {
             'contaminacion_agua': {'max': 1, 'min': 0},
             'crecimiento_urbano': {'max': 1, 'min': 0},
             'desperdicio_agua': {'max': 1, 'min': 0},
@@ -53,13 +39,29 @@ for t in range(50):
             'presion_social': {'max': 1, 'min': 0}
             }
 
+
+engine  = create_engine(args.db)
+Session = sessionmaker(bind=engine, autocommit=True)
+session = Session()
+
+model.session = session
+
+l = LimitMatrix('../data/MC080416_OTR_bb.limit.csv')
+ls = LimitMatrix('../data/sacmex_limit.csv')
+s = model.SACMEX()
+
+for t in range(50):
+    with session.begin():
+        tic = timeit.default_timer()
+        context = get_context()
+
         s.limit_matrix = ls
         s.context = context
-        pprint(s.get_maintenance_distances())
         s.step()
         for a in session.query(model.AGEB).all():
             a.limit_matrix = l
             a.context = context
             a.step()
-            
-        print t
+        toc = timeit.default_timer()
+
+        print t, toc - tic

@@ -105,44 +105,87 @@ class AGEB(Base):
         return "<A%s>" % (self.gid)
 
 
-class SACMEX(Base):
-    __tablename__ = 'sacmex'
-    id = Column(Integer, primary_key=True)
-    status = Column(String) # play, pause, stop
-    presupuesto = Column(Float)
+class SACMEX:
+    presupuesto_distribucion_agua = 500
+    presupuesto_extraccion_agua = 500
+    presupuesto_importacion_agua = 500
+    presupuesto_mantenimiento = 500
+    presupuesto_nueva_infraestructura = 500
+    
 
     context = None
     limit_matrix = None
 
     # acciones
-    def repara_infra(self, ageb):
-        pass
     def distribucion_agua(self):
-        pass
+        distances = self.get_distribucion_agua_distances()
+        for ageb in sorted(distances, key=distances.__getitem__, reverse=True):
+            if self.presupuesto_distribucion_agua > 0:
+                # alterar ageb
+                self.presupuesto_distribucion_agua -= 1
+
+    
     def extraccion_agua(self):
-        pass
+        distances = self.get_extraccion_agua_distances()
+        for ageb in sorted(distances, key=distances.__getitem__, reverse=True):
+            if self.presupuesto_extraccion_agua > 0:
+                # alterar ageb
+                self.presupuesto_extraccion_agua -= 1
+
+    
     def importacion_agua(self):
-        pass
+        distances = self.get_importacion_agua_distances()
+        for ageb in sorted(distances, key=distances.__getitem__, reverse=True):
+            if self.presupuesto_importacion_agua > 0:
+                # alterar ageb
+                self.presupuesto_importacion_agua -= 1
+
     
     def mantenimiento(self):
-        pass
+        distances = self.get_mantenimiento_distances()
+        for ageb in sorted(distances, key=distances.__getitem__, reverse=True):
+            if self.presupuesto_mantenimiento > 0:
+                ageb.edad_infra *= 0.8
+                self.presupuesto_mantenimiento -= 1
+
         
     def nueva_infraestructura(self):
-        pass
+        distances = self.get_nueva_infraestructura_distances()
+        for ageb in sorted(distances, key=distances.__getitem__, reverse=True):
+            if self.presupuesto_nueva_infraestructura > 0:
+                ageb.faltain *= 0.5
+                self.presupuesto_nueva_infraestructura -= 1
 
 
 
-    def get_maintenance_distances(self):
+    # distancias de agebs
+    def get_mantenimiento_distances(self):
         return {a: salts.Mantenimiento(self.limit_matrix, self.context, a).get_distance()
                 for a in session.query(AGEB).all()}
-            
     
-    def __repr__(self):
-        return "<SACMEX%s>" % self.id
+    def get_distribucion_agua_distances(self):
+        return {a: salts.DistribucionAgua(self.limit_matrix, self.context, a).get_distance()
+                for a in session.query(AGEB).all()}
+    
+    def get_extraccion_agua_distances(self):
+        return {a: salts.ExtraccionAgua(self.limit_matrix, self.context, a).get_distance()
+                for a in session.query(AGEB).all()}
+    
+    def get_importacion_agua_distances(self):
+        return {a: salts.ImportacionAgua(self.limit_matrix, self.context, a).get_distance()
+                for a in session.query(AGEB).all()}
+    
+    def get_nueva_infraestructura_distances(self):
+        return {a: salts.NuevaInfraestructura(self.limit_matrix, self.context, a).get_distance()
+                for a in session.query(AGEB).all()}
+
 
     def step(self):
-        #distancias_mant = [s.dist_mant(a) for a in agebs]
-        pass
+        self.mantenimiento()
+        self.distribucion_agua()
+        self.extraccion_agua()
+        self.importacion_agua()
+        self.nueva_infraestructura()
 
 
 
