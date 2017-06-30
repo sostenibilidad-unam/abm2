@@ -99,7 +99,7 @@ class AGEB(Base):
     def step(self):
 
         # al paso del tiempo hay deterioro
-        self.edad_infra += 1.0
+        self.edad_infra += random.uniform(1.0, 5.0)
         
         accion = self.decide()
         accion()
@@ -111,11 +111,11 @@ class AGEB(Base):
 
 
 class SACMEX:
-    presupuesto_distribucion_agua = 500
-    presupuesto_extraccion_agua = 500
-    presupuesto_importacion_agua = 500
-    presupuesto_mantenimiento = 500
-    presupuesto_nueva_infraestructura = 500
+    presupuesto_distribucion_agua = 100
+    presupuesto_extraccion_agua = 100
+    presupuesto_importacion_agua = 100
+    presupuesto_mantenimiento = 100
+    presupuesto_nueva_infraestructura = 100
     
 
     context = None
@@ -150,16 +150,18 @@ class SACMEX:
         distances = self.get_mantenimiento_distances()
         for ageb in sorted(distances, key=distances.__getitem__, reverse=True):
             if self.presupuesto_mantenimiento > 0:
-                ageb.edad_infra *= 0.8
-                self.presupuesto_mantenimiento -= 1
+                if random.choice([True, True, False, False, False, False, False]):
+                    ageb.edad_infra *= 0.8
+                    self.presupuesto_mantenimiento -= 1
 
         
     def nueva_infraestructura(self):
         distances = self.get_nueva_infraestructura_distances()
         for ageb in sorted(distances, key=distances.__getitem__, reverse=True):
             if self.presupuesto_nueva_infraestructura > 0:
-                ageb.faltain *= 0.8
-                self.presupuesto_nueva_infraestructura -= 1
+                if random.choice([True, False, False, False]): 
+                    ageb.faltain *= 0.8
+                    self.presupuesto_nueva_infraestructura -= 1
 
 
 
@@ -186,17 +188,19 @@ class SACMEX:
 
 
     def step(self):
+        self.presupuesto_distribucion_agua = 3000
+        self.presupuesto_extraccion_agua = 3000
+        self.presupuesto_importacion_agua = 3000
+        self.presupuesto_mantenimiento = 3000
+        self.presupuesto_nueva_infraestructura = 3000
+
+        
         self.mantenimiento()
 #        self.distribucion_agua()
 #        self.extraccion_agua()
 #        self.importacion_agua()
         self.nueva_infraestructura()
         
-        self.presupuesto_distribucion_agua = 500
-        self.presupuesto_extraccion_agua = 500
-        self.presupuesto_importacion_agua = 500
-        self.presupuesto_mantenimiento = 500
-        self.presupuesto_nueva_infraestructura = 500
 
 
 
