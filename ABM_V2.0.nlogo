@@ -39,6 +39,16 @@ globals [              ;;DEFINE GLOBAL VARIABLES
   C7max                  ;;max age infra S recorded
   C8max                  ;;max Need for S recorded
 
+  C1min                  ;;max Demand for F recorded
+  C2min                  ;;max Social pressure for F recorded
+  C3min                  ;;max Age infra F recorded
+  C4min                  ;;max Need for F recorded
+
+  C5min                  ;;in Demand for S recorded
+  C6min                  ;;in Social pressure for S recorded
+  C7min                  ;;in age infra S recorded
+  C8min                  ;;in Need for S recorded
+
 
 ;##################################
 ;;Reporters
@@ -70,6 +80,11 @@ globals [              ;;DEFINE GLOBAL VARIABLES
   socialpressureIndex_F   ;report the sum of protest in the city
   invest_here_max_F
   invest_here_max_S
+
+  distance_metric_maintenanceIndex_F   ;;Metric for define distance from ideal point (MDCA)
+  distance_metric_NewIndex_F           ;;Metric for define distance from ideal point (MDCA)
+  distance_metric_maintenanceIndex_S   ;;Metric for define distance from ideal point (MDCA)
+  distance_metric_NewIndex_S           ;;Metric for define distance from ideal point (MDCA)
 ]
 
 
@@ -148,8 +163,8 @@ to load_fixed_landscape
 
     set infra_F_age 1                       ;age
     set infra_S_age 1                       ;age
-    set invest_here_F 0
-    set invest_here_S 0
+    set invest_here_F 0.1
+    set invest_here_S 00.1
     set protestas_here_F  0                 ;wheather a protest happen at a particula location and time
     set protestas_here_S  0                 ;wheather a protest happen at a particula location and time
     set total_exposure_S 0                  ;accumulated burden
@@ -182,12 +197,12 @@ to create-Landscape
   if landscape-type = "closed-watershed"[
   ask patches with [(pxcor =  50 and pycor = 50)][set A 5000] ;;define central point with max value.
 
-  repeat 400 [diffuse A  1]   ;; slightly smooth out the landscape by difusing variables A (this can be modified to include other topography with other method or using real data.
+  repeat 600 [diffuse A  1]   ;; slightly smooth out the landscape by difusing variables A (this can be modified to include other topography with other method or using real data.
   ]
 
   if landscape-type = "many-hills"[
-    ask n-of 10 patches [set A (4500 + random 500)] ;;define central point with max value.
-  repeat 200 [diffuse A  1]
+    ask n-of 3 patches [set A (4500 + random 500)] ;;define central point with max value.
+  repeat 400 [diffuse A  1]
   ]
 
 
@@ -216,7 +231,8 @@ to create-Landscape
 
     set infra_F_age 1                       ;age
     set infra_S_age 1                       ;age
-
+    set invest_here_F 0.1
+    set invest_here_S 0.1
     set protestas_here_F  0                 ;wheather a protest happen at a particula location and time
     set protestas_here_S  0                 ;wheather a protest happen at a particula location and time
     set total_exposure_S 0                  ;accumulated burden
@@ -279,20 +295,20 @@ to setup
 ;;set global
   set Var_list []
   set lorenz-points_V []
-  load_fixed_landscape
-  ;create-Landscape         ;;define landscape topography (Altitute)
+  ;load_fixed_landscape
+  create-Landscape         ;;define landscape topography (Altitute)
   Create-Districts-Infra      ;;define the properties of the infrastructure and the neighborhoods
   ;read_weightsfrom_matrix
   ;read_weights_from_csv
-  read_new_weights_from_csv
+ ; read_new_weights_from_csv
 
-;if GOVERNMENT_DECISION_MAKING = "Increase Infra Coverage"[set w1 0.1 set w2 0.1 set w3 0.1 set w4 0.7 set w5 0.1 set w6 0.1 set w7 0.1 set w8 0.7]
-;if GOVERNMENT_DECISION_MAKING = "Reduce age infrastructure"[set w1 0.1 set w2 0.1 set w3 0.7 set w4 0.1 set w5 0.1 set w6 0.1 set w7 0.7 set w8 0.1]
-;if GOVERNMENT_DECISION_MAKING = "Reduce Social Pressure"[set w1 0.1 set w2 0.7 set w3 0.1 set w4 0.1 set w5 0.1 set w6 0.7 set w7 0.1 set w8 0.1]
-;set alpha1 0.5
-;set alpha2 0.5
-;set alpha3 0.5
-;set alpha4 0.5
+if GOVERNMENT_DECISION_MAKING = "Increase Infra Coverage"[set w1 0.1 set w2 0.1 set w3 0.1 set w4 0.7 set w5 0.1 set w6 0.1 set w7 0.1 set w8 0.7]
+if GOVERNMENT_DECISION_MAKING = "Reduce age infrastructure"[set w1 0.1 set w2 0.1 set w3 0.7 set w4 0.1 set w5 0.1 set w6 0.1 set w7 0.7 set w8 0.1]
+if GOVERNMENT_DECISION_MAKING = "Reduce Social Pressure"[set w1 0.1 set w2 0.7 set w3 0.1 set w4 0.1 set w5 0.1 set w6 0.7 set w7 0.1 set w8 0.1]
+set alpha1 0.5
+set alpha2 0.5
+set alpha3 0.5
+set alpha4 0.5
 
   set ExposureIndex 0
   set ExposureIndex_S 0
@@ -328,7 +344,7 @@ to GO
     Hazard                 ;; To define if a neighborhood suffer a hazard (H=1), or not (H=0), in a year
     vulnerability
     To-Protest
- ;   Landscape-Visualization
+    Landscape-Visualization
   ]
 
   WA-Decisions ;; Water government authority decides in what (new vs. maitainance flooding vs. scarcity) and where (in what districts) to invest resources (budget)
@@ -336,7 +352,7 @@ to GO
 
 ; for experiments with different mental model
 ;if ticks = 300 [update_weights]
-;if ticks = 499 [export_value_patches_picks]
+;if ticks = 599 [export_value_patches_picks]
 
 ;if ticks < 2 [set GOVERNMENT_DECISION_MAKING  "Reduce Social Pressure"]
 ;if ticks = 400 [set GOVERNMENT_DECISION_MAKING "Reduce age infrastructure"]
@@ -387,8 +403,8 @@ end
 ;###############################################################################
 to Landscape-Visualization                                                                                                             ;;TO REPRESENT DIFFERENT INFORMATION IN THE LANDSCAPE
   if Visualization = "Elevation" [set pcolor scale-color grey  A 0  1]      ;;probability of Infrastructure failure
-  if Visualization = "Infrastructure_F" [set pcolor ifelse-value (Infra_flood = 1)[scale-color grey  (1 - P_failure_F) 0  1][65]]      ;;probability of Infrastructure failure
-  if Visualization = "Infrastructure_S" [set pcolor ifelse-value (Infra_supply = 1)[scale-color grey  (1 - P_failure_S) 0  1][65]]     ;;probability of Infrastructure failure
+  if Visualization = "Infrastructure_F" [set pcolor ifelse-value (Infra_flood = 1)[scale-color grey  infra_F_age C3min  200][65]]      ;;probability of Infrastructure failure
+  if Visualization = "Infrastructure_S" [set pcolor ifelse-value (Infra_supply = 1)[scale-color grey  infra_S_age C7min  200][65]]     ;;probability of Infrastructure failure
   if Visualization = "Vulnerability" [set pcolor ifelse-value (District_here? = TRUE) [scale-color blue V 0 max_v][65]]                ;;visualize vulnerability
   if visualization = "Social Pressure_F" [set pcolor ifelse-value (District_here? = TRUE) [scale-color red   protestas_here_F  0 10][black]];;visualized social pressure
   if visualization = "Social Pressure_S" [set pcolor ifelse-value (District_here? = TRUE) [scale-color red   protestas_here_S  0 10][black]];;visualized social pressure
@@ -457,42 +473,40 @@ to WA-Decisions
       set invest_here_F invest_here_F - 0.2 * invest_here_F
       set invest_here_S invest_here_S - 0.2 * invest_here_S
 
-       let V1 ifelse-value (C1 < C1max)[(C1 / C1max)][1]                                                                             ;;define the value functions by transforming natural scale of the information gethered by goverment
-       let V2 ifelse-value (C2 < C2max)[(C2 / C2max)][1]                                                                     ;;to a standarized scale [0,1] where 1 means maximal atention from goverment (1 = larger number of protested in an area
+       let V1 ifelse-value (C1 < C1max)[(C1 / C1max)][1] ; C1max - C1 / C1max - C1min                                                                              ;;define the value functions by transforming natural scale of the information gethered by goverment
+       let V2 ifelse-value (C2 < C2max)[(C2 / C2max)][1] ; C2max - C2 / C2max - C2min                                            ;;to a standarized scale [0,1] where 1 means maximal atention from goverment (1 = larger number of protested in an area
 
-       let V3_n ifelse-value (C3 < 100)[0][2 * (C3 - 100) / C3max]
-       if C3 > 200 or C3 = 0[set V3_n 1]
+       let V3_n ifelse-value (C3 < 100)[0][2 * (C3 - 100) / C3max]  ; C3max - C3 / C3max - C3min
+       if C3 > 200 or Infra_flood = 0[set V3_n 1]
 
-       let V3_r ifelse-value (C3 < 100)[C3 / 100] [(C3max - C3) / 100]
-       if V3_n < 0 [set V3_r 0]
-
-
-       let V4 ifelse-value (C4 < C4max)[C4 / C4max][1]
-
-       let V5 ifelse-value (C5 < C5max)[(C5 / C5max)][1]                                                                             ;;define the value functions by transforming natural scale of the information gethered by goverment
-
-       let V6 ifelse-value (C6 < C6max)[(C6 / C6max)][1]                                                                     ;;to a standarized scale [0,1] where 1 means maximal atention from goverment (1 = larger number of protested in an area
-
-       let V7_n ifelse-value (C7 < 100)[0][2 * (C7 - 100) / C7max]
-       if C7 > 200 or C7 = 0[set V7_n 1]
-
-       let V7_r ifelse-value (C7 < 100)[C7 / 100] [(C7max - C3) / 100]
-       if V7_n < 0 [set V7_r 0]
-
-        let V8 ifelse-value (C8 <= C8max)[C8 / C8max][1]
+       let V3_r ifelse-value (C3 < 100)[C3 / 100] [(C3max - C3) / 100] ; C3max - C3 / C3max - C3min
+       if V3_r < 0 [set V3_r 0]
 
 
+       let V4 ifelse-value (C4 < C4max)[C4 / C4max][1];C4max - C4 / C4max - C4min
+
+       let V5 ifelse-value (C5 < C5max)[(C5 / C5max)][1];C5max - C5 / C5max - C5min                                                                              ;;define the value functions by transforming natural scale of the information gethered by goverment
+
+       let V6 ifelse-value (C6 < C6max)[(C6 / C6max)][1];C6max - C6 / C6max - C6min                                                                      ;;to a standarized scale [0,1] where 1 means maximal atention from goverment (1 = larger number of protested in an area
+
+       let V7_n ifelse-value (C7 < 100)[0][2 * (C7 - 100) / C7max];C7max - C7 / C7max - C7min
+       if C7 > 200 or Infra_supply = 0[set V7_n 1]
+
+       let V7_r ifelse-value (C7 < 100)[C7 / 100] [(C7max - C7) / 100] ;C7max - C7 / C7max - C7min
+       if V7_r < 0 [set V7_r 0]
+
+       let V8 ifelse-value (C8 <= C8max)[C8 / C8max][1];C8max - C8 / C8max - C8min
 
        let h_Cp 1
 
-       let v_vec_s_r (list V1 V2 V3_r V4)
-       let v_vec_s_n (list V1 V2 V3_n V4)
+       let v_vec_f_r (list V1 V2 V3_r V4)
+       let v_vec_f_n (list V1 V2 V3_n V4)
+       let w_vec_f  (list w5 w6 w7 w8)
+
+
+       let v_vec_s_r (list V5 V6 V7_r V8)
+       let v_vec_s_n (list V5 V6 V7_n V8)
        let w_vec_s (list w1 w2 w3 w4)
-
-
-       let v_vec_f_r (list V5 V6 V7_r V8)
-       let v_vec_f_n (list V5 V6 V7_n V8)
-       let w_vec_f (list w5 w6 w7 w8)
 
       if ticks = 1 or ticks mod 12 = 0[
 
@@ -501,6 +515,12 @@ to WA-Decisions
 
         set distance_metric_maintenance_F (alpha3 * sum (map [(?1 ^ h_Cp) * (?2 ^ h_Cp)] v_vec_f_r w_vec_f)) ^ (1 / h_Cp)
         set distance_metric_maintenance_S (alpha4 * sum (map [(?1 ^ h_Cp) * (?2 ^ h_Cp)] v_vec_s_r w_vec_s)) ^ (1 / h_Cp)
+
+       ; if distance_metric_maintenance_F < 0 or distance_metric_maintenance_S < 0 or distance_metric_New_F < 0 or distance_metric_maintenance_S < 0 [
+        ;  print (list distance_metric_maintenance_F distance_metric_maintenance_S distance_metric_New_F distance_metric_maintenance_S)
+       ; print (list distance_metric_maintenance_F alpha3 v_vec_f_r w_vec_f)
+      ;  ]
+
       ]
 
     ]
@@ -513,7 +533,6 @@ to WA-Decisions
       let rank_A3 sort-on [1 - distance_metric_maintenance_S] patches                                             ;;;sort neighborhoods based on distance metric Action 3 mantanance S.
 
       (foreach rank_A1 rank_A3 [
-
         if [infra_flood] of ?1 = 1 [
           if tot_cost_Maintance < bud_mant[
             ask ?1 [
@@ -568,7 +587,7 @@ to WA-Decisions
       let distance_metric_maintenance_F_max max [distance_metric_maintenance_F] of patches
       let tot_cost_Maintance 0
       let bud_mant 2 * tot_districts * maintenance / 1350                                                      ;Scale budget proportionally to the number of neighborhoods
-      let rank_A13 sort-on [(1 - distance_metric_maintenance_S / distance_metric_maintenance_S_max) + (1 - distance_metric_maintenance_F / distance_metric_maintenance_F_max)] patches                                      ;Sort neighborhoods based on distance metric Action 1 mantanance F.
+      let rank_A13 sort-on [(1 - distance_metric_maintenance_S) + (1 - distance_metric_maintenance_F)] patches                                      ;Sort neighborhoods based on distance metric Action 1 mantanance F.
       foreach rank_A13 [
         ask ? [
           if distance_metric_maintenance_F > distance_metric_maintenance_S and [infra_flood] of ? = 1 and tot_cost_Maintance < bud_mant [
@@ -761,6 +780,12 @@ to Update-Globals-Reporters
     set socialpressureIndex_F precision (mean [socialpressureTOTAL_F] of patches with [district_here? = TRUE]) 3
 
     set InequalityExposureIndex InequalityExposureIndex + 0.01 * gini_V / (count patches with [district_here? = TRUE])
+
+    set distance_metric_maintenanceIndex_F precision (mean [distance_metric_maintenance_F] of patches with [district_here? = TRUE]) 3 ;;Metric for define distance from ideal point (MDCA)
+    set distance_metric_NewIndex_F        precision (mean [distance_metric_New_F] of patches with [district_here? = TRUE]) 3   ;;Metric for define distance from ideal point (MDCA)
+    set distance_metric_maintenanceIndex_S  precision (mean [distance_metric_maintenance_S] of patches with [district_here? = TRUE]) 3 ;;Metric for define distance from ideal point (MDCA)
+    set distance_metric_NewIndex_S      precision (mean [distance_metric_New_S] of patches with [district_here? = TRUE]) 3     ;;Metric for define distance from ideal point (MDCA)
+
   ]
 
   set C1max ifelse-value (max [C1] of patches > C1max)[max [C1] of patches][C1max]                                               ;#update ideal points by setting the maximum of the natural (physical) scale
@@ -770,9 +795,20 @@ to Update-Globals-Reporters
 
 
   set C5max ifelse-value (max [C5] of patches > C5max)[max [C5] of patches][C5max]
-  set C6max ifelse-value (max [C6] of patches > C6max)[max [C6] of patches][C7max]
+  set C6max ifelse-value (max [C6] of patches > C6max)[max [C6] of patches][C6max]
   set C7max 200
   set C8max ifelse-value (max [C8] of patches > C8max)[max [C8] of patches][C8max]
+
+  set C1min min [C1] of patches                                                ;#update ideal points by setting the minimum of the natural (physical) scale
+  set C2min min [C2] of patches
+  set C3min min [C3] of patches
+  set C4min min [C4] of patches
+
+  set C5min min [C5] of patches
+  set C6min min [C6] of patches
+  set C7min min [C7] of patches
+  set C8min min [C8] of patches
+
 end
 ;##############################################################################################################################
 
@@ -804,62 +840,62 @@ end
 
 ;##############################################################################################################################
 to export_view  ;;export snapshots of the landscape
-  let directory "c:/Users/abaezaca/Documents/MEGADAPT/ABM_V2/landscape_pics/"
-  export-View  word directory  word GOVERNMENT_DECISION_MAKING word landscape-type "_infrastructure.png"
-
-  set Visualization  "Elevation"
-  ask patches [set pcolor scale-color grey  A 0  1]      ;;probability of Infrastructure failure
-  export-View  word directory  word visualization word ticks ".png"
-
-  set Visualization  "Infrastructure_F"
-  ask patches [set pcolor ifelse-value (Infra_flood = 1)[scale-color grey  (1 - P_failure_F) 0  1][65]]     ;;probability of Infrastructure failure
-  export-View  word directory  word visualization word ticks ".png"
-
-  set  Visualization  "Infrastructure_S"
-  ask patches [set pcolor ifelse-value (Infra_supply = 1)[scale-color grey  (1 - P_failure_S) 0  1][65]]     ;;probability of Infrastructure failure
-  export-View  word directory  word visualization word ticks ".png"
-
-  ;set Visualization  "Vulnerability"
-  ;ask patches [set pcolor ifelse-value (District_here? = TRUE) [scale-color blue V 0 max_v][65]]                ;;visualize vulnerability
-  ;export-View  word directory  word visualization word ticks ".png"
-
-  set visualization  "Social Pressure_F"
-  ask patches [set pcolor ifelse-value (District_here? = TRUE) [scale-color red   protestas_here_F  0 10][black]];;visualized social pressure
-  export-View  word directory  word visualization word ticks ".png"
-
-  set visualization  "Social Pressure_S"
-  ask patches[set pcolor ifelse-value (District_here? = TRUE) [scale-color red   protestas_here_S  0 10][black]];;visualized social pressure
-  export-View  word directory  word visualization word ticks ".png"
-
-  set visualization  "Spatial priorities maintanance F"
-  ask patches [set pcolor scale-color magenta  distance_metric_maintenance_F 0 1]              ;;priorities
-  export-View  word directory  word visualization word ticks ".png"
-
-  set visualization  "Spatial priorities maintanance S"
-  ask patches[set pcolor scale-color sky  distance_metric_maintenance_S 0 1]              ;;priorities
-  export-View  word directory  word visualization word ticks ".png"
-
-  set visualization  "Spatial priorities new F"
-  ask patches [set pcolor scale-color magenta distance_metric_New_F 0 1]                               ;;priorities
-  export-View  word directory  word visualization word ticks ".png"
-
-  set visualization  "Spatial priorities new S"
-  ask patches [set pcolor scale-color sky distance_metric_New_S 0 1]                               ;;priorities
-  export-View  word directory  word visualization word ticks ".png"
-
-  set visualization  "Districts"
-  ask patches[set pcolor ifelse-value (District_here? = TRUE) [magenta][65]]                                       ;;visualize if neighborhood are present in the landscape (green color if not)
-  export-View  word directory  word visualization word ticks ".png"
-
-  set visualization "Harmful Events"
-
-  ask patches [                                                                                                ;; here the harmful events red color when both events( flloding and scarcity occur)
-    ifelse district_here? = false [set pcolor 65]
-    [
-    set pcolor (ifelse-value (H_S > 0.3)[1][0]) * 35 + H_F * 85 - 105 * (H_F * (ifelse-value (H_S > 0.3)[1][0]))
-    ]
-  ]
-  export-View  word directory  word visualization word ticks ".png"
+;  let directory "c:/Users/abaezaca/Documents/MEGADAPT/ABM_V2/landscape_pics/"
+;  export-View  word directory  word GOVERNMENT_DECISION_MAKING word landscape-type "_infrastructure.png"
+;  set Visualization  "Elevation"
+;  ask patches [set pcolor scale-color grey  A 0  1]      ;;probability of Infrastructure failure
+;  export-View  word directory  word visualization word ticks ".png"
+;
+;  set Visualization  "Infrastructure_F"
+;  ask patches [set pcolor ifelse-value (Infra_flood = 1)[scale-color grey  (1 - P_failure_F) 0  1][65]]     ;;probability of Infrastructure failure
+;  export-View  word directory  word visualization word ticks ".png"
+;
+;  set  Visualization  "Infrastructure_S"
+;  ask patches [set pcolor ifelse-value (Infra_supply = 1)[scale-color grey  (1 - P_failure_S) 0  1][65]]     ;;probability of Infrastructure failure
+;  export-View  word directory  word visualization word ticks ".png"
+;
+;  ;set Visualization  "Vulnerability"
+;  ;ask patches [set pcolor ifelse-value (District_here? = TRUE) [scale-color blue V 0 max_v][65]]                ;;visualize vulnerability
+;  ;export-View  word directory  word visualization word ticks ".png"
+;
+;  set visualization  "Social Pressure_F"
+;  ask patches [set pcolor ifelse-value (District_here? = TRUE) [scale-color red   protestas_here_F  0 10][black]];;visualized social pressure
+;  export-View  word directory  word visualization word ticks ".png"
+;
+;  set visualization  "Social Pressure_S"
+;  ask patches[set pcolor ifelse-value (District_here? = TRUE) [scale-color red   protestas_here_S  0 10][black]];;visualized social pressure
+;  export-View  word directory  word visualization word ticks ".png"
+;
+;  set visualization  "Spatial priorities maintanance F"
+;  ask patches [set pcolor scale-color magenta  distance_metric_maintenance_F 0 1]              ;;priorities
+;  export-View  word directory  word visualization word ticks ".png"
+;
+;  set visualization  "Spatial priorities maintanance S"
+;  ask patches[set pcolor scale-color sky  distance_metric_maintenance_S 0 1]              ;;priorities
+;  export-View  word directory  word visualization word ticks ".png"
+;
+;  set visualization  "Spatial priorities new F"
+;  ask patches [set pcolor scale-color magenta distance_metric_New_F 0 1]                               ;;priorities
+;  export-View  word directory  word visualization word ticks ".png"
+;
+;  set visualization  "Spatial priorities new S"
+;  ask patches [set pcolor scale-color sky distance_metric_New_S 0 1]                               ;;priorities
+;  export-View  word directory  word visualization word ticks ".png"
+;
+;  set visualization  "Districts"
+;  ask patches[set pcolor ifelse-value (District_here? = TRUE) [magenta][65]]                                       ;;visualize if neighborhood are present in the landscape (green color if not)
+;  export-View  word directory  word visualization word ticks ".png"
+;
+;  set visualization "Harmful Events"
+;
+;  ask patches [                                                                                                ;; here the harmful events red color when both events( flloding and scarcity occur)
+;    ifelse district_here? = false [set pcolor 65]
+;    [
+;    set pcolor (ifelse-value (H_S > 0.3)[1][0]) * 35 + H_F * 85 - 105 * (H_F * (ifelse-value (H_S > 0.3)[1][0]))
+;    ]
+;  ]
+;  export-View  word directory  word visualization word ticks ".png"
+export_value_patches_picks
 
 end
 
@@ -1022,8 +1058,8 @@ end
 
 to read_new_weights_from_csv
   ;  let tot_S csv:from-file "c:/Users/abaezaca/Documents/MEGADAPT/ABM_V2/sampling_scenarios_Weights.csv"
-  let tot_S csv:from-file "sampling_scenarios_Weights_all.csv"
-  ;let tot_S csv:from-file "c:/Users/abaezaca/Documents/MEGADAPT/ABM_V2/sampling_scenarios_Weights_var_WandD.csv"
+  ;let tot_S csv:from-file "c:/Users/abaezaca/Dropbox (ASU)/MEGADAPT/ABM_V2/sampling_scenarios_Weights_all.csv"
+  let tot_S csv:from-file "sampling_scenarios_var_W.csv" ;c:/Users/abaezaca/Dropbox (ASU)/MEGADAPT/abm2/
   ;let tot_S csv:from-file "c:/Users/abaezaca/Documents/MEGADAPT/ABM_V2/sampling_scenarios_Weights_var_D.csv"
   let weigh_list but-first (item simulation_number (but-first tot_S))
 
@@ -1046,8 +1082,8 @@ to read_new_weights_from_csv
 
   file-close
 
-print (list w1 w2 w3 w4 w5 w6 w7 w8)
-print (list alpha1 alpha2 alpha3 alpha4)
+;print (list w1 w2 w3 w4 w5 w6 w7 w8)
+;print (list alpha1 alpha2 alpha3 alpha4)
 end
 
 
@@ -1065,10 +1101,11 @@ file-close                                        ;close the File
 
 end
 
-
 to export_value_patches_picks
-;let directory "c:/Users/abaezaca/Documents/MEGADAPT/ABM_V2/landscape_pics/"
-file-open "outputlandscapes.txt"
+let directory "c:/Users/abaezaca/Dropbox (ASU)/MEGADAPT/ABM_V2/landscape_pics/"
+let sim_n word (word simulation_number "-") GOVERNMENT_DECISION_MAKING
+let wr word  sim_n "-outputlandscapes_withdistance.txt"
+file-open word directory wr
 foreach sort patches
   [
     ask ? [
@@ -1076,14 +1113,17 @@ foreach sort patches
       file-write pycor
       file-write ifelse-value (district_here? = TRUE)[1][0]
       file-write A
-      file-write socialpressureTOTAL_S
-      file-write socialpressureTOTAL_F
-      file-write total_exposure_S
-      file-write total_exposure_F
-      file-write infra_S_age
-      file-write infra_F_age
-
-      ]                                ;write the ID of each ageb using a numeric value (update acording to Marco's Identification)
+      file-write precision  socialpressureTOTAL_S 3
+      file-write precision  socialpressureTOTAL_F 3
+      file-write precision   total_exposure_S 3
+      file-write precision  total_exposure_F 3
+      file-write precision  infra_S_age 3
+      file-write precision  infra_F_age 3
+      file-write precision  distance_metric_maintenance_F 3 ;;Metric for define distance from ideal point (MDCA)
+      file-write precision  distance_metric_New_F 3      ;;Metric for define distance from ideal point (MDCA)
+      file-write precision  distance_metric_maintenance_S 3  ;;Metric for define distance from ideal point (MDCA)
+      file-write precision  distance_metric_New_S 3         ;;Metric for define distance from ideal point (MDCA)
+    ]                                ;write the ID of each ageb using a numeric value (update acording to Marco's Identification)
   ]
 file-close                                        ;close the File
 
@@ -1209,7 +1249,7 @@ CHOOSER
 Visualization
 Visualization
 "Elevation" "Infrastructure_F" "Infrastructure_S" "Spatial priorities maintanance F" "Spatial priorities new F" "Spatial priorities maintanance S" "Spatial priorities new S" "Vulnerability" "Social Pressure_F" "Social Pressure_S" "Districts" "Harmful Events"
-9
+2
 
 PLOT
 840
@@ -1237,7 +1277,7 @@ CHOOSER
 GOVERNMENT_DECISION_MAKING
 GOVERNMENT_DECISION_MAKING
 "Increase Infra Coverage" "Reduce age infrastructure" "Reduce Social Pressure"
-0
+1
 
 PLOT
 859
@@ -1301,7 +1341,7 @@ CHOOSER
 Initial-Condition-Infrastructure
 Initial-Condition-Infrastructure
 "New" "Old"
-0
+1
 
 PLOT
 840
@@ -1399,7 +1439,7 @@ maintenance
 maintenance
 0
 500
-124
+40
 1
 1
 NIL
@@ -1413,7 +1453,7 @@ CHOOSER
 landscape-type
 landscape-type
 "closed-watershed" "gradient" "many-hills"
-0
+2
 
 TEXTBOX
 550
@@ -1441,8 +1481,8 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -8990512 true "" "plot count patches with [infra_flood = 1 and p_failure_F < 0.5]"
-"pen-1" 1.0 0 -6459832 true "" "plot count patches with [infra_supply = 1 and p_failure_S < 0.5]"
+"default" 1.0 0 -8990512 true "" "plot count patches with [infra_flood = 1 and p_failure_F < 0.8]"
+"pen-1" 1.0 0 -6459832 true "" "plot count patches with [infra_supply = 1 and p_failure_S < 0.8]"
 
 INPUTBOX
 70
@@ -1464,7 +1504,7 @@ simulation_number
 simulation_number
 0
 5999
-3839
+1
 1
 1
 NIL
@@ -1478,7 +1518,7 @@ CHOOSER
 budget-distribution
 budget-distribution
 "regional" "local" "local-bothactions"
-2
+1
 
 SLIDER
 44
@@ -1489,7 +1529,7 @@ motivation_to_protest
 motivation_to_protest
 0
 1
-0.5
+0
 0.1
 1
 NIL
@@ -1504,8 +1544,8 @@ intensity_protest
 intensity_protest
 0
 1
-0.1
-0.1
+0.096
+0.001
 1
 NIL
 HORIZONTAL
@@ -1955,9 +1995,10 @@ NetLogo 5.2.1
 @#$#@#$#@
 @#$#@#$#@
 <experiments>
-  <experiment name="experiment1" repetitions="20" runMetricsEveryStep="false">
+  <experiment name="experiment1" repetitions="10" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
+    <final>export_value_patches_picks</final>
     <timeLimit steps="600"/>
     <metric>InequalityExposureIndex</metric>
     <metric>ExposureIndex</metric>
@@ -1981,8 +2022,71 @@ NetLogo 5.2.1
     <metric>alpha2</metric>
     <metric>alpha3</metric>
     <metric>alpha4</metric>
+    <metric>distance_metric_maintenanceIndex_F</metric>
+    <metric>distance_metric_NewIndex_F</metric>
+    <metric>distance_metric_maintenanceIndex_S</metric>
+    <metric>distance_metric_NewIndex_S</metric>
     <enumeratedValueSet variable="budget-distribution">
-      <value value="&quot;local-bothactions&quot;"/>
+      <value value="&quot;local&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="semilla-aleatoria">
+      <value value="48569"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="motivation_to_protest">
+      <value value="0"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="p_rain">
+      <value value="0.5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="New_infra_investment">
+      <value value="100"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="maintenance">
+      <value value="40"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Initial-Condition-Infrastructure">
+      <value value="&quot;New&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="Visualization">
+      <value value="&quot;Infrastructure_S&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="intensity_protest">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="GOVERNMENT_DECISION_MAKING">
+      <value value="&quot;Increase Infra Coverage&quot;"/>
+      <value value="&quot;Reduce age infrastructure&quot;"/>
+      <value value="&quot;Reduce Social Pressure&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="simulation_number">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="landscape-type">
+      <value value="&quot;closed-watershed&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="motivation_to_protest">
+      <value value="0"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="timeseries" repetitions="1" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="600"/>
+    <metric>InequalityExposureIndex</metric>
+    <metric>ExposureIndex</metric>
+    <metric>ExposureIndex_S</metric>
+    <metric>ExposureIndex_F</metric>
+    <metric>StateinfraQuantityIndex_S</metric>
+    <metric>StateinfraQuantityIndex_F</metric>
+    <metric>socialpressureIndex_S</metric>
+    <metric>socialpressureIndex_F</metric>
+    <metric>count patches with [infra_flood = 1 and p_failure_F &lt; 0.8]</metric>
+    <metric>count patches with [infra_supply = 1 and p_failure_S &lt; 0.8]</metric>
+    <metric>sum [prot_F] of patches with [district_here? = TRUE]</metric>
+    <metric>sum [prot_S] of patches with [district_here? = TRUE]</metric>
+    <enumeratedValueSet variable="budget-distribution">
+      <value value="&quot;local&quot;"/>
+      <value value="&quot;local&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="semilla-aleatoria">
       <value value="48569"/>
@@ -2000,25 +2104,27 @@ NetLogo 5.2.1
       <value value="100"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Initial-Condition-Infrastructure">
-      <value value="&quot;New&quot;"/>
+      <value value="&quot;Old&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Visualization">
       <value value="&quot;Infrastructure_S&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="intensity_protest">
-      <value value="1"/>
+      <value value="0.1"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="GOVERNMENT_DECISION_MAKING">
       <value value="&quot;Increase Infra Coverage&quot;"/>
+      <value value="&quot;Reduce age infrastructure&quot;"/>
+      <value value="&quot;Reduce Social Pressure&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="simulation_number">
-      <value value="545"/>
+      <value value="1"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="landscape-type">
       <value value="&quot;closed-watershed&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="motivation_to_protest">
-      <value value="0.5"/>
+      <value value="0.0060"/>
     </enumeratedValueSet>
   </experiment>
 </experiments>
