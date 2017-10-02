@@ -782,13 +782,13 @@ to Update-Globals-Reporters
   ]
 
   set C1max ifelse-value (max [C1] of patches > C1max)[max [C1] of patches with [district_here? = TRUE]][C1max]                                               ;#update ideal points by setting the maximum of the natural (physical) scale
-  set C2max ifelse-value (max [C2] of patches > C2max)[max [C2] of patches with [district_here? = TRUE]][C2max]
+  set C2max 10;ifelse-value (max [C2] of patches > C2max)[max [C2] of patches with [district_here? = TRUE]][C2max]
   set C3max 200
   set C4max ifelse-value (max [C4] of patches > C4max) [max [C4] of patches with [district_here? = TRUE]][C4max]
 
 
   set C5max ifelse-value (max [C5] of patches > C5max)[max [C5] of patches with [district_here? = TRUE]][C5max]
-  set C6max ifelse-value (max [C6] of patches > C6max)[max [C6] of patches with [district_here? = TRUE]][C6max]
+  set C6max 10;ifelse-value (max [C6] of patches > C6max)[max [C6] of patches with [district_here? = TRUE]][C6max]
   set C7max 200
   set C8max ifelse-value (max [C8] of patches > C8max)[max [C8] of patches with [district_here? = TRUE]][C8max]
 
@@ -1186,7 +1186,7 @@ CHOOSER
 Visualization
 Visualization
 "Elevation" "Infrastructure_F" "Infrastructure_S" "Spatial priorities maintanance F" "Spatial priorities new F" "Spatial priorities maintanance S" "Spatial priorities new S" "Vulnerability" "Social Pressure_F" "Social Pressure_S" "Districts" "Harmful Events"
-2
+11
 
 PLOT
 840
@@ -1376,7 +1376,7 @@ maintenance
 maintenance
 0
 500
-109
+40
 1
 1
 NIL
