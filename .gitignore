@@ -10,4 +10,19 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+<<<<<<< HEAD
 .Rproj.user
+=======
+
+*.err
+*.log
+*.out
+
+*~
+
+.DS_Store
+._.DS_Store
+\#*
+
+.\#*
+>>>>>>> 19601fb239a50cd862f6d816173d599c55cd8fd2
