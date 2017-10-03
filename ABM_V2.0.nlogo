@@ -344,7 +344,7 @@ to GO
     Hazard                 ;; To define if a neighborhood suffer a hazard (H=1), or not (H=0), in a year
     vulnerability
     To-Protest
-   Landscape-Visualization
+;   Landscape-Visualization
   ]
 
   WA-Decisions ;; Water government authority decides in what (new vs. maitainance flooding vs. scarcity) and where (in what districts) to invest resources (budget)
@@ -1070,7 +1070,8 @@ end
 
 ;################################################################
 ;read a text file to define the landscape in term of the altitude differences.
-;this is use the same landscape every time the model runs
+;this is to use the same landscape multiple times
+;to change the landscape just comment "read-landscape" function in the "Go" procedure and uncomment the "create_landscape" procedure
 to read-landscape
   file-open "landscape.txt"
   let i 0
@@ -1186,7 +1187,7 @@ CHOOSER
 Visualization
 Visualization
 "Elevation" "Infrastructure_F" "Infrastructure_S" "Spatial priorities maintanance F" "Spatial priorities new F" "Spatial priorities maintanance S" "Spatial priorities new S" "Vulnerability" "Social Pressure_F" "Social Pressure_S" "Districts" "Harmful Events"
-11
+2
 
 PLOT
 840
@@ -1441,7 +1442,7 @@ simulation_number
 simulation_number
 0
 2002
-2002
+2001
 1
 1
 NIL
