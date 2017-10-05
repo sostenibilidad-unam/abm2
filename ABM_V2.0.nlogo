@@ -267,16 +267,17 @@ to Create-Districts-Infra
       set protestas_here_S  0.1
       if A < random-float 1 [
         set Infra_flood 1              ;; 1 if infra for "drainage" is here; 0 otherwise
-        if Initial-Condition-Infrastructure ="Old"[set infra_F_age 20 + random 50]
-        if Initial-Condition-Infrastructure ="New"[set infra_F_age 10 + random 10]
+        if Initial-Condition-Infrastructure ="Old"[set infra_F_age  (1 - A) * 100]
+        if Initial-Condition-Infrastructure ="New"[set infra_F_age  (1 - A) * 10]
         set c_F 1 - exp(- infra_F_age / 100)
       ]
       if A < random-float 1 [
         set Infra_supply 1
-        if Initial-Condition-Infrastructure ="Old"[set infra_S_age 20 + random 50]             ;; 1 if infra for "water supply" is here; 0 otherwise
-        if Initial-Condition-Infrastructure ="New"[set infra_S_age 10 + random 10]
+        if Initial-Condition-Infrastructure ="Old"[set infra_S_age  (1 - A) * 100]             ;; 1 if infra for "water supply" is here; 0 otherwise
+        if Initial-Condition-Infrastructure ="New"[set infra_S_age  (1 - A) * 10]
         set c_S 1 - exp(- infra_S_age / 100)
       ]
+
     ]
   ]
 end
@@ -299,16 +300,15 @@ to setup
   ;create-Landscape         ;;define landscape topography (Altitute)
   Create-Districts-Infra      ;;define the properties of the infrastructure and the neighborhoods
   ;read_weightsfrom_matrix
-  ;read_weights_from_csv
-  read_new_weights_from_csv
+ ;  read_new_weights_from_csv
 
-;if GOVERNMENT_DECISION_MAKING = "Increase Infra Coverage"[set w1 0.1 set w2 0.1 set w3 0.1 set w4 0.7 set w5 0.1 set w6 0.1 set w7 0.1 set w8 0.7]
-;if GOVERNMENT_DECISION_MAKING = "Reduce age infrastructure"[set w1 0.1 set w2 0.1 set w3 0.7 set w4 0.1 set w5 0.1 set w6 0.1 set w7 0.7 set w8 0.1]
-;if GOVERNMENT_DECISION_MAKING = "Reduce Social Pressure"[set w1 0.1 set w2 0.7 set w3 0.1 set w4 0.1 set w5 0.1 set w6 0.7 set w7 0.1 set w8 0.1]
-;set alpha1 0.5
-;set alpha2 0.5
-;set alpha3 0.5
-;set alpha4 0.5
+if GOVERNMENT_DECISION_MAKING = "Increase Infra Coverage"[set w1 0.1 set w2 0.1 set w3 0.1 set w4 0.7 set w5 0.1 set w6 0.1 set w7 0.1 set w8 0.7]
+if GOVERNMENT_DECISION_MAKING = "Reduce age infrastructure"[set w1 0.1 set w2 0.1 set w3 0.7 set w4 0.1 set w5 0.1 set w6 0.1 set w7 0.7 set w8 0.1]
+if GOVERNMENT_DECISION_MAKING = "Reduce Social Pressure"[set w1 0.1 set w2 0.7 set w3 0.1 set w4 0.1 set w5 0.1 set w6 0.7 set w7 0.1 set w8 0.1]
+set alpha1 0.5
+set alpha2 0.5
+set alpha3 0.5
+set alpha4 0.5
 
   set ExposureIndex 0
   set ExposureIndex_S 0
@@ -344,7 +344,7 @@ to GO
     Hazard                 ;; To define if a neighborhood suffer a hazard (H=1), or not (H=0), in a year
     vulnerability
     To-Protest
-;   Landscape-Visualization
+ ;  Landscape-Visualization
   ]
 
   WA-Decisions ;; Water government authority decides in what (new vs. maitainance flooding vs. scarcity) and where (in what districts) to invest resources (budget)
@@ -352,12 +352,12 @@ to GO
 
 ; for experiments with different mental model
 ;if ticks = 300 [update_weights]
-;if ticks = 599 [export_value_patches_picks]
+;if ticks = 599 [export_patches_atributes]
 
-;if ticks < 2 [set GOVERNMENT_DECISION_MAKING  "Reduce Social Pressure"]
-;if ticks = 400 [set GOVERNMENT_DECISION_MAKING "Reduce age infrastructure"]
-;if ticks = 800 [set GOVERNMENT_DECISION_MAKING  "Reduce Social Pressure"]
-;if ticks = 1200 [stop]
+if ticks = 50 [export_patches_atributes]
+if ticks = 100 [export_patches_atributes]
+if ticks = 200 [export_patches_atributes]
+if ticks = 400 [export_patches_atributes]
 
 ;if GOVERNMENT_DECISION_MAKING = "Increase Infra Coverage"[set w1 0.1 set w2 0.1 set w3 0.1 set w4 0.7 set w5 0.1 set w6 0.1 set w7 0.1 set w8 0.7]
 ;if GOVERNMENT_DECISION_MAKING = "Reduce age infrastructure"[set w1 0.1 set w2 0.1 set w3 0.7 set w4 0.1 set w5 0.1 set w6 0.1 set w7 0.7 set w8 0.1]
@@ -516,10 +516,6 @@ to WA-Decisions
         set distance_metric_maintenance_F (alpha3 * sum (map [(?1 ^ h_Cp) * (?2 ^ h_Cp)] v_vec_f_r w_vec_f)) ^ (1 / h_Cp)
         set distance_metric_maintenance_S (alpha4 * sum (map [(?1 ^ h_Cp) * (?2 ^ h_Cp)] v_vec_s_r w_vec_s)) ^ (1 / h_Cp)
 
-       ; if distance_metric_maintenance_F < 0 or distance_metric_maintenance_S < 0 or distance_metric_New_F < 0 or distance_metric_maintenance_S < 0 [
-        ;  print (list distance_metric_maintenance_F distance_metric_maintenance_S distance_metric_New_F distance_metric_maintenance_S)
-       ; print (list distance_metric_maintenance_F alpha3 v_vec_f_r w_vec_f)
-      ;  ]
 
       ]
 
@@ -833,7 +829,7 @@ end
 
 ;##############################################################################################################################
 to export_view  ;;export snapshots of the landscape
-export_value_patches_picks
+export_patches_atributes
 end
 
 ;###############################################################
@@ -937,7 +933,6 @@ set matrix_S matrix:from-row-list [
   ;set w8  w8 / tot_weights
 
 
-print (list alpha1 alpha2 alpha3 alpha4)
 
 
 
@@ -986,7 +981,6 @@ to update_weights                                   ;generate a change in the su
   set w7  w7 / tot_weights
   set w8  w8 / tot_weights
 
-print (list alpha1 alpha2 alpha3 alpha4)
 
 
 end
@@ -1019,8 +1013,6 @@ to read_new_weights_from_csv
 
   file-close
 
-;print (list w1 w2 w3 w4 w5 w6 w7 w8)
-;print (list alpha1 alpha2 alpha3 alpha4)
 end
 
 
@@ -1038,10 +1030,10 @@ file-close                                        ;close the File
 
 end
 
-to export_value_patches_picks
-let directory "c:/Users/abaezaca/Dropbox (ASU)/MEGADAPT/ABM_V2/landscape_pics/"
-let sim_n word (word simulation_number "-") GOVERNMENT_DECISION_MAKING
-let wr word  sim_n "-outputlandscapes_withdistance.txt"
+to export_patches_atributes
+  let directory "c:/Users/abaezaca/Dropbox (ASU)/MEGADAPT/ABM_V2/landscape_pics/"
+let sim_n word (word ticks "-" (word simulation_number "-")) GOVERNMENT_DECISION_MAKING
+let wr word  sim_n "-spatialpatterns_i.txt"
 file-open word directory wr
 foreach sort patches
   [
@@ -1063,10 +1055,7 @@ foreach sort patches
     ]                                ;write the ID of each ageb using a numeric value (update acording to Marco's Identification)
   ]
 file-close                                        ;close the File
-
 end
-
-
 
 ;################################################################
 ;read a text file to define the landscape in term of the altitude differences.
@@ -1091,10 +1080,6 @@ to read-landscape
   ]
   file-close
 end
-
-
-
-
 ;###############################################################
 ;###############################################################
 ;End of Code
@@ -1233,7 +1218,6 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" "if ticks > 10 [plot mean [V] of patches with [district_here? = TRUE]]"
 "pen-1" 1.0 0 -11221820 true "" "if ticks > 10 [plot mean [exposure_F] of patches with [district_here? = TRUE]]"
 "pen-2" 1.0 0 -6459832 true "" "if ticks > 10 [plot mean [exposure_S] of patches with [district_here? = TRUE]]"
 
@@ -1308,7 +1292,7 @@ p_rain
 p_rain
 0.25
 1.5
-0.35
+0.5
 0.05
 1
 NIL
@@ -1377,7 +1361,7 @@ maintenance
 maintenance
 0
 500
-40
+50
 1
 1
 NIL
@@ -1391,7 +1375,7 @@ CHOOSER
 landscape-type
 landscape-type
 "closed-watershed" "gradient" "many-hills"
-2
+0
 
 TEXTBOX
 550
@@ -1442,7 +1426,7 @@ simulation_number
 simulation_number
 0
 2002
-2001
+1
 1
 1
 NIL
@@ -1467,7 +1451,7 @@ motivation_to_protest
 motivation_to_protest
 0
 1
-0.1
+0.0060
 0.1
 1
 NIL
@@ -1482,7 +1466,7 @@ intensity_protest
 intensity_protest
 0
 1
-0.096
+0.1
 0.001
 1
 NIL
@@ -2006,31 +1990,19 @@ NetLogo 5.2.1
       <value value="0"/>
     </enumeratedValueSet>
   </experiment>
-  <experiment name="timeseries" repetitions="1" runMetricsEveryStep="false">
+  <experiment name="timeseries_spatial_pattern" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
+    <final>export_view</final>
     <timeLimit steps="600"/>
-    <metric>InequalityExposureIndex</metric>
-    <metric>ExposureIndex</metric>
-    <metric>ExposureIndex_S</metric>
-    <metric>ExposureIndex_F</metric>
-    <metric>StateinfraQuantityIndex_S</metric>
-    <metric>StateinfraQuantityIndex_F</metric>
-    <metric>socialpressureIndex_S</metric>
-    <metric>socialpressureIndex_F</metric>
-    <metric>count patches with [infra_flood = 1 and p_failure_F &lt; 0.8]</metric>
-    <metric>count patches with [infra_supply = 1 and p_failure_S &lt; 0.8]</metric>
-    <metric>sum [prot_F] of patches with [district_here? = TRUE]</metric>
-    <metric>sum [prot_S] of patches with [district_here? = TRUE]</metric>
     <enumeratedValueSet variable="budget-distribution">
-      <value value="&quot;local&quot;"/>
       <value value="&quot;local&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="semilla-aleatoria">
       <value value="48569"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="motivation_to_protest">
-      <value value="0"/>
+      <value value="0.1"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="p_rain">
       <value value="0.5"/>
@@ -2039,7 +2011,7 @@ NetLogo 5.2.1
       <value value="100"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="maintenance">
-      <value value="100"/>
+      <value value="50"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Initial-Condition-Infrastructure">
       <value value="&quot;Old&quot;"/>
