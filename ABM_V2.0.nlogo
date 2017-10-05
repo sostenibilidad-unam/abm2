@@ -167,9 +167,11 @@ to load_fixed_landscape
     set invest_here_S 00.1
     set protestas_here_F  0                 ;wheather a protest happen at a particula location and time
     set protestas_here_S  0                 ;wheather a protest happen at a particula location and time
-    set total_exposure_S 0                  ;accumulated burden
-    set total_exposure_F 0                  ;accumulated burden
-    set V exposure_F + exposure_S             ;; Vulnerability
+    set total_exposure_S  0                ;accumulated burden
+    set total_exposure_F  0                  ;accumulated burden
+    set exposure_F [0 0 0 0 0 0 0 0 0 0]
+    set exposure_S [0 0 0 0 0 0 0 0 0 0]
+    set V sum exposure_F + sum exposure_S             ;; Vulnerability
 
     set district_here? FALSE                ;;presence or absence of neighborhood here
 
@@ -237,7 +239,9 @@ to create-Landscape
     set protestas_here_S  0                 ;wheather a protest happen at a particula location and time
     set total_exposure_S 0                  ;accumulated burden
     set total_exposure_F 0                  ;accumulated burden
-    set V exposure_F + exposure_S             ;; Vulnerability
+    set exposure_F [0 0 0 0 0 0 0 0 0 0]
+    set exposure_S [0 0 0 0 0 0 0 0 0 0]
+    set V sum exposure_F + sum exposure_S             ;; Vulnerability
 
     set district_here? FALSE                ;;presence or absence of neighborhood here
 
@@ -265,13 +269,15 @@ to Create-Districts-Infra
       set district_here? TRUE
       set protestas_here_F  0.1
       set protestas_here_S  0.1
-      if A < random-float 1 [
+      set exposure_F [0 0 0 0 0 0 0 0 0 0]
+      set exposure_S [0 0 0 0 0 0 0 0 0 0]
+      if A < 0.25 * random-float 1 [
         set Infra_flood 1              ;; 1 if infra for "drainage" is here; 0 otherwise
         if Initial-Condition-Infrastructure ="Old"[set infra_F_age  (1 - A) * 100]
         if Initial-Condition-Infrastructure ="New"[set infra_F_age  (1 - A) * 10]
         set c_F 1 - exp(- infra_F_age / 100)
       ]
-      if A < random-float 1 [
+      if A < 0.25 * random-float 1 [
         set Infra_supply 1
         if Initial-Condition-Infrastructure ="Old"[set infra_S_age  (1 - A) * 100]             ;; 1 if infra for "water supply" is here; 0 otherwise
         if Initial-Condition-Infrastructure ="New"[set infra_S_age  (1 - A) * 10]
@@ -344,7 +350,7 @@ to GO
     Hazard                 ;; To define if a neighborhood suffer a hazard (H=1), or not (H=0), in a year
     vulnerability
     To-Protest
- ;  Landscape-Visualization
+  ; Landscape-Visualization
   ]
 
   WA-Decisions ;; Water government authority decides in what (new vs. maitainance flooding vs. scarcity) and where (in what districts) to invest resources (budget)
@@ -386,15 +392,18 @@ to Hazard                                                                       
 
       set Prob_H_F R * IS_N  * (1 - A)                                                                                    ;;update probability of hazardous event
       set H_F ifelse-value (Prob_H_F >= random-float 1) [1][0]                                                      ;;update hazard counter to 1
-      set exposure_F precision (0.9 * exposure_F + H_F) 3                                                           ;;update memory of past events
+      set exposure_F but-first exposure_F
+      set exposure_F lput H_F exposure_F
+                                                        ;;update memory of past events
       if ticks > 500[
-        set total_exposure_F total_exposure_F + H_F
+        set total_exposure_F total_exposure_F + mean exposure_F
       ]
       set Prob_H_S (IS_S * A)
-      set H_S Prob_H_S                                                                                              ;;update hazard counter to 1
-      set exposure_S precision (0.9 * exposure_S + H_S) 3
+      set H_S Prob_H_S
+      set exposure_S  but-first exposure_S                                                                                             ;;update hazard counter to 1
+      set exposure_S lput H_S exposure_S
       if ticks > 500[                                                          ;;update list (memory) of past events
-        set total_exposure_S total_exposure_S + H_S
+        set total_exposure_S total_exposure_S + mean exposure_S
       ]
     ]
 end
@@ -426,14 +435,14 @@ end
 
 ;###############################################################################
 to vulnerability;;PROCEDURE TO COMPUTE VULNERABILITY INDICE
-  set V precision (exposure_F + exposure_S) 3                                   ;;calculate vulnerability as the product of exposure
+  set V precision (sum exposure_F + sum exposure_S) 3                                   ;;calculate vulnerability as the product of exposure
 end
 
 
 ;###############################################################################
 to To-Protest ;;AN STOCHASTIC PROCESS THAT SIMUALTE A PROTEST RANDOMLY BUT PROPROTIONALY TO TIME ALLOCATED TO PROTESTING
-  set prot_F ifelse-value ((1 - motivation_to_protest) * (exposure_F / 10) + motivation_to_protest * (1 - invest_here_F) > (1 -  intensity_protest) * random-float 1)[1][0]
-  set prot_S ifelse-value ((1 - motivation_to_protest) * (exposure_S / 10) + motivation_to_protest * (1 - invest_here_S) > (1 -  intensity_protest) * random-float 1)[1][0]
+  set prot_F ifelse-value ((1 - motivation_to_protest) * (mean exposure_F) + motivation_to_protest * (1 - invest_here_F) > (1 -  intensity_protest) * random-float 1)[1][0]
+  set prot_S ifelse-value ((1 - motivation_to_protest) * (mean exposure_S) + motivation_to_protest * (1 - invest_here_S) > (1 -  intensity_protest) * random-float 1)[1][0]
 
   set   protestas_here_F  0.9 * protestas_here_F + prot_F                                        ;;update patch variable to be collected by the government
   set   protestas_here_S  0.9 * protestas_here_S + prot_S                                       ;;update patch variable to be collected by the government
@@ -752,7 +761,7 @@ to Update-Globals-Reporters
   if max_v = 0 [set max_v 1]
 
   update-lorenz-and-gini ;;update innequality state
-   set max_damage max [exposure_F + exposure_S] of patches with [district_here? = TRUE]              ;;Calculate mean damage of city in a time-stepy cakculating the mean damage per year.
+   set max_damage max [sum exposure_F + sum exposure_S] of patches with [district_here? = TRUE]              ;;Calculate mean damage of city in a time-stepy cakculating the mean damage per year.
 
   if ticks > 499 [
     set ExposureIndex precision ((sum [total_exposure_S + total_exposure_F] of patches with [district_here? = TRUE]) / count patches with [district_here? = TRUE]) 3
@@ -1218,8 +1227,8 @@ true
 false
 "" ""
 PENS
-"pen-1" 1.0 0 -11221820 true "" "if ticks > 10 [plot mean [exposure_F] of patches with [district_here? = TRUE]]"
-"pen-2" 1.0 0 -6459832 true "" "if ticks > 10 [plot mean [exposure_S] of patches with [district_here? = TRUE]]"
+"pen-1" 1.0 0 -11221820 true "" "if ticks > 10 [plot mean [sum exposure_F] of patches with [district_here? = TRUE]]"
+"pen-2" 1.0 0 -6459832 true "" "if ticks > 10 [plot mean [sum exposure_S] of patches with [district_here? = TRUE]]"
 
 PLOT
 860
@@ -1426,7 +1435,7 @@ simulation_number
 simulation_number
 0
 2002
-1
+2000
 1
 1
 NIL
@@ -1466,7 +1475,7 @@ intensity_protest
 intensity_protest
 0
 1
-0.1
+0.091
 0.001
 1
 NIL
