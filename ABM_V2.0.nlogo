@@ -1042,7 +1042,7 @@ end
 to export_patches_atributes
   let directory "c:/Users/abaezaca/Dropbox (ASU)/MEGADAPT/ABM_V2/landscape_pics/"
 let sim_n word (word ticks "-" (word simulation_number "-")) GOVERNMENT_DECISION_MAKING
-let wr word  sim_n "-spatialpatterns_i.txt"
+let wr word  sim_n "-spatialpatterns.txt"
 file-open word directory wr
 foreach sort patches
   [
@@ -1050,6 +1050,8 @@ foreach sort patches
       file-write pxcor
       file-write pycor
       file-write ifelse-value (district_here? = TRUE)[1][0]
+      file-write infra_flood
+      file-write infra_supply
       file-write A
       file-write precision  socialpressureTOTAL_S 3
       file-write precision  socialpressureTOTAL_F 3
@@ -1272,7 +1274,7 @@ CHOOSER
 Initial-Condition-Infrastructure
 Initial-Condition-Infrastructure
 "New" "Old"
-1
+0
 
 PLOT
 840
@@ -1435,7 +1437,7 @@ simulation_number
 simulation_number
 0
 2002
-2000
+1
 1
 1
 NIL
@@ -1460,7 +1462,7 @@ motivation_to_protest
 motivation_to_protest
 0
 1
-0.0060
+0
 0.1
 1
 NIL
@@ -1475,7 +1477,7 @@ intensity_protest
 intensity_protest
 0
 1
-0.091
+0.1
 0.001
 1
 NIL
@@ -1926,10 +1928,10 @@ NetLogo 5.2.1
 @#$#@#$#@
 @#$#@#$#@
 <experiments>
-  <experiment name="experiment1" repetitions="10" runMetricsEveryStep="false">
+  <experiment name="experiment1" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <final>export_value_patches_picks</final>
+    <final>export_patches_atributes</final>
     <timeLimit steps="600"/>
     <metric>InequalityExposureIndex</metric>
     <metric>ExposureIndex</metric>
@@ -1973,7 +1975,7 @@ NetLogo 5.2.1
       <value value="100"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="maintenance">
-      <value value="40"/>
+      <value value="50"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Initial-Condition-Infrastructure">
       <value value="&quot;New&quot;"/>
