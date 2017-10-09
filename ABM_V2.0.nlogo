@@ -468,12 +468,13 @@ to Surveillance    ;; GOVERNMENT SURVEILLANCE SYSTEM
  set C1 ((count patches in-radius 2 with [district_here? = TRUE]) + (ifelse-value (district_here? = TRUE)[1][0])) ;* (ifelse-value (any? patches in-radius 2 with [Infra_flood = 1] or Infra_flood = 1)[(c_F + sum [c_F] of patches in-radius 2 with [Infra_flood = 1])/(1 + count patches in-radius 2 with [Infra_flood = 1])][1])  ;Criteria 1 economic efficiancy. calcuate number of neighborhoods beneficiated per "dolar" invested
  set C2   protestas_here_F                   ;;criteria 2. collect the number of protest in the district located in this patch
  set C3 infra_F_age  ;;criteria 3. Collect information about the age of the infrastructure in the current patch
- set C4 count patches in-radius 2 with [(Infra_flood = 0 or infra_F_age > tau_ageInfra) and district_here? = TRUE]
+ set C4 (count patches in-radius 2 with [(Infra_flood = 0 or infra_F_age > tau_ageInfra) and district_here? = TRUE]) + (ifelse-value (district_here? = TRUE and (Infra_flood = 0 or infra_F_age > tau_ageInfra))[1][0])
+
 
  set C5 C1
  set C6 protestas_here_S                   ;;criteria 2. collect the number of protest in the district located in this patch
  set C7 infra_S_age  ;;criteria 3. Collect information about the age of the infrastructure in the current patch
- set C8 count patches in-radius 2 with [(Infra_supply = 0 or infra_S_age > tau_ageInfra) and district_here? = true]
+ set C8 (count patches in-radius 2 with [(Infra_supply = 0 or infra_S_age > tau_ageInfra) and district_here? = true]) + (ifelse-value (district_here? = TRUE and (Infra_supply = 0 or infra_S_age > tau_ageInfra))[1][0])
 end
 
 ;;####################################################################################
@@ -795,16 +796,16 @@ to Update-Globals-Reporters
 
   ]
 
-  set C1max ifelse-value (max [C1] of patches > C1max)[max [C1] of patches with [district_here? = TRUE]][C1max]                                               ;#update ideal points by setting the maximum of the natural (physical) scale
+  set C1max 14;ifelse-value (max [C1] of patches > C1max)[max [C1] of patches with [district_here? = TRUE]][C1max]                                               ;#update ideal points by setting the maximum of the natural (physical) scale
   set C2max 10;ifelse-value (max [C2] of patches > C2max)[max [C2] of patches with [district_here? = TRUE]][C2max]
   set C3max tau_ageInfra
-  set C4max ifelse-value (max [C4] of patches > C4max) [max [C4] of patches with [district_here? = TRUE]][C4max]
+  set C4max 14;ifelse-value (max [C4] of patches > C4max) [max [C4] of patches with [district_here? = TRUE]][C4max]
 
-
-  set C5max ifelse-value (max [C5] of patches > C5max)[max [C5] of patches with [district_here? = TRUE]][C5max]
+print C4max
+  set C5max 14;ifelse-value (max [C5] of patches > C5max)[max [C5] of patches with [district_here? = TRUE]][C5max]
   set C6max 10;ifelse-value (max [C6] of patches > C6max)[max [C6] of patches with [district_here? = TRUE]][C6max]
   set C7max tau_ageInfra
-  set C8max ifelse-value (max [C8] of patches > C8max)[max [C8] of patches with [district_here? = TRUE]][C8max]
+  set C8max 14;ifelse-value (max [C8] of patches > C8max)[max [C8] of patches with [district_here? = TRUE]][C8max]
 
   set C1min min [C1] of patches with [district_here? = TRUE]                                                ;#update ideal points by setting the minimum of the natural (physical) scale
   set C2min min [C2] of patches with [district_here? = TRUE]
@@ -1462,7 +1463,7 @@ simulation_number
 simulation_number
 0
 2002
-1
+2002
 1
 1
 NIL
