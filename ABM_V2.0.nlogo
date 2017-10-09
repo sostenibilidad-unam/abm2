@@ -85,6 +85,11 @@ globals [              ;;DEFINE GLOBAL VARIABLES
   distance_metric_NewIndex_F           ;;Metric for define distance from ideal point (MDCA)
   distance_metric_maintenanceIndex_S   ;;Metric for define distance from ideal point (MDCA)
   distance_metric_NewIndex_S           ;;Metric for define distance from ideal point (MDCA)
+
+  ts_F_protests     ;lists to save time series
+  ts_S_protests
+  ts_F_Infra_coverage
+  ts_S_Infra_coverage
 ]
 
 
@@ -306,15 +311,15 @@ to setup
   ;create-Landscape         ;;define landscape topography (Altitute)
   Create-Districts-Infra      ;;define the properties of the infrastructure and the neighborhoods
   ;read_weightsfrom_matrix
- ;  read_new_weights_from_csv
+   read_new_weights_from_csv
 
-if GOVERNMENT_DECISION_MAKING = "Increase Infra Coverage"[set w1 0.1 set w2 0.1 set w3 0.1 set w4 0.7 set w5 0.1 set w6 0.1 set w7 0.1 set w8 0.7]
-if GOVERNMENT_DECISION_MAKING = "Reduce age infrastructure"[set w1 0.1 set w2 0.1 set w3 0.7 set w4 0.1 set w5 0.1 set w6 0.1 set w7 0.7 set w8 0.1]
-if GOVERNMENT_DECISION_MAKING = "Reduce Social Pressure"[set w1 0.1 set w2 0.7 set w3 0.1 set w4 0.1 set w5 0.1 set w6 0.7 set w7 0.1 set w8 0.1]
-set alpha1 0.5
-set alpha2 0.5
-set alpha3 0.5
-set alpha4 0.5
+;if GOVERNMENT_DECISION_MAKING = "Increase Infra Coverage"[set w1 0.1 set w2 0.1 set w3 0.1 set w4 0.7 set w5 0.1 set w6 0.1 set w7 0.1 set w8 0.7]
+;if GOVERNMENT_DECISION_MAKING = "Reduce age infrastructure"[set w1 0.1 set w2 0.1 set w3 0.7 set w4 0.1 set w5 0.1 set w6 0.1 set w7 0.7 set w8 0.1]
+;if GOVERNMENT_DECISION_MAKING = "Reduce Social Pressure"[set w1 0.1 set w2 0.7 set w3 0.1 set w4 0.1 set w5 0.1 set w6 0.7 set w7 0.1 set w8 0.1]
+;set alpha1 0.5
+;set alpha2 0.5
+;set alpha3 0.5
+;set alpha4 0.5
 
   set ExposureIndex 0
   set ExposureIndex_S 0
@@ -328,6 +333,11 @@ set alpha4 0.5
   ask patches [Landscape-Visualization]
   set invest_here_max_F 0.1
   set invest_here_max_S 0.1
+  set ts_F_protests []
+  set ts_S_protests []
+  set ts_F_Infra_coverage []
+  set ts_S_Infra_coverage []
+
    ;export_value_patches
   reset-ticks
 end
@@ -349,21 +359,20 @@ to GO
     Surveillance
     Hazard                 ;; To define if a neighborhood suffer a hazard (H=1), or not (H=0), in a year
     vulnerability
-    To-Protest
-  ; Landscape-Visualization
+    Protest
+ ;  Landscape-Visualization
   ]
 
   WA-Decisions ;; Water government authority decides in what (new vs. maitainance flooding vs. scarcity) and where (in what districts) to invest resources (budget)
   Update-Infrastructure ;update state of infrastructure (age, prob. of failure)
-
+  time_series
 ; for experiments with different mental model
-;if ticks = 300 [update_weights]
-;if ticks = 599 [export_patches_atributes]
 
-if ticks = 50 [export_patches_atributes]
-if ticks = 100 [export_patches_atributes]
-if ticks = 200 [export_patches_atributes]
-if ticks = 400 [export_patches_atributes]
+
+;if ticks = 50 [export_patches_atributes]
+;if ticks = 100 [export_patches_atributes]
+;if ticks = 200 [export_patches_atributes]
+;if ticks = 400 [export_patches_atributes]
 
 ;if GOVERNMENT_DECISION_MAKING = "Increase Infra Coverage"[set w1 0.1 set w2 0.1 set w3 0.1 set w4 0.7 set w5 0.1 set w6 0.1 set w7 0.1 set w8 0.7]
 ;if GOVERNMENT_DECISION_MAKING = "Reduce age infrastructure"[set w1 0.1 set w2 0.1 set w3 0.7 set w4 0.1 set w5 0.1 set w6 0.1 set w7 0.7 set w8 0.1]
@@ -412,8 +421,8 @@ end
 ;###############################################################################
 to Landscape-Visualization                                                                                                             ;;TO REPRESENT DIFFERENT INFORMATION IN THE LANDSCAPE
   if Visualization = "Elevation" [set pcolor scale-color grey  A 0  1]      ;;probability of Infrastructure failure
-  if Visualization = "Infrastructure_F" [set pcolor ifelse-value (Infra_flood = 1)[scale-color grey  infra_F_age C3min  200][65]]      ;;probability of Infrastructure failure
-  if Visualization = "Infrastructure_S" [set pcolor ifelse-value (Infra_supply = 1)[scale-color grey  infra_S_age C7min  200][65]]     ;;probability of Infrastructure failure
+  if Visualization = "Infrastructure_F" [set pcolor ifelse-value (Infra_flood = 1)[scale-color grey  infra_F_age C3min  tau_ageInfra][65]]      ;;probability of Infrastructure failure
+  if Visualization = "Infrastructure_S" [set pcolor ifelse-value (Infra_supply = 1)[scale-color grey  infra_S_age C7min  tau_ageInfra][65]]     ;;probability of Infrastructure failure
   if Visualization = "Vulnerability" [set pcolor ifelse-value (District_here? = TRUE) [scale-color blue V 0 max_v][65]]                ;;visualize vulnerability
   if visualization = "Social Pressure_F" [set pcolor ifelse-value (District_here? = TRUE) [scale-color red   protestas_here_F  0 10][black]];;visualized social pressure
   if visualization = "Social Pressure_S" [set pcolor ifelse-value (District_here? = TRUE) [scale-color red   protestas_here_S  0 10][black]];;visualized social pressure
@@ -440,7 +449,7 @@ end
 
 
 ;###############################################################################
-to To-Protest ;;AN STOCHASTIC PROCESS THAT SIMUALTE A PROTEST RANDOMLY BUT PROPROTIONALY TO TIME ALLOCATED TO PROTESTING
+to Protest ;;AN STOCHASTIC PROCESS THAT SIMUALTE A PROTEST RANDOMLY BUT PROPROTIONALY TO TIME ALLOCATED TO PROTESTING
   set prot_F ifelse-value ((1 - motivation_to_protest) * (mean exposure_F) + motivation_to_protest * (1 - invest_here_F) > (1 -  intensity_protest) * random-float 1)[1][0]
   set prot_S ifelse-value ((1 - motivation_to_protest) * (mean exposure_S) + motivation_to_protest * (1 - invest_here_S) > (1 -  intensity_protest) * random-float 1)[1][0]
 
@@ -459,12 +468,12 @@ to Surveillance    ;; GOVERNMENT SURVEILLANCE SYSTEM
  set C1 ((count patches in-radius 2 with [district_here? = TRUE]) + (ifelse-value (district_here? = TRUE)[1][0])) ;* (ifelse-value (any? patches in-radius 2 with [Infra_flood = 1] or Infra_flood = 1)[(c_F + sum [c_F] of patches in-radius 2 with [Infra_flood = 1])/(1 + count patches in-radius 2 with [Infra_flood = 1])][1])  ;Criteria 1 economic efficiancy. calcuate number of neighborhoods beneficiated per "dolar" invested
  set C2   protestas_here_F                   ;;criteria 2. collect the number of protest in the district located in this patch
  set C3 infra_F_age  ;;criteria 3. Collect information about the age of the infrastructure in the current patch
- set C4 count patches in-radius 2 with [(Infra_flood = 0 or infra_F_age > 200) and district_here? = TRUE]
+ set C4 count patches in-radius 2 with [(Infra_flood = 0 or infra_F_age > tau_ageInfra) and district_here? = TRUE]
 
  set C5 C1
  set C6 protestas_here_S                   ;;criteria 2. collect the number of protest in the district located in this patch
  set C7 infra_S_age  ;;criteria 3. Collect information about the age of the infrastructure in the current patch
- set C8 count patches in-radius 2 with [(Infra_supply = 0 or infra_S_age > 200) and district_here? = true]
+ set C8 count patches in-radius 2 with [(Infra_supply = 0 or infra_S_age > tau_ageInfra) and district_here? = true]
 end
 
 ;;####################################################################################
@@ -485,10 +494,10 @@ to WA-Decisions
        let V1 ifelse-value (C1 < C1max)[(C1 / C1max)][1] ; C1max - C1 / C1max - C1min                                                                              ;;define the value functions by transforming natural scale of the information gethered by goverment
        let V2 ifelse-value (C2 < C2max)[(C2 / C2max)][1] ; C2max - C2 / C2max - C2min                                            ;;to a standarized scale [0,1] where 1 means maximal atention from goverment (1 = larger number of protested in an area
 
-       let V3_n ifelse-value (C3 < 100)[0][2 * (C3 - 100) / C3max]  ; C3max - C3 / C3max - C3min
-       if C3 > 200 or Infra_flood = 0[set V3_n 1]
+       let V3_n ifelse-value (C3 < (tau_ageInfra / 2))[0][2 * (C3 - (tau_ageInfra / 2)) / C3max]  ; C3max - C3 / C3max - C3min
+       if C3 > tau_ageInfra or Infra_flood = 0[set V3_n 1]
 
-       let V3_r ifelse-value (C3 < 100)[C3 / 100] [(C3max - C3) / 100] ; C3max - C3 / C3max - C3min
+       let V3_r ifelse-value (C3 < (tau_ageInfra / 2))[C3 / (tau_ageInfra / 2)] [(C3max - C3) / (tau_ageInfra / 2)] ; C3max - C3 / C3max - C3min
        if V3_r < 0 [set V3_r 0]
 
 
@@ -498,10 +507,10 @@ to WA-Decisions
 
        let V6 ifelse-value (C6 < C6max)[(C6 / C6max)][1];C6max - C6 / C6max - C6min                                                                      ;;to a standarized scale [0,1] where 1 means maximal atention from goverment (1 = larger number of protested in an area
 
-       let V7_n ifelse-value (C7 < 100)[0][2 * (C7 - 100) / C7max];C7max - C7 / C7max - C7min
-       if C7 > 200 or Infra_supply = 0[set V7_n 1]
+       let V7_n ifelse-value (C7 < (tau_ageInfra / 2))[0][2 * (C7 - (tau_ageInfra / 2)) / C7max];C7max - C7 / C7max - C7min
+       if C7 > tau_ageInfra or Infra_supply = 0[set V7_n 1]
 
-       let V7_r ifelse-value (C7 < 100)[C7 / 100] [(C7max - C7) / 100] ;C7max - C7 / C7max - C7min
+       let V7_r ifelse-value (C7 < (tau_ageInfra / 2))[C7 / (tau_ageInfra / 2)] [(C7max - C7) / (tau_ageInfra / 2)] ;C7max - C7 / C7max - C7min
        if V7_r < 0 [set V7_r 0]
 
        let V8 ifelse-value (C8 <= C8max)[C8 / C8max][1];C8max - C8 / C8max - C8min
@@ -519,11 +528,11 @@ to WA-Decisions
 
       if ticks = 1 or ticks mod 12 = 0[
 
-        set distance_metric_New_F (alpha1 * sum (map [(?1 ^ h_Cp) * (?2 ^ h_Cp)] v_vec_f_n w_vec_f)) ^ (1 / h_Cp)
-        set distance_metric_New_S (alpha2 * sum (map [(?1 ^ h_Cp) * (?2 ^ h_Cp)] v_vec_s_n w_vec_s)) ^ (1 / h_Cp)
+        set distance_metric_New_F (sum (map [(?1 ^ h_Cp) * (?2 ^ h_Cp)] v_vec_f_n w_vec_f)) ^ (1 / h_Cp)
+        set distance_metric_New_S (sum (map [(?1 ^ h_Cp) * (?2 ^ h_Cp)] v_vec_s_n w_vec_s)) ^ (1 / h_Cp)
 
-        set distance_metric_maintenance_F (alpha3 * sum (map [(?1 ^ h_Cp) * (?2 ^ h_Cp)] v_vec_f_r w_vec_f)) ^ (1 / h_Cp)
-        set distance_metric_maintenance_S (alpha4 * sum (map [(?1 ^ h_Cp) * (?2 ^ h_Cp)] v_vec_s_r w_vec_s)) ^ (1 / h_Cp)
+        set distance_metric_maintenance_F (sum (map [(?1 ^ h_Cp) * (?2 ^ h_Cp)] v_vec_f_r w_vec_f)) ^ (1 / h_Cp)
+        set distance_metric_maintenance_S (sum (map [(?1 ^ h_Cp) * (?2 ^ h_Cp)] v_vec_s_r w_vec_s)) ^ (1 / h_Cp)
 
 
       ]
@@ -768,8 +777,8 @@ to Update-Globals-Reporters
     set ExposureIndex_S precision ((sum [total_exposure_S] of patches with [district_here? = TRUE]) / count patches with [district_here? = TRUE]) 3
     set ExposureIndex_F precision ((sum [total_exposure_F] of patches with [district_here? = TRUE]) / count patches with [district_here? = TRUE] ) 3
 
-    set StateinfraQuantityIndex_S StateinfraQuantityIndex_S + 0.01 * (count patches with [infra_supply = 1 and infra_S_age < 200 and district_here? = TRUE])
-    set StateinfraQuantityIndex_F StateinfraQuantityIndex_F + 0.01 * (count patches with [infra_flood = 1 and infra_F_age < 200 and district_here? = TRUE])
+    set StateinfraQuantityIndex_S StateinfraQuantityIndex_S + 0.01 * (count patches with [infra_supply = 1 and infra_S_age < tau_ageInfra and district_here? = TRUE])
+    set StateinfraQuantityIndex_F StateinfraQuantityIndex_F + 0.01 * (count patches with [infra_flood = 1 and infra_F_age < tau_ageInfra and district_here? = TRUE])
 
     set StateinfraAgeIndex_S StateinfraAgeIndex_S + 0.01 * (mean [infra_S_age] of patches with [infra_supply = 1 and district_here? = TRUE])
     set StateinfraAgeIndex_F StateinfraAgeIndex_F + 0.01 * (mean [infra_F_age] of patches with [infra_flood = 1 and district_here? = TRUE])
@@ -777,7 +786,7 @@ to Update-Globals-Reporters
     set socialpressureIndex_S precision (mean [socialpressureTOTAL_S] of patches with [district_here? = TRUE]) 3
     set socialpressureIndex_F precision (mean [socialpressureTOTAL_F] of patches with [district_here? = TRUE]) 3
 
-    set InequalityExposureIndex InequalityExposureIndex + 0.01 * gini_V / (count patches with [district_here? = TRUE])
+    set InequalityExposureIndex InequalityExposureIndex + 0.01 * gini_V
 
     set distance_metric_maintenanceIndex_F precision (mean [distance_metric_maintenance_F] of patches with [district_here? = TRUE]) 3 ;;Metric for define distance from ideal point (MDCA)
     set distance_metric_NewIndex_F        precision (mean [distance_metric_New_F] of patches with [district_here? = TRUE]) 3   ;;Metric for define distance from ideal point (MDCA)
@@ -788,13 +797,13 @@ to Update-Globals-Reporters
 
   set C1max ifelse-value (max [C1] of patches > C1max)[max [C1] of patches with [district_here? = TRUE]][C1max]                                               ;#update ideal points by setting the maximum of the natural (physical) scale
   set C2max 10;ifelse-value (max [C2] of patches > C2max)[max [C2] of patches with [district_here? = TRUE]][C2max]
-  set C3max 200
+  set C3max tau_ageInfra
   set C4max ifelse-value (max [C4] of patches > C4max) [max [C4] of patches with [district_here? = TRUE]][C4max]
 
 
   set C5max ifelse-value (max [C5] of patches > C5max)[max [C5] of patches with [district_here? = TRUE]][C5max]
   set C6max 10;ifelse-value (max [C6] of patches > C6max)[max [C6] of patches with [district_here? = TRUE]][C6max]
-  set C7max 200
+  set C7max tau_ageInfra
   set C8max ifelse-value (max [C8] of patches > C8max)[max [C8] of patches with [district_here? = TRUE]][C8max]
 
   set C1min min [C1] of patches with [district_here? = TRUE]                                                ;#update ideal points by setting the minimum of the natural (physical) scale
@@ -1092,6 +1101,22 @@ to read-landscape
   file-close
 end
 ;###############################################################
+to time_series
+  set ts_F_protests lput (sum [prot_F] of patches with [district_here? = TRUE]) ts_F_protests
+  set ts_S_protests lput (sum [prot_S] of patches with [district_here? = TRUE]) ts_S_protests
+  set ts_F_Infra_coverage lput (count patches with [infra_flood = 1 and infra_F_age < tau_ageInfra]) ts_F_Infra_coverage
+  set ts_S_infra_coverage lput (count patches with [infra_supply = 1 and infra_S_age < tau_ageInfra]) ts_S_Infra_coverage
+
+  if ticks = 600 [
+
+    let ts_full (list ts_F_protests ts_S_protests ts_F_Infra_coverage ts_S_infra_coverage)
+    let directory "c:/Users/abaezaca/Dropbox (ASU)/MEGADAPT/ABM_V2/landscape_pics/"
+    let sim_n (word directory (word ticks "-" (word simulation_number "-")) GOVERNMENT_DECISION_MAKING)
+    let wr word  sim_n "-time_series.csv"
+    csv:to-file wr ts_full
+  ]
+end
+
 ;###############################################################
 ;End of Code
 ;###############################################################
@@ -1274,7 +1299,7 @@ CHOOSER
 Initial-Condition-Infrastructure
 Initial-Condition-Infrastructure
 "New" "Old"
-0
+1
 
 PLOT
 840
@@ -1462,7 +1487,7 @@ motivation_to_protest
 motivation_to_protest
 0
 1
-0
+0.1
 0.1
 1
 NIL
@@ -1477,8 +1502,23 @@ intensity_protest
 intensity_protest
 0
 1
-0.1
+0.3
 0.001
+1
+NIL
+HORIZONTAL
+
+SLIDER
+44
+717
+216
+750
+tau_ageInfra
+tau_ageInfra
+100
+400
+200
+100
 1
 NIL
 HORIZONTAL
@@ -1928,45 +1968,15 @@ NetLogo 5.2.1
 @#$#@#$#@
 @#$#@#$#@
 <experiments>
-  <experiment name="experiment1" repetitions="1" runMetricsEveryStep="false">
+  <experiment name="timeseries" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <final>export_patches_atributes</final>
     <timeLimit steps="600"/>
-    <metric>InequalityExposureIndex</metric>
-    <metric>ExposureIndex</metric>
-    <metric>ExposureIndex_S</metric>
-    <metric>ExposureIndex_F</metric>
-    <metric>StateinfraQuantityIndex_S</metric>
-    <metric>StateinfraQuantityIndex_F</metric>
-    <metric>socialpressureIndex_S</metric>
-    <metric>socialpressureIndex_F</metric>
-    <metric>StateinfraAgeIndex_S</metric>
-    <metric>StateinfraAgeIndex_F</metric>
-    <metric>w1</metric>
-    <metric>w2</metric>
-    <metric>w3</metric>
-    <metric>w4</metric>
-    <metric>w5</metric>
-    <metric>w6</metric>
-    <metric>w7</metric>
-    <metric>w8</metric>
-    <metric>alpha1</metric>
-    <metric>alpha2</metric>
-    <metric>alpha3</metric>
-    <metric>alpha4</metric>
-    <metric>distance_metric_maintenanceIndex_F</metric>
-    <metric>distance_metric_NewIndex_F</metric>
-    <metric>distance_metric_maintenanceIndex_S</metric>
-    <metric>distance_metric_NewIndex_S</metric>
     <enumeratedValueSet variable="budget-distribution">
       <value value="&quot;local&quot;"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="semilla-aleatoria">
-      <value value="48569"/>
-    </enumeratedValueSet>
     <enumeratedValueSet variable="motivation_to_protest">
-      <value value="0"/>
+      <value value="0.1"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="p_rain">
       <value value="0.5"/>
@@ -1978,30 +1988,18 @@ NetLogo 5.2.1
       <value value="50"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="Initial-Condition-Infrastructure">
-      <value value="&quot;New&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="Visualization">
-      <value value="&quot;Infrastructure_S&quot;"/>
+      <value value="&quot;Old&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="intensity_protest">
-      <value value="0.1"/>
+      <value value="0.3"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="GOVERNMENT_DECISION_MAKING">
       <value value="&quot;Increase Infra Coverage&quot;"/>
       <value value="&quot;Reduce age infrastructure&quot;"/>
       <value value="&quot;Reduce Social Pressure&quot;"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="simulation_number">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="landscape-type">
-      <value value="&quot;closed-watershed&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="motivation_to_protest">
-      <value value="0"/>
-    </enumeratedValueSet>
   </experiment>
-  <experiment name="timeseries_spatial_pattern" repetitions="1" runMetricsEveryStep="false">
+  <experiment name="spatial_pattern" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
     <final>export_view</final>
