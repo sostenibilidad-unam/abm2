@@ -43,15 +43,19 @@ os.symlink(os.path.join(this_dir, "run.sh"), os.path.join(args.workdir, "run.sh"
 # read setup and submit templates
 setup_template = open('setup_template.xml').read()
 condor_template= open('submit_template.condor').read()
+slurm_template = open('submit_template.slurm').read()
+slurm_task_template = open('submit_task_template.slurm').read()
 
 lines = args.argumentspace.readlines()
 
 # create setup XML files and condor files
+numtasks = 0
 with open('%s/submit_all.condor' % args.workdir, 'w') as condorfile:
     condorfile.write("executable = run.sh\n\n")
     for simulation_number in range(len(lines)-1):
         for new_infra_investment in args.new_infra_investment:
             for maintenance in args.maintenance:
+                numtasks = numtasks + 1 # slurm needs to know the total number of tasks
                 random_seed = random.randint(0, 100000)
                 run_id = "nii%s_mii%s_%s_%s" % (new_infra_investment,
                                                 maintenance,
@@ -67,3 +71,23 @@ with open('%s/submit_all.condor' % args.workdir, 'w') as condorfile:
                                                           threads=args.threads))
                 condorfile.write(condor_template.format(run_id=run_id,
                                                         threads=args.threads))
+# create slurm input script
+taskid = 0
+with open('%s/submit_all.slurm' % args.workdir, 'w' ) as slurmfile:
+    run_id = "nii%s_mii%s_%s" % (new_infra_investment,
+                                    maintenance, args.landscape)
+    slurmfile.write(slurm_template.format(run_id=run_id, threads=args.threads, 
+                                          jobs=(numtasks - 1), queue='defq', 
+                                          modules='netlogo'))
+    for simulation_number in range(len(lines)-1):
+        for new_infra_investment in args.new_infra_investment:
+            for maintenance in args.maintenance:
+                run_id = "nii%s_mii%s_%s_%s" % (new_infra_investment,
+                                                maintenance,
+                                                args.landscape,
+                                                simulation_number)
+                command='run.sh setup_{run_id}.xml output_{run_id}.csv {threads}'
+                slurmfile.write(slurm_task_template.format(taskid=taskid, 
+                                                           command=command.format(run_id=run_id, 
+                                                                                  threads=args.threads)))
+                taskid = taskid + 1
