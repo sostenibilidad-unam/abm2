@@ -365,7 +365,7 @@ to GO
 
   WA-Decisions ;; Water government authority decides in what (new vs. maitainance flooding vs. scarcity) and where (in what districts) to invest resources (budget)
   Update-Infrastructure ;update state of infrastructure (age, prob. of failure)
-  time_series
+;  time_series
 ; for experiments with different mental model
 
 
@@ -373,7 +373,7 @@ to GO
 ;if ticks = 100 [export_patches_atributes]
 ;if ticks = 200 [export_patches_atributes]
 ;if ticks = 400 [export_patches_atributes]
-
+;if ticks = 600 [export_patches_atributes]
 ;if GOVERNMENT_DECISION_MAKING = "Increase Infra Coverage"[set w1 0.1 set w2 0.1 set w3 0.1 set w4 0.7 set w5 0.1 set w6 0.1 set w7 0.1 set w8 0.7]
 ;if GOVERNMENT_DECISION_MAKING = "Reduce age infrastructure"[set w1 0.1 set w2 0.1 set w3 0.7 set w4 0.1 set w5 0.1 set w6 0.1 set w7 0.7 set w8 0.1]
 ;if GOVERNMENT_DECISION_MAKING = "Reduce Social Pressure"[set w1 0.1 set w2 0.7 set w3 0.1 set w4 0.1 set w5 0.1 set w6 0.7 set w7 0.1 set w8 0.1]
@@ -395,9 +395,22 @@ end
 ;###############################################################################
 to Hazard                                                                                                           ;;GENERATE HAZARDOUS EVENTS IN EACH PATCH OCCUPID BY A DISTRICT
     if district_here? = TRUE [
+      if radius_l = 0[
+        let denominador 1
+      ]
+      if radius_l = 1[
+        let denominador 5
+      ]
+      if radius_l = 2[
+        let denominador 14
+      ]
+      if radius_l = 3[
+        let denominador count patches in-radius radius_l
+      ]
+      let denominador  1 + count patches in-radius radius_l
 
-      let IS_N (sum [c_F] of patches in-radius 2 + c_F) / 14    ;;14 =(1 + count patches in-radius 2)       ;;update the average state of infrastructure in patches in radius 2
-      let IS_S (sum [c_S] of patches in-radius 2 + c_S) / 14           ;;update the average state of infrastructure in patches in radius 2
+      let IS_N (sum [c_F] of patches in-radius radius_l + c_F) / denominador    ;;14 =(1 + count patches in-radius radius_l)       ;;update the average state of infrastructure in patches in radius 2
+      let IS_S (sum [c_S] of patches in-radius radius_l + c_S) / denominador           ;;update the average state of infrastructure in patches in radius 2
 
       set Prob_H_F R * IS_N  * (1 - A)                                                                                    ;;update probability of hazardous event
       set H_F ifelse-value (Prob_H_F >= random-float 1) [1][0]                                                      ;;update hazard counter to 1
@@ -465,16 +478,16 @@ end
 
 ;###############################################################################
 to Surveillance    ;; GOVERNMENT SURVEILLANCE SYSTEM
- set C1 ((count patches in-radius 2 with [district_here? = TRUE]) + (ifelse-value (district_here? = TRUE)[1][0])) ;* (ifelse-value (any? patches in-radius 2 with [Infra_flood = 1] or Infra_flood = 1)[(c_F + sum [c_F] of patches in-radius 2 with [Infra_flood = 1])/(1 + count patches in-radius 2 with [Infra_flood = 1])][1])  ;Criteria 1 economic efficiancy. calcuate number of neighborhoods beneficiated per "dolar" invested
+ set C1 (count patches in-radius radius_l with [district_here? = TRUE])  ;* (ifelse-value (any? patches in-radius radius_l with [Infra_flood = 1] or Infra_flood = 1)[(c_F + sum [c_F] of patches in-radius radius_l with [Infra_flood = 1])/(1 + count patches in-radius radius_l with [Infra_flood = 1])][1])  ;Criteria 1 economic efficiancy. calcuate number of neighborhoods beneficiated per "dolar" invested
  set C2   protestas_here_F                   ;;criteria 2. collect the number of protest in the district located in this patch
  set C3 infra_F_age  ;;criteria 3. Collect information about the age of the infrastructure in the current patch
- set C4 (count patches in-radius 2 with [(Infra_flood = 0 or infra_F_age > tau_ageInfra) and district_here? = TRUE]) + (ifelse-value (district_here? = TRUE and (Infra_flood = 0 or infra_F_age > tau_ageInfra))[1][0])
+ set C4 (count patches in-radius radius_l with [(Infra_flood = 0 or infra_F_age > tau_ageInfra) and district_here? = TRUE]) + (ifelse-value (district_here? = TRUE and (Infra_flood = 0 or infra_F_age > tau_ageInfra))[1][0])
 
 
  set C5 C1
  set C6 protestas_here_S                   ;;criteria 2. collect the number of protest in the district located in this patch
  set C7 infra_S_age  ;;criteria 3. Collect information about the age of the infrastructure in the current patch
- set C8 (count patches in-radius 2 with [(Infra_supply = 0 or infra_S_age > tau_ageInfra) and district_here? = true]) + (ifelse-value (district_here? = TRUE and (Infra_supply = 0 or infra_S_age > tau_ageInfra))[1][0])
+ set C8 (count patches in-radius radius_l with [(Infra_supply = 0 or infra_S_age > tau_ageInfra) and district_here? = true]) + (ifelse-value (district_here? = TRUE and (Infra_supply = 0 or infra_S_age > tau_ageInfra))[1][0])
 end
 
 ;;####################################################################################
@@ -553,7 +566,7 @@ to WA-Decisions
             ask ?1 [
               ;;if total cost until now is lower than budget then mantain the infra in this patch
               set tot_cost_Maintance tot_cost_Maintance + 1                                                          ;;add to the total cost
-              set infra_F_age infra_F_age - 0.2 * infra_F_age                                                        ;;update the state (age) of infrastructure
+              set infra_F_age infra_F_age - 0.1 * infra_F_age                                                        ;;update the state (age) of infrastructure
               set invest_here_F 1
             ]
           ]
@@ -562,7 +575,7 @@ to WA-Decisions
           if tot_cost_Maintance <  bud_mant[                  ;; Water autority would repare if the distance is alrge than a random number betwee 0 and 1 and if total cost upto this point is lower than budget
             ask ?2 [
               set tot_cost_Maintance tot_cost_Maintance + 1                                                           ;;add new cost to total cost
-              set infra_S_age infra_S_age - 0.2 * infra_S_age                                                         ;;update the state (age) of infrastructure
+              set infra_S_age infra_S_age - 0.1 * infra_S_age                                                         ;;update the state (age) of infrastructure
               set invest_here_S 1
             ]
           ]
@@ -607,12 +620,12 @@ to WA-Decisions
         ask ? [
           if distance_metric_maintenance_F > distance_metric_maintenance_S and [infra_flood] of ? = 1 and tot_cost_Maintance < bud_mant [
             set tot_cost_Maintance tot_cost_Maintance + 1                                                                                      ;;add to the total cost
-            set infra_F_age infra_F_age - 0.2 * infra_F_age
+            set infra_F_age infra_F_age - 0.1 * infra_F_age
             set invest_here_F 1
           ]
           if distance_metric_maintenance_F < distance_metric_maintenance_S and [infra_supply] of ? = 1 and tot_cost_Maintance < bud_mant [
             set tot_cost_Maintance tot_cost_Maintance + 1                                                                                      ;;add to the total cost
-            set infra_S_age infra_S_age - 0.2 * infra_S_age
+            set infra_S_age infra_S_age - 0.1 * infra_S_age
             set invest_here_S 1
           ]
           if distance_metric_maintenance_F = distance_metric_maintenance_S and tot_cost_Maintance < bud_mant [
@@ -620,24 +633,24 @@ to WA-Decisions
             if [infra_supply] of ? = 1 and [infra_flood] of ? = 1[
               ifelse(random-float 1 > 0.5)[
                 set tot_cost_Maintance tot_cost_Maintance + 1                                                                                   ;;add to the total cost
-                set infra_F_age infra_F_age - 0.2 * infra_F_age
+                set infra_F_age infra_F_age - 0.1 * infra_F_age
                 set invest_here_F 1
               ]
 
               [
                 set tot_cost_Maintance tot_cost_Maintance + 1                                                                                   ;;add to the total cost
-                set infra_S_age infra_S_age - 0.2 * infra_S_age
+                set infra_S_age infra_S_age - 0.1 * infra_S_age
                 set invest_here_S 1
               ]
 
               if [infra_supply] of ? = 1 and [infra_flood] of ? = 0[
                 set tot_cost_Maintance tot_cost_Maintance + 1                                                                                   ;;add to the total cost
-                set infra_F_age infra_F_age - 0.2 * infra_F_age
+                set infra_F_age infra_F_age - 0.1 * infra_F_age
                 set invest_here_F 1
               ]
               if [infra_supply] of ? = 0 and [infra_flood] of ? = 1[
               set tot_cost_Maintance tot_cost_Maintance + 1                                                                                      ;;add to the total cost
-              set infra_S_age infra_S_age - 0.2 * infra_S_age ;#
+              set infra_S_age infra_S_age - 0.1 * infra_S_age ;#
               set invest_here_S 1
               ]
             ]
@@ -691,12 +704,12 @@ to WA-Decisions
         ask ? [
           if [infra_flood] of ? = 1 and tot_cost_Maintance < bud_mant [
             set tot_cost_Maintance tot_cost_Maintance + 1                                                                                      ;;add to the total cost
-            set infra_F_age infra_F_age - 0.2 * infra_F_age
+            set infra_F_age infra_F_age - 0.1 * infra_F_age
             set invest_here_F 1
           ]
           if [infra_supply] of ? = 1 and tot_cost_Maintance < bud_mant [
             set tot_cost_Maintance tot_cost_Maintance + 1                                                                                      ;;add to the total cost
-            set infra_S_age infra_S_age - 0.2 * infra_S_age
+            set infra_S_age infra_S_age - 0.1 * infra_S_age
             set invest_here_S 1
           ]
         ]
@@ -796,16 +809,14 @@ to Update-Globals-Reporters
 
   ]
 
-  set C1max 14;ifelse-value (max [C1] of patches > C1max)[max [C1] of patches with [district_here? = TRUE]][C1max]                                               ;#update ideal points by setting the maximum of the natural (physical) scale
+  set C1max count [patches in-radius radius_l] of one-of patches                                               ;#update ideal points by setting the maximum of the natural (physical) scale
   set C2max 10;ifelse-value (max [C2] of patches > C2max)[max [C2] of patches with [district_here? = TRUE]][C2max]
   set C3max tau_ageInfra
-  set C4max 14;ifelse-value (max [C4] of patches > C4max) [max [C4] of patches with [district_here? = TRUE]][C4max]
-
-print C4max
-  set C5max 14;ifelse-value (max [C5] of patches > C5max)[max [C5] of patches with [district_here? = TRUE]][C5max]
+  set C4max 1 + C1max
+  set C5max C1max;ifelse-value (max [C5] of patches > C5max)[max [C5] of patches with [district_here? = TRUE]][C5max]
   set C6max 10;ifelse-value (max [C6] of patches > C6max)[max [C6] of patches with [district_here? = TRUE]][C6max]
   set C7max tau_ageInfra
-  set C8max 14;ifelse-value (max [C8] of patches > C8max)[max [C8] of patches with [district_here? = TRUE]][C8max]
+  set C8max C4max;ifelse-value (max [C8] of patches > C8max)[max [C8] of patches with [district_here? = TRUE]][C8max]
 
   set C1min min [C1] of patches with [district_here? = TRUE]                                                ;#update ideal points by setting the minimum of the natural (physical) scale
   set C2min min [C2] of patches with [district_here? = TRUE]
@@ -1051,8 +1062,8 @@ end
 
 to export_patches_atributes
   let directory "c:/Users/abaezaca/Dropbox (ASU)/MEGADAPT/ABM_V2/landscape_pics/"
-let sim_n word (word ticks "-" (word simulation_number "-")) GOVERNMENT_DECISION_MAKING
-let wr word  sim_n "-spatialpatterns.txt"
+let sim_n (word ticks "-" (word radius_l "-" (word tau_ageInfra  "-" (word simulation_number "-"))))
+let wr word  sim_n "spatialpatterns.txt"
 file-open word directory wr
 foreach sort patches
   [
@@ -1112,7 +1123,7 @@ to time_series
 
     let ts_full (list ts_F_protests ts_S_protests ts_F_Infra_coverage ts_S_infra_coverage)
     let directory "c:/Users/abaezaca/Dropbox (ASU)/MEGADAPT/ABM_V2/landscape_pics/"
-    let sim_n (word directory (word ticks "-" (word simulation_number "-")) GOVERNMENT_DECISION_MAKING)
+    let sim_n word directory (word ticks "-" (word radius_l "-" (word tau_ageInfra "-" (word simulation_number "-"))))
     let wr word  sim_n "-time_series.csv"
     csv:to-file wr ts_full
   ]
@@ -1463,7 +1474,7 @@ simulation_number
 simulation_number
 0
 2002
-2002
+2000
 1
 1
 NIL
@@ -1488,7 +1499,7 @@ motivation_to_protest
 motivation_to_protest
 0
 1
-0.1
+0.01
 0.1
 1
 NIL
@@ -1503,7 +1514,7 @@ intensity_protest
 intensity_protest
 0
 1
-0.3
+0.0010
 0.001
 1
 NIL
@@ -1518,8 +1529,23 @@ tau_ageInfra
 tau_ageInfra
 100
 400
-200
+300
 100
+1
+NIL
+HORIZONTAL
+
+SLIDER
+54
+767
+226
+800
+radius_l
+radius_l
+0
+4
+2
+1
 1
 NIL
 HORIZONTAL
@@ -1977,7 +2003,7 @@ NetLogo 5.2.1
       <value value="&quot;local&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="motivation_to_protest">
-      <value value="0.1"/>
+      <value value="0.01"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="p_rain">
       <value value="0.5"/>
@@ -1992,12 +2018,22 @@ NetLogo 5.2.1
       <value value="&quot;Old&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="intensity_protest">
-      <value value="0.3"/>
+      <value value="0.0010"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="GOVERNMENT_DECISION_MAKING">
-      <value value="&quot;Increase Infra Coverage&quot;"/>
-      <value value="&quot;Reduce age infrastructure&quot;"/>
-      <value value="&quot;Reduce Social Pressure&quot;"/>
+    <enumeratedValueSet variable="simulation_number">
+      <value value="2000"/>
+      <value value="2001"/>
+      <value value="2002"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="radius_l">
+      <value value="0"/>
+      <value value="1"/>
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="tau_ageInfra">
+      <value value="100"/>
+      <value value="200"/>
+      <value value="300"/>
     </enumeratedValueSet>
   </experiment>
   <experiment name="spatial_pattern" repetitions="1" runMetricsEveryStep="false">
