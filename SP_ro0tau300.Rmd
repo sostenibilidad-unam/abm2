@@ -1,0 +1,570 @@
+---
+title: "spatial_Patterns_ABMTheorico"
+author: "Andres Baeza"
+date: "October 3, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+In this file we read results from the abm2.
+The first two plots, plot 1 and plot 2 illustrate the distance metric. Plots 3 and 4 the state of infrastructure.
+```{r}
+require(ggplot2)
+require(RColorBrewer)
+require(png)
+require(grid)
+require(sensitivity)
+require(ggtern)
+require(fmsb)
+require(gridExtra)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r}
+A100<-as.data.frame(matrix(ncol=16,nrow=10000))
+B100<-as.data.frame(matrix(ncol=16,nrow=10000))
+C100<-as.data.frame(matrix(ncol=16,nrow=10000))
+
+A300<-as.data.frame(matrix(ncol=16,nrow=10000))
+B300<-as.data.frame(matrix(ncol=16,nrow=10000))
+C300<-as.data.frame(matrix(ncol=16,nrow=10000))
+
+A600<-as.data.frame(matrix(ncol=16,nrow=10000))
+B600<-as.data.frame(matrix(ncol=16,nrow=10000))
+C600<-as.data.frame(matrix(ncol=16,nrow=10000))
+
+colnames(A100)<-c("xcor","ycor","district_here","Infra_S_here" ,"Infra_F_here","altitude","socialpressureTOTAL_S" ,"socialpressureTOTAL_F","total_exposure_S","total_exposure_F", "infra_S_age","infra_F_age","d_m_F","d_n_F","d_m_S","d_n_S")
+
+colnames(A100)<-colnames(A100)
+colnames(B100)<-colnames(A100)
+colnames(C100)<-colnames(A100)
+
+colnames(A300)<-colnames(A100)
+colnames(B300)<-colnames(A100)
+colnames(C300)<-colnames(A100)
+
+colnames(A600)<-colnames(A100)
+colnames(B600)<-colnames(A100)
+colnames(C600)<-colnames(A100)
+
+
+
+A100_MH<-scan(file = '/Users/abaezaca/Dropbox (ASU)/MEGADAPT/ABM_V2/landscape_pics/100-0-300-2000-spatialpatterns.txt')
+B100_MH<-scan(file = '/Users/abaezaca/Dropbox (ASU)/MEGADAPT/ABM_V2/landscape_pics/100-0-300-2001-spatialpatterns.txt')
+C100_MH<-scan(file = '/Users/abaezaca/Dropbox (ASU)/MEGADAPT/ABM_V2/landscape_pics/100-0-300-2002-spatialpatterns.txt')
+
+
+
+A300_MH<-scan(file = '/Users/abaezaca/Dropbox (ASU)/MEGADAPT/ABM_V2/landscape_pics/300-0-300-2000-spatialpatterns.txt')
+B300_MH<-scan(file = '/Users/abaezaca/Dropbox (ASU)/MEGADAPT/ABM_V2/landscape_pics/300-0-300-2001-spatialpatterns.txt')
+C300_MH<-scan(file = '/Users/abaezaca/Dropbox (ASU)/MEGADAPT/ABM_V2/landscape_pics/300-0-300-2002-spatialpatterns.txt')
+
+A600_MH<-scan(file = '/Users/abaezaca/Dropbox (ASU)/MEGADAPT/ABM_V2/landscape_pics/600-0-300-2000-spatialpatterns.txt')
+B600_MH<-scan(file = '/Users/abaezaca/Dropbox (ASU)/MEGADAPT/ABM_V2/landscape_pics/600-0-300-2001-spatialpatterns.txt')
+C600_MH<-scan(file = '/Users/abaezaca/Dropbox (ASU)/MEGADAPT/ABM_V2/landscape_pics/600-0-300-2002-spatialpatterns.txt')
+
+count = 0
+for (i in 1:10000){
+  for (j in 1 :16){
+   count = count + 1
+  # A50[i,j]<-A50_MH[count]
+  # B50[i,j]<-B50_MH[count]
+  # C50[i,j]<-C50_MH[count]
+
+   A100[i,j]<-A100_MH[count]
+  B100[i,j]<-B100_MH[count]
+  C100[i,j]<-C100_MH[count]
+  
+  A300[i,j]<-A300_MH[count]
+  B300[i,j]<-B300_MH[count]
+  C300[i,j]<-C300_MH[count]
+
+  A600[i,j]<-A600_MH[count]
+  B600[i,j]<-B600_MH[count]
+  C600[i,j]<-C600_MH[count]
+  }
+}
+
+#2036-1-Increase Infra Coverage-spatialpatterns_i
+
+
+```
+
+
+
+```{r}
+lim_d=c(0,max(A600$d_m_S,B600$d_m_S,C600$d_m_S))
+# d_C50<-ggplot(data=subset(C50,district_here ==1),aes(x=xcor,y=ycor,fill=d_m_S))+geom_tile()+coord_equal()+ scale_fill_gradient("Vulnerability",low = "lightgreen",high = "red",limits=lim_d,guide = "none",na.value = "red")+labs(title = ""Squeaky wheel" ",y="",x="")+theme(text = element_text(size=20),panel.background = element_rect(fill="black", colour="black"),panel.grid.major =  element_blank(),panel.grid.minor = element_blank() )+ geom_contour(aes(z=altitude),bins = 10,colour="black")
+# 
+# d_B50<-ggplot(data=subset(B50,district_here ==1),aes(x=xcor,y=ycor,fill=d_m_S))+geom_tile()+coord_equal()+ scale_fill_gradient("Vulnerability",low = "lightgreen",high = "red",limits=lim_d,guide = "none",na.value = "red")+labs(title = "Repair first" ,y="",x="")+theme(text = element_text(size=20),panel.background = element_rect(fill="black", colour="black"),panel.grid.major =  element_blank(),panel.grid.minor = element_blank() )+ geom_contour(aes(z=altitude),bins = 10,colour="black")
+# 
+# d_A50<-ggplot(data=subset(A50,district_here ==1),aes(x=xcor,y=ycor,fill=d_m_S))+geom_tile()+coord_equal()+ scale_fill_gradient("Vulnerability",low = "lightgreen",high = "red",limits=lim_d,guide = "none",na.value = "red")+labs(title = "Expand access",y="",x="")+theme(text = element_text(size=20),panel.background = element_rect(fill="black", colour="black"),panel.grid.major =  element_blank(),panel.grid.minor = element_blank() )+ geom_contour(aes(z=altitude),bins = 10,colour="black")
+
+
+
+d_C100<-ggplot(data=subset(C100,district_here ==1),aes(x=xcor,y=ycor,fill=d_m_S))+geom_tile()+coord_equal()+ scale_fill_gradient("Vulnerability",low = "lightgreen",high = "red",limits=lim_d,guide = "none",na.value = "red")+labs(title = "",y="",x="")+theme(text = element_text(size=20),panel.background = element_rect(fill="black", colour="black"),panel.grid.major =  element_blank(),panel.grid.minor = element_blank() )+ geom_contour(aes(z=altitude),bins = 10,colour="black")
+d_B100<-ggplot(data=subset(B100,district_here ==1),aes(x=xcor,y=ycor,fill=d_m_S))+geom_tile()+coord_equal()+ scale_fill_gradient("Vulnerability",low = "lightgreen",high = "red",limits=lim_d,guide = "none",na.value = "red")+labs(title = "",y="",x="")+theme(text = element_text(size=20),panel.background = element_rect(fill="black", colour="black"),panel.grid.major =  element_blank(),panel.grid.minor = element_blank() )+ geom_contour(aes(z=altitude),bins = 10,colour="black")
+
+d_A100<-ggplot(data=subset(A100,district_here ==1),aes(x=xcor,y=ycor,fill=d_m_S))+geom_tile()+coord_equal()+ scale_fill_gradient("Vulnerability",low = "lightgreen",high = "red",limits=lim_d,guide = "none",na.value = "red")+labs(title = "",y="",x="")+theme(text = element_text(size=20),panel.background = element_rect(fill="black", colour="black"),panel.grid.major =  element_blank(),panel.grid.minor = element_blank() )+ geom_contour(aes(z=altitude),bins = 10,colour="black")
+
+
+d_C300<-ggplot(data=subset(C300,district_here ==1),aes(x=xcor,y=ycor,fill=d_m_S))+geom_tile()+coord_equal()+ scale_fill_gradient("Vulnerability",low = "lightgreen",high = "red",limits=lim_d,guide = "none",na.value = "red")+labs(title = "",y="",x="")+theme(text = element_text(size=20),panel.background = element_rect(fill="black", colour="black"),panel.grid.major =  element_blank(),panel.grid.minor = element_blank() )+ geom_contour(aes(z=altitude),bins = 10,colour="black")
+d_B300<-ggplot(data=subset(B300,district_here ==1),aes(x=xcor,y=ycor,fill=d_m_S))+geom_tile()+coord_equal()+ scale_fill_gradient("Vulnerability",low = "lightgreen",high = "red",limits=lim_d,guide = "none",na.value = "red")+labs(title = "",y="",x="")+theme(text = element_text(size=20),panel.background = element_rect(fill="black", colour="black"),panel.grid.major =  element_blank(),panel.grid.minor = element_blank() )+ geom_contour(aes(z=altitude),bins = 10,colour="black")
+
+d_A300<-ggplot(data=subset(A300,district_here ==1),aes(x=xcor,y=ycor,fill=d_m_S))+geom_tile()+coord_equal()+ scale_fill_gradient("Vulnerability",low = "lightgreen",high = "red",limits=lim_d,guide = "none",na.value = "red")+labs(title = "",y="",x="")+theme(text = element_text(size=20),panel.background = element_rect(fill="black", colour="black"),panel.grid.major =  element_blank(),panel.grid.minor = element_blank() )+ geom_contour(aes(z=altitude),bins = 10,colour="black")
+
+
+
+
+
+d_C600<-ggplot(data=subset(C600,district_here ==1),aes(x=xcor,y=ycor,fill=d_m_S))+geom_tile()+coord_equal()+ scale_fill_gradient("Vulnerability",low = "lightgreen",high = "red",limits=lim_d,guide = "none",na.value = "red")+labs(title = "",y="",x="")+theme(text = element_text(size=20),panel.background = element_rect(fill="black", colour="black"),panel.grid.major =  element_blank(),panel.grid.minor = element_blank() )+ geom_contour(aes(z=altitude),bins = 10,colour="black")
+
+d_B600<-ggplot(data=subset(B600,district_here ==1),aes(x=xcor,y=ycor,fill=d_m_S))+geom_tile()+coord_equal()+ scale_fill_gradient("Vulnerability",low = "lightgreen",high = "red",limits=lim_d,guide = "none",na.value = "red")+labs(title = "",y="",x="")+theme(text = element_text(size=20),panel.background = element_rect(fill="black", colour="black"),panel.grid.major =  element_blank(),panel.grid.minor = element_blank() )+ geom_contour(aes(z=altitude),bins = 10,colour="black")
+
+
+d_A600<-ggplot(data=subset(A600,district_here ==1),aes(x=xcor,y=ycor,fill=d_m_S))+geom_tile()+coord_equal()+ scale_fill_gradient("Vulnerability",low = "lightgreen",high = "red",limits=lim_d,guide = "none",na.value = "red")+labs(title = "",y="",x="")+theme(text = element_text(size=20),panel.background = element_rect(fill="black", colour="black"),panel.grid.major =  element_blank(),panel.grid.minor = element_blank() )+ geom_contour(aes(z=altitude),bins = 10,colour="black")
+
+png(filename = "c:/Users/abaezaca/Dropbox (ASU)/MEGADAPT/ABM_V2/landscape_pics/SP_dist_S_ro0tau300.png",width = 10,height = 12,res=900,units = "in")
+title1=textGrob("Distance Metric", gp=gpar(fontface="bold",fontsize=20))
+title2=textGrob("Time", gp=gpar(fontface="bold",fontsize=30))
+grid.arrange(d_C100,d_B100,d_A100,
+             d_C300,d_B300,d_A300,
+             d_C600,d_B600,d_A600,ncol=3,top=title1,left=title2)
+
+dev.off()
+```
+
+#flooding
+```{r}
+lim_d=c(0,max(A300$d_m_F,B300$d_m_F,C300$d_m_F))
+
+d_C100<-ggplot(data=subset(C100,district_here ==1),aes(x=xcor,y=ycor,fill=d_m_S))+geom_tile()+coord_equal()+ scale_fill_gradient("Vulnerability",low = "lightgreen",high = "red",limits=lim_d,guide = "none",na.value = "red")+labs(title = "",y="",x="")+theme(text = element_text(size=20),panel.background = element_rect(fill="black", colour="black"),panel.grid.major =  element_blank(),panel.grid.minor = element_blank() )+ geom_contour(aes(z=altitude),bins = 10,colour="black")
+d_B100<-ggplot(data=subset(B100,district_here ==1),aes(x=xcor,y=ycor,fill=d_m_S))+geom_tile()+coord_equal()+ scale_fill_gradient("Vulnerability",low = "lightgreen",high = "red",limits=lim_d,guide = "none",na.value = "red")+labs(title = "",y="",x="")+theme(text = element_text(size=20),panel.background = element_rect(fill="black", colour="black"),panel.grid.major =  element_blank(),panel.grid.minor = element_blank() )+ geom_contour(aes(z=altitude),bins = 10,colour="black")
+
+d_A100<-ggplot(data=subset(A100,district_here ==1),aes(x=xcor,y=ycor,fill=d_m_S))+geom_tile()+coord_equal()+ scale_fill_gradient("Vulnerability",low = "lightgreen",high = "red",limits=lim_d,guide = "none",na.value = "red")+labs(title = "",y="",x="")+theme(text = element_text(size=20),panel.background = element_rect(fill="black", colour="black"),panel.grid.major =  element_blank(),panel.grid.minor = element_blank() )+ geom_contour(aes(z=altitude),bins = 10,colour="black")
+
+
+d_C300<-ggplot(data=subset(C300,district_here ==1),aes(x=xcor,y=ycor,fill=d_m_S))+geom_tile()+coord_equal()+ scale_fill_gradient("Vulnerability",low = "lightgreen",high = "red",limits=lim_d,guide = "none",na.value = "red")+labs(title = "",y="",x="")+theme(text = element_text(size=20),panel.background = element_rect(fill="black", colour="black"),panel.grid.major =  element_blank(),panel.grid.minor = element_blank() )+ geom_contour(aes(z=altitude),bins = 10,colour="black")
+d_B300<-ggplot(data=subset(B300,district_here ==1),aes(x=xcor,y=ycor,fill=d_m_S))+geom_tile()+coord_equal()+ scale_fill_gradient("Vulnerability",low = "lightgreen",high = "red",limits=lim_d,guide = "none",na.value = "red")+labs(title = "",y="",x="")+theme(text = element_text(size=20),panel.background = element_rect(fill="black", colour="black"),panel.grid.major =  element_blank(),panel.grid.minor = element_blank() )+ geom_contour(aes(z=altitude),bins = 10,colour="black")
+
+d_A300<-ggplot(data=subset(A300,district_here ==1),aes(x=xcor,y=ycor,fill=d_m_S))+geom_tile()+coord_equal()+ scale_fill_gradient("Vulnerability",low = "lightgreen",high = "red",limits=lim_d,guide = "none",na.value = "red")+labs(title = "",y="",x="")+theme(text = element_text(size=20),panel.background = element_rect(fill="black", colour="black"),panel.grid.major =  element_blank(),panel.grid.minor = element_blank() )+ geom_contour(aes(z=altitude),bins = 10,colour="black")
+
+d_C600<-ggplot(data=subset(C600,district_here ==1),aes(x=xcor,y=ycor,fill=d_m_F))+geom_tile()+coord_equal()+ scale_fill_gradient("Vulnerability",low = "lightgreen",high = "red",limits=lim_d,guide = "none",na.value = "red")+labs(title = "",y="",x="")+theme(text = element_text(size=20),panel.background = element_rect(fill="black", colour="black"),panel.grid.major =  element_blank(),panel.grid.minor = element_blank() )+ geom_contour(aes(z=altitude),bins = 10,colour="black")
+d_B600<-ggplot(data=subset(B600,district_here ==1),aes(x=xcor,y=ycor,fill=d_m_F))+geom_tile()+coord_equal()+ scale_fill_gradient("Vulnerability",low = "lightgreen",high = "red",limits=lim_d,guide = "none",na.value = "red")+labs(title = "",y="",x="")+theme(text = element_text(size=20),panel.background = element_rect(fill="black", colour="black"),panel.grid.major =  element_blank(),panel.grid.minor = element_blank() )+ geom_contour(aes(z=altitude),bins = 10,colour="black")
+
+
+d_A600<-ggplot(data=subset(A600,district_here ==1),aes(x=xcor,y=ycor,fill=d_m_F))+geom_tile()+coord_equal()+ scale_fill_gradient("Vulnerability",low = "lightgreen",high = "red",limits=lim_d,guide = "none",na.value = "red")+labs(title = "",y="",x="")+theme(text = element_text(size=20),panel.background = element_rect(fill="black", colour="black"),panel.grid.major =  element_blank(),panel.grid.minor = element_blank() )+ geom_contour(aes(z=altitude),bins = 10,colour="black")
+
+png(filename = "c:/Users/abaezaca/Dropbox (ASU)/MEGADAPT/ABM_V2/landscape_pics/SP_dist_F_ro0tau300.png",width = 12,height = 18,res=300,units = "in")
+title1=textGrob("policy scenario", gp=gpar(fontface="bold",fontsize=30))
+title2=textGrob("Time", gp=gpar(fontface="bold",fontsize=30))
+grid.arrange(d_C100,d_B100,d_A100,
+             d_C300,d_B300,d_A300,
+             d_C600,d_B600,d_A600,ncol=3,top=title1,left=title2)
+
+dev.off()
+```
+
+```{r}
+C100$infra_S_age[which(C100$Infra_S_here==0)]<-(-9)
+C100$infra_F_age[which(C100$Infra_F_here==0)]<-(-9)
+
+
+C300$infra_S_age[which(C300$Infra_S_here==0)]<-(-9)
+C300$infra_F_age[which(C300$Infra_F_here==0)]<-(-9)
+
+C600$infra_S_age[which(C600$Infra_S_here==0)]<-(-9)
+C600$infra_F_age[which(C600$Infra_F_here==0)]<-(-9)
+
+
+B100$infra_S_age[which(B100$Infra_S_here==0)]<-(-9)
+B100$infra_F_age[which(B100$Infra_F_here==0)]<-(-9)
+
+
+B300$infra_S_age[which(B300$Infra_S_here==0)]<-(-9)
+B300$infra_F_age[which(B300$Infra_F_here==0)]<-(-9)
+
+B600$infra_S_age[which(B600$Infra_S_here==0)]<-(-9)
+B600$infra_F_age[which(B600$Infra_F_here==0)]<-(-9)
+
+
+
+A100$infra_S_age[which(A100$Infra_S_here==0)]<-(-9)
+A100$infra_F_age[which(A100$Infra_F_here==0)]<-(-9)
+
+
+A300$infra_S_age[which(A300$Infra_S_here==0)]<-(-9)
+A300$infra_F_age[which(A300$Infra_F_here==0)]<-(-9)
+
+A600$infra_S_age[which(A600$Infra_S_here==0)]<-(-9)
+A600$infra_F_age[which(A600$Infra_F_here==0)]<-(-9)
+
+
+
+```
+
+
+#create cutoffs for plotting age infra
+```{r}
+C100<-transform(C100, z.age_S=cut(C100$infra_S_age, breaks=c(-30,-10,0.1,100,200,300,1000),labels = c("No urban","no infrastructure","New","Mature","Old","Very old")))
+C100<-transform(C100, z.age_F=cut(C100$infra_F_age, breaks=c(-30,-10,0.1,100,200,300,1000),labels =c("No urban","no infrastructure","New","Mature","Old","Very old")))
+C300<-transform(C300, z.age_S=cut(C300$infra_S_age, breaks=c(-30,-10,0.1,100,200,300,1000),labels =c("No urban","no infrastructure","New","Mature","Old","Very old")))
+C300<-transform(C300, z.age_F=cut(C300$infra_F_age, breaks=c(-30,-10,0.1,100,200,300,1000),labels =c("No urban","no infrastructure","New","Mature","Old","Very old")))
+C600<-transform(C600, z.age_S=cut(C600$infra_S_age, breaks=c(-30,-10,0.1,100,200,300,1000),labels =c("No urban","no infrastructure","New","Mature","Old","Very old")))
+C600<-transform(C600, z.age_F=cut(C600$infra_F_age, breaks=c(-30,-10,0.1,100,200,300,1000),labels =c("No urban","no infrastructure","New","Mature","Old","Very old")))
+
+
+B100<-transform(B100, z.age_S=cut(B100$infra_S_age, breaks=c(-30,-10,0.1,100,200,300,1000),labels =c("No urban","no infrastructure","New","Mature","Old","Very old")))
+B100<-transform(B100, z.age_F=cut(B100$infra_F_age, breaks=c(-30,-10,0.1,100,200,300,1000),labels =c("No urban","no infrastructure","New","Mature","Old","Very old")))
+B300<-transform(B300, z.age_S=cut(B300$infra_S_age, breaks=c(-30,-10,0.1,100,200,300,1000),labels =c("No urban","no infrastructure","New","Mature","Old","Very old")))
+B300<-transform(B300, z.age_F=cut(B300$infra_F_age, breaks=c(-30,-10,0.1,100,200,300,1000),labels =c("No urban","no infrastructure","New","Mature","Old","Very old")))
+B600<-transform(B600, z.age_S=cut(B600$infra_S_age, breaks=c(-30,-10,0.1,100,200,300,1000),labels =c("No urban","no infrastructure","New","Mature","Old","Very old")))
+B600<-transform(B600, z.age_F=cut(B600$infra_F_age, breaks=c(-30,-10,0.1,100,200,300,1000),labels =c("No urban","no infrastructure","New","Mature","Old","Very old")))
+
+A100<-transform(A100, z.age_S=cut(A100$infra_S_age, breaks=c(-30,-10,0.1,100,200,300,1000),labels =c("No urban","no infrastructure","New","Mature","Old","Very old")))
+A100<-transform(A100, z.age_F=cut(A100$infra_F_age, breaks=c(-30,-10,0.1,100,200,300,1000),labels =c("No urban","no infrastructure","New","Mature","Old","Very old")))
+A300<-transform(A300, z.age_S=cut(A300$infra_S_age, breaks=c(-30,-10,0.1,100,200,300,1000),labels =c("No urban","no infrastructure","New","Mature","Old","Very old")))
+A300<-transform(A300, z.age_F=cut(A300$infra_F_age, breaks=c(-30,-10,0.1,100,200,300,1000),labels =c("No urban","no infrastructure","New","Mature","Old","Very old")))
+A600<-transform(A600, z.age_S=cut(A600$infra_S_age, breaks=c(-30,-10,0.1,100,200,300,1000),labels =c("No urban","no infrastructure","New","Mature","Old","Very old")))
+A600<-transform(A600, z.age_F=cut(A600$infra_F_age, breaks=c(-30,-10,0.1,100,200,300,1000),labels =c("No urban","no infrastructure","New","Mature","Old","Very old")))
+
+
+
+#colors1 <- colorRampPalette(c("#66CDAA","#F0F8FF","#CDC0B0","#838B8B","#000000"))(length(levels(C100$z.age_S)))
+colors1 <- colorRampPalette(c("lightgreen","grey","cadetblue1","dodgerblue4","darkorange","darkred"))(length(levels(C100$z.age_S)))
+```
+
+
+
+#Figure 3: Condition of infrastructure system over time and space
+
+```{r}
+
+
+IS_C100<-ggplot(data=subset(C100,district_here==1),aes(x=xcor,y=ycor,fill=z.age_S))+
+  geom_tile()+
+  coord_equal()+
+  scale_fill_manual(name="Vulnerability",values=setNames(colors1, levels(C100$z.age_S)),guide="none")+
+  labs(title = "",y="",x="")+
+  theme(text = element_text(size=20),panel.background = element_rect(fill="lightgreen", colour="black"),panel.grid.major =  element_blank(),panel.grid.minor = element_blank() )+
+  geom_contour(aes(z=altitude),bins =5,colour="black")
+
+
+IS_B100<-ggplot(data=subset(B100,district_here==1),aes(x=xcor,y=ycor,fill=z.age_S))+
+  geom_tile()+
+  coord_equal()+
+  scale_fill_manual(name="Vulnerability",values=setNames(colors1, levels(B100$z.age_S)),guide="none")+
+  labs(title = "",y="",x="")+
+  theme(text = element_text(size=20),panel.background = element_rect(fill="lightgreen", colour="black"),panel.grid.major =  element_blank(),panel.grid.minor = element_blank() )+
+  geom_contour(aes(z=altitude),bins =5,colour="black")
+
+IS_A100<-ggplot(data=subset(A100,district_here==1),aes(x=xcor,y=ycor,fill=z.age_S))+
+  geom_tile()+
+  coord_equal()+
+  scale_fill_manual(name="Vulnerability",values=setNames(colors1, levels(A100$z.age_S)),guide="none")+
+  labs(title = "",y="",x="")+
+  theme(text = element_text(size=20),panel.background = element_rect(fill="lightgreen", colour="black"),panel.grid.major =  element_blank(),panel.grid.minor = element_blank() )+
+  geom_contour(aes(z=altitude),bins =5,colour="black")
+
+
+
+
+
+IS_C300<-ggplot(data=subset(C300,district_here==1),aes(x=xcor,y=ycor,fill=z.age_S))+
+  geom_tile()+
+  coord_equal()+
+  scale_fill_manual(name="Vulnerability",values=setNames(colors1, levels(C300$z.age_S)),guide="none")+
+  labs(title = "",y="",x="")+
+  theme(text = element_text(size=20),panel.background = element_rect(fill="lightgreen", colour="black"),panel.grid.major =  element_blank(),panel.grid.minor = element_blank() )+
+  geom_contour(aes(z=altitude),bins =5,colour="black")
+
+
+IS_B300<-ggplot(data=subset(B300,district_here==1),aes(x=xcor,y=ycor,fill=z.age_S))+
+  geom_tile()+
+  coord_equal()+
+  scale_fill_manual(name="Vulnerability",values=setNames(colors1, levels(B300$z.age_S)),guide="none")+
+  labs(title = "",y="",x="")+
+  theme(text = element_text(size=20),panel.background = element_rect(fill="lightgreen", colour="black"),panel.grid.major =  element_blank(),panel.grid.minor = element_blank() )+
+  geom_contour(aes(z=altitude),bins =5,colour="black")
+
+IS_A300<-ggplot(data=subset(A300,district_here==1),aes(x=xcor,y=ycor,fill=z.age_S))+
+  geom_tile()+
+  coord_equal()+
+  scale_fill_manual(name="Vulnerability",values=setNames(colors1, levels(A300$z.age_S)),guide="none")+
+  labs(title = "",y="",x="")+
+  theme(text = element_text(size=20),panel.background = element_rect(fill="lightgreen", colour="black"),panel.grid.major =  element_blank(),panel.grid.minor = element_blank() )+
+  geom_contour(aes(z=altitude),bins =5,colour="black")
+
+
+IS_C600<-ggplot(data=subset(C600,district_here==1),aes(x=xcor,y=ycor,fill=z.age_S))+
+  geom_tile()+
+  coord_equal()+
+  scale_fill_manual(name="Vulnerability",values=setNames(colors1, levels(C600$z.age_S)),guide="none")+
+  labs(title = "",y="",x="")+
+  theme(text = element_text(size=20),panel.background = element_rect(fill="lightgreen", colour="black"),panel.grid.major =  element_blank(),panel.grid.minor = element_blank() )+
+  geom_contour(aes(z=altitude),bins =5,colour="black")
+
+
+IS_B600<-ggplot(data=subset(B600,district_here==1),aes(x=xcor,y=ycor,fill=z.age_S))+
+  geom_tile()+
+  coord_equal()+
+  scale_fill_manual(name="Vulnerability",values=setNames(colors1, levels(B600$z.age_S)),guide="none")+
+  labs(title = "",y="",x="")+
+  theme(text = element_text(size=20),panel.background = element_rect(fill="lightgreen", colour="black"),panel.grid.major =  element_blank(),panel.grid.minor = element_blank() )+
+  geom_contour(aes(z=altitude),bins =5,colour="black")
+
+IS_A600<-ggplot(data=subset(A600,district_here==1),aes(x=xcor,y=ycor,fill=z.age_S))+
+  geom_tile()+
+  coord_equal()+
+  scale_fill_manual(name="Vulnerability",values=setNames(colors1, levels(A600$z.age_S)),guide="none")+
+  labs(title = "",y="",x="")+
+  theme(text = element_text(size=20),panel.background = element_rect(fill="lightgreen", colour="black"),panel.grid.major =  element_blank(),panel.grid.minor = element_blank() )+
+  geom_contour(aes(z=altitude),bins =5,colour="black")
+
+
+png(filename = "c:/Users/abaezaca/Dropbox (ASU)/MEGADAPT/ABM_V2/landscape_pics/SP_InfraS_ro0tau300.png",width = 18,height = 18,res=300,units = "in")
+title1=textGrob("Age and extent of potable water Infrastructure", gp=gpar(fontface="bold",fontsize=20))
+title2=textGrob("Time", gp=gpar(fontface="bold",fontsize=20))
+grid.arrange(IS_C100,IS_B100,IS_A100,
+             IS_C300,IS_B300,IS_A300,
+             IS_C600,IS_B600,IS_A600,ncol=3,top=title1,left=editGrob(title2,rot=90))
+
+dev.off()
+
+png(filename = "c:/Users/abaezaca/Dropbox (ASU)/MEGADAPT/ABM_V2/landscape_pics/SP_InfraS_ro0tau300finaltime.png",width = 15,height = 5,res=900,units = "in")
+title1=textGrob("Age and extent of potable water Infrastructure", gp=gpar(fontface="bold",fontsize=20))
+title2=textGrob("Time", gp=gpar(fontface="bold",fontsize=20))
+grid.arrange(IS_C600,IS_B600,IS_A600,ncol=3,top=title1,left=editGrob(title2,rot=90))
+
+dev.off()
+
+```
+
+#Figure 4: Condition of sewer infrastructure system over time and spape
+
+```{r}
+
+
+IF_C100<-ggplot(data=subset(C100,district_here==1),aes(x=xcor,y=ycor,fill=z.age_F))+
+  geom_tile()+
+  coord_equal()+
+  scale_fill_manual(name="Vulnerability",values=setNames(colors1, levels(C100$z.age_F)),guide="none")+
+  labs(title = "",y="",x="")+
+  theme(text = element_text(size=20),panel.background = element_rect(fill="lightgreen", colour="black"),panel.grid.major =  element_blank(),panel.grid.minor = element_blank() )+
+  geom_contour(aes(z=altitude),bins =10,colour="black")
+
+
+IF_B100<-ggplot(data=subset(B100,district_here==1),aes(x=xcor,y=ycor,fill=z.age_F))+
+  geom_tile()+
+  coord_equal()+
+  scale_fill_manual(name="Vulnerability",values=setNames(colors1, levels(B100$z.age_F)),guide="none")+
+  labs(title = "",y="",x="")+
+  theme(text = element_text(size=20),panel.background = element_rect(fill="lightgreen", colour="black"),panel.grid.major =  element_blank(),panel.grid.minor = element_blank() )+
+  geom_contour(aes(z=altitude),bins = 10,colour="black")
+
+IF_A100<-ggplot(data=subset(A100,district_here==1),aes(x=xcor,y=ycor,fill=z.age_F))+
+  coord_equal()+
+  geom_tile()+
+  scale_fill_manual(name="Vulnerability",values=setNames(colors1, levels(A100$z.age_F)),guide="none")+
+  labs(title = "",y="",x="")+
+  theme(text = element_text(size=20),panel.background = element_rect(fill="lightgreen", colour="black"),panel.grid.major =  element_blank(),panel.grid.minor = element_blank() )+
+  geom_contour(aes(z=altitude),bins = 10,colour="black")
+
+
+
+
+
+IF_C300<-ggplot(data=subset(C300,district_here==1),aes(x=xcor,y=ycor,fill=z.age_F))+
+  geom_tile()+
+  coord_equal()+
+  scale_fill_manual(name="Vulnerability",values=setNames(colors1, levels(C300$z.age_F)),guide="none")+
+  labs(title = "",y="",x="")+
+  theme(text = element_text(size=20),panel.background = element_rect(fill="lightgreen", colour="black"),panel.grid.major =  element_blank(),panel.grid.minor = element_blank() )+
+  geom_contour(aes(z=altitude),bins = 10,colour="black")
+
+
+IF_B300<-ggplot(data=subset(B300,district_here==1),aes(x=xcor,y=ycor,fill=z.age_F))+
+  geom_tile()+
+  coord_equal()+
+  scale_fill_manual(name="Vulnerability",values=setNames(colors1, levels(B300$z.age_F)),guide="none")+
+  labs(title = "",y="",x="")+
+  theme(text = element_text(size=20),panel.background = element_rect(fill="lightgreen", colour="black"),panel.grid.major =  element_blank(),panel.grid.minor = element_blank() )+
+  geom_contour(aes(z=altitude),bins = 10,colour="black")
+
+IF_A300<-ggplot(data=subset(A300,district_here==1),aes(x=xcor,y=ycor,fill=z.age_F))+
+  geom_tile()+
+  coord_equal()+
+  scale_fill_manual(name="Vulnerability",values=setNames(colors1, levels(A300$z.age_F)),guide="none")+
+  labs(title = "",y="",x="")+
+  theme(text = element_text(size=20),panel.background = element_rect(fill="lightgreen", colour="black"),panel.grid.major =  element_blank(),panel.grid.minor = element_blank() )+
+  geom_contour(aes(z=altitude),bins = 10,colour="black")
+
+
+
+
+
+IF_C600<-ggplot(data=subset(C600,district_here==1),aes(x=xcor,y=ycor,fill=z.age_F))+
+  geom_tile()+
+  coord_equal()+
+  scale_fill_manual(name="Vulnerability",values=setNames(colors1, levels(C600$z.age_F)),guide="none")+
+  labs(title = "",y="",x="")+
+  theme(text = element_text(size=20),panel.background = element_rect(fill="lightgreen", colour="black"),panel.grid.major =  element_blank(),panel.grid.minor = element_blank() )+
+  geom_contour(aes(z=altitude),bins = 10,colour="black")
+
+
+IF_B600<-ggplot(data=subset(B600,district_here==1),aes(x=xcor,y=ycor,fill=z.age_F))+
+  geom_tile()+
+  coord_equal()+
+  scale_fill_manual(name="Vulnerability",values=setNames(colors1, levels(B600$z.age_F)),guide="none")+
+  labs(title = "",y="",x="")+
+  theme(text = element_text(size=20),panel.background = element_rect(fill="lightgreen", colour="black"),panel.grid.major =  element_blank(),panel.grid.minor = element_blank() )+
+  geom_contour(aes(z=altitude),bins = 10,colour="black")
+
+IF_A600<-ggplot(data=subset(A600,district_here==1),aes(x=xcor,y=ycor,fill=z.age_F))+
+  geom_tile()+
+  coord_equal()+
+  scale_fill_manual(name="Vulnerability",values=setNames(colors1, levels(A600$z.age_F)),guide="none")+
+  labs(title = "",y="",x="")+
+  theme(text = element_text(size=20),panel.background = element_rect(fill="lightgreen", colour="black"),panel.grid.major =  element_blank(),panel.grid.minor = element_blank() )+
+  geom_contour(aes(z=altitude),bins = 10,colour="black")
+
+
+png(filename = "c:/Users/abaezaca/Dropbox (ASU)/MEGADAPT/ABM_V2/landscape_pics/SP_infraF_ro0tau300.png",width = 18,height = 18,res=300,units = "in")
+title1=textGrob("Age and extent of sewer Infrastructure", gp=gpar(fontface="bold",fontsize=20))
+title2=textGrob("Time", gp=gpar(fontface="bold",fontsize=20))
+grid.arrange(IF_C100,IF_B100,IF_A100,
+             IF_C300,IF_B300,IF_A300,
+             IF_C600,IF_B600,IF_A600,ncol=3,top=title1,left=editGrob(title2,rot=90))
+
+dev.off()
+
+png(filename = "c:/Users/abaezaca/Dropbox (ASU)/MEGADAPT/ABM_V2/landscape_pics/SP_infraF_ro0tau300finaltime.png",width = 15,height = 5,res=900,units = "in")
+title1=textGrob("Age and extent of sewer Infrastructure", gp=gpar(fontface="bold",fontsize=20))
+title2=textGrob("Time", gp=gpar(fontface="bold",fontsize=20))
+grid.arrange(IF_C600,IF_B600,IF_A600,ncol=3,top=title1,left=editGrob(title2,rot=90))
+
+dev.off()
+
+grid.arrange(IF_C600,IF_B600,IF_A600,ncol=3,top=title1,left=editGrob(title2,rot=90))
+
+```
+
+## figure 2 paper: Spatial patterns of age in both infrastructure systems 
+```{r,fig.height=10,fig.width=15}
+
+IS_C600<-ggplot(data=subset(C600,district_here==1),aes(x=xcor,y=ycor,fill=z.age_S))+
+  geom_tile()+
+  coord_equal()+
+  scale_fill_manual(name="Vulnerability",values=setNames(colors1, levels(C600$z.age_S)),guide="none")+
+  labs(title = "Squeaky wheel",y="Potable water system",x="")+
+  geom_contour(aes(z=altitude),bins =5,colour="black")+
+  theme(text = element_text(size=15),
+        plot.title=element_text(size=20),
+        panel.background = element_rect(fill="lightgreen", colour="black"),
+        panel.grid.major =  element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.margin=unit(c(0,0,0,0), "cm"))
+
+
+IS_B600<-ggplot(data=subset(B600,district_here==1),aes(x=xcor,y=ycor,fill=z.age_S))+
+  geom_tile()+
+  coord_equal()+
+  scale_fill_manual(name="Vulnerability",values=setNames(colors1, levels(B600$z.age_S)),guide="none")+
+  labs(title = "Repair first",y="",x="")+
+  geom_contour(aes(z=altitude),bins =10,colour="black")+
+  theme(text = element_text(size=15),
+        plot.title=element_text(size=20),
+        panel.background = element_rect(fill="lightgreen", colour="black"),
+        panel.grid.major =  element_blank(),
+        panel.grid.minor = element_blank() ,
+        plot.margin=unit(c(0,0,0,0), "cm"))
+
+IS_A600<-ggplot(data=subset(A600,district_here==1),aes(x=xcor,y=ycor,fill=z.age_S))+
+  geom_tile()+
+  coord_equal()+
+  scale_fill_manual(name="Vulnerability",values=setNames(colors1, levels(A600$z.age_S)),guide="none")+
+  labs(title = "Expand access",y="",x="")+
+  geom_contour(aes(z=altitude),bins =10,colour="black")+
+  theme(text = element_text(size=15),
+        plot.title=element_text(size=20),
+        panel.background = element_rect(fill="lightgreen", colour="black"),
+        panel.grid.major =  element_blank(),
+        panel.grid.minor = element_blank() ,
+        plot.margin=unit(c(0,0,0,0), "cm"))
+
+IF_C600<-ggplot(data=subset(C600,district_here==1),aes(x=xcor,y=ycor,fill=z.age_F))+
+    geom_tile()+
+  coord_equal()+
+  scale_fill_manual(name="Vulnerability",values=setNames(colors1, levels(B600$z.age_F)),guide="none")+
+  labs(title = "",y="Sewer system",x="")+
+  geom_contour(aes(z=altitude),bins = 10,colour="black")+
+  theme(text = element_text(size=15),
+        panel.background = element_rect(fill="lightgreen", colour="black"),
+        panel.grid.major =  element_blank(),
+        panel.grid.minor = element_blank() ,
+        plot.margin=unit(c(0,0,0,0), "cm"))
+
+
+IF_B600<-ggplot(data=subset(B600,district_here==1),aes(x=xcor,y=ycor,fill=z.age_F))+
+  geom_tile()+
+  coord_equal()+
+  scale_fill_manual(name="Vulnerability",values=setNames(colors1, levels(B600$z.age_F)),guide="none")+
+  labs(title = "",y="",x="")+
+  geom_contour(aes(z=altitude),bins = 10,colour="black")+
+  theme(text = element_text(size=15),
+        panel.background = element_rect(fill="lightgreen", colour="black"),
+        panel.grid.major =  element_blank(),
+        panel.grid.minor = element_blank() ,
+        plot.margin=unit(c(0,0,0,0), "cm"))
+
+IF_A600<-ggplot(data=subset(A600,district_here==1),aes(x=xcor,y=ycor,fill=z.age_F))+
+    geom_tile()+
+  coord_equal()+
+  scale_fill_manual(name="Vulnerability",values=setNames(colors1, levels(B600$z.age_F)),guide="none")+
+  labs(title = "",y="",x="")+
+  geom_contour(aes(z=altitude),bins = 10,colour="black")+
+  theme(text = element_text(size=15),
+        panel.background = element_rect(fill="lightgreen", colour="black"),
+        panel.grid.major =  element_blank(),
+        panel.grid.minor = element_blank() ,
+        plot.margin=unit(c(0,0,0,0), "cm"))
+
+
+title1=textGrob("Policy", gp=gpar(fontface="bold",fontsize=20))
+title2=textGrob("System", gp=gpar(fontface="bold",fontsize=20))
+
+png(filename = "c:/Users/abaezaca/Dropbox (ASU)/MEGADAPT/abm2/Files_publication_ABM1/Figure2_spatialpatterns_ro0tau300.png",width = 15,height = 10,res=300,units = "in")
+
+grid.arrange(
+  IS_C600,IS_B600,IS_A600,
+  IF_C600,IF_B600,IF_A600,ncol=3,top=title1,left=editGrob(title2,rot=90))
+
+dev.off()
+grid.arrange(
+  IS_C600,IS_B600,IS_A600,
+  IF_C600,IF_B600,IF_A600,ncol=3,top=title1,left=editGrob(title2,rot=90))
+
+
+legend_pl<-ggplot(data=subset(A600,district_here==1),aes(x=xcor,y=ycor,fill=z.age_F))+
+    geom_tile()+
+  coord_equal()+
+  scale_fill_manual(name="Vulnerability",values=setNames(colors1, levels(B600$z.age_F)))+
+  labs(title = "",y="",x="")+
+  geom_contour(aes(z=altitude),bins = 10,colour="black")+
+  theme(text = element_text(size=10),
+        panel.background = element_rect(fill="lightgreen", colour="black"),
+        panel.grid.major =  element_blank(),
+        panel.grid.minor = element_blank() )
+
+png(filename = "c:/Users/abaezaca/Dropbox (ASU)/MEGADAPT/abm2/Files_publication_ABM1/Legend_Figure2_spatialpatterns_ro0tau300.png",width = 5,height = 5,res=300,units = "in")
+legend_pl
+dev.off()
+```

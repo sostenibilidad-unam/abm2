@@ -1,0 +1,178 @@
+---
+title: "table_output_ABM_V2"
+author: "Andres Baeza"
+date: "October 11, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+require(ggplot2)
+require(fmsb)
+require(RColorBrewer)
+require(gridExtra)
+```
+
+###2) read data from netlogo output from cluster
+```{r}
+#A<-data.frame(read.csv(file="C:/Users/abaezaca/Dropbox (ASU)/MEGADAPT/abm2/concat_output_theoretical.csv",header = F,comment.char ="#"))#,colClasses = c(rep("factor",10),rep("numeric",21))))
+#A<-data.frame(read.csv(file="concat_teoretical_oct20017_ro0tau300.csv",header = F,comment.char ="#"))#,colClasses = 
+A<-data.frame(read.csv(file="concat_teoretical_Nov2017_ro0tau300.csv",header = F,comment.char ="#"))#,colClasses = 
+
+#B<-data.frame(read.csv(file="C:/Users/abaezaca/Dropbox (ASU)/MEGADAPT/ABM_V2/landscape_pics/concat_threepolyAug17B.csv",header = F,comment.char ="#"))#,colClasses = 
+
+colnames(A)<-c("r_num",
+               "maintenance",	
+               "New_infra_investment",
+               "landscape-type",
+               "ini_State",
+               "SA",
+               "budget-distribution",
+               "intensity_protest",
+               "rain",
+               "SN",
+               "motivation_protest",
+               "step",
+               "inequality",
+               "Exposure",
+               "Exposure_Scarcity",
+               "Exposure_Flooding",
+               "Area_covered_S",
+               "Area_covered_F",
+               "social_pressure_S",
+               "social_pressure_F",
+               "Age_infrastructure_S",
+               "Age_infrastructure_F",
+               "C1",
+               "C2",
+               "C3",
+               "C4",
+               "C5",
+               "C6",
+               "C7",
+               "C8",
+               'ahpa1',
+               'ahpa2',
+               'ahpa3',
+               'ahpa4',
+               "dmF",
+               "dnF",
+               "dmS",
+               "dnS",
+               "inequality_S",
+               "inequality_F")
+
+B=rbind(A[which(A$C2==0.7),],
+A[which(A$C3==0.7),],
+A[which(A$C4==0.7),])
+B$GOVERNMENT_DECISION_MAKING=factor(c(rep("Sw",20),rep("Rf",20),rep("Ea",20)))
+
+A<-A[-c(which(A$C2==0.7),which(A$C3==0.7),which(A$C4==0.7)),]
+
+```
+
+
+###4) Define optimum strategy for each index
+```{r,fig.align='center',fig.height=7,fig.width=18,echo=TRUE}
+prio<-c("C1:# Indirect benefit","C2:Social pressure SS","C3:Age SS","C4:Area without coverage SS","C5:# Indirect benefit","C6:Social pressure PWS.","C7:Age PWS","C8:Area without coverage PWS.")
+actions<-c(c("F","F","F","F"),c("S","S","S","S"))
+optimus_values<-data.frame(rbind(
+  cbind(as.numeric(A[which.min(A$Exposure_Scarcity + A$Exposure_Flooding),c(23:30)]),names(A)[c(23:30)],rep("b) Exposure",8),prio,actions),
+  cbind(as.numeric(A[which.max(A$Area_covered_S + A$Area_covered_F),c(23:30)]),names(A)[c(23:30)],rep("b) Maximize area covered",8),prio,actions),
+  cbind(as.numeric(A[which.min(A$social_pressure_F+A$social_pressure_S),c(23:30)]),names(A)[c(23:30)],rep("c) Minimize social pressure",8),prio,actions),
+  cbind(as.numeric(A[which.min((A$Age_infrastructure_F + A$Age_infrastructure_S)/2),c(23:30)]),names(A)[c(23:30)],rep("a) Minimize age of infrastructure",8),prio,actions)),stringsAsFactors = T)
+
+
+DD<-rbind(as.numeric(colMeans(subset(B,GOVERNMENT_DECISION_MAKING=="Ea")[c(c(23:30),c(39,16,20,22,18,40,15,19,21,17,35,36,37,38))])),
+      as.numeric(colMeans(subset(B,GOVERNMENT_DECISION_MAKING=="Rf")[c(c(23:30),c(39,16,20,22,18,40,15,19,21,17,35,36,37,38))])),
+      as.numeric(colMeans(subset(B,GOVERNMENT_DECISION_MAKING=="Sw")[c(c(23:30),c(39,16,20,22,18,40,15,19,21,17,35,36,37,38))])),
+      as.numeric(colMeans(subset(A,SA==A$SA[which.max(A$Area_covered_S)])[c(c(23:30),c(39,16,20,22,18,40,15,19,21,17,35,36,37,38))])),
+      as.numeric(colMeans(subset(A,SA==A$SA[which.max(A$Area_covered_F)])[c(c(23:30),c(39,16,20,22,18,40,15,19,21,17,35,36,37,38))])),
+      as.numeric(colMeans(subset(A,SA==A$SA[which.min(A$social_pressure_S)])[c(c(23:30),c(39,16,20,22,18,40,15,19,21,17,35,36,37,38))])),
+      as.numeric(colMeans(subset(A,SA==A$SA[which.min(A$social_pressure_F)])[c(c(23:30),c(39,16,20,22,18,40,15,19,21,17,35,36,37,38))])),
+      as.numeric(colMeans(subset(A,SA==A$SA[which.min(A$Age_infrastructure_S)])[c(c(23:30),c(39,16,20,22,18,40,15,19,21,17,35,36,37,38))])),
+      as.numeric(colMeans(subset(A,SA==A$SA[which.min(A$Age_infrastructure_F)])[c(c(23:30),c(39,16,20,22,18,40,15,19,21,17,35,36,37,38))])),
+      as.numeric(colMeans(subset(A,SA==A$SA[which.max(A$Area_covered_S+A$Area_covered_F)])[c(c(23:30),c(39,16,20,22,18,40,15,19,21,17,35,36,37,38))])),
+      as.numeric(colMeans(subset(A,SA==A$SA[which.min(A$social_pressure_S+A$social_pressure_F)])[c(c(23:30),c(39,16,20,22,18,40,15,19,21,17,35,36,37,38))])),
+      as.numeric(colMeans(subset(A,SA==A$SA[which.min(A$Age_infrastructure_F+A$Age_infrastructure_S)])[c(c(23:30),c(39,16,20,22,18,40,15,19,21,17,35,36,37,38))])))
+DD<-as.data.frame(DD)
+
+names(DD)<-c(prio,names(A)[c(39,16,20,22,18,40,15,19,21,17,35,36,37,38)])
+DD$I<-c("Expand access","Repair first","Squeaky wheel","Maximize access PWS","Maximize access SS","Minimize social pressure scarcity","Minimize social pressure flooding","Minimize age PWS","Minimize age SS","Maximize access both systems","Minimize social pressure both issues","minimize age both systems")
+DD$I<-as.factor(DD$I)
+DD$TP<-as.factor(c("D","D","D","O","O","O","O","O","O","O","O","O"))
+
+colnames(optimus_values)<-c("Valuation","Criteria_weights","Index","Criteria","Actions")
+DD$Age_infrastructure_F<-round(DD$Age_infrastructure_F/10,digits = 0)
+DD$Age_infrastructure_S<-round(DD$Age_infrastructure_S/10,digits = 0)
+write.csv(x = DD,file = "optimalpolicies_weights_ro0tau300.csv")
+
+```
+
+Figure
+
+
+```{r,fig.align='center',fig.height=5,fig.width=5,echo=TRUE}
+p7<-ggplot(DD,aes(x=inequality_S,y=inequality_F,colour=I,shape=TP))+geom_point(size=5)+labs(x="GINI PWS", y="GINI SS")+
+scale_x_continuous(breaks = c(0,0.25,0.5),limits = c(0,0.5),labels =c(0,0.25,0.5)) +
+  scale_y_continuous(breaks = c(0,0.25,0.5),limits = c(0,0.5),labels = c(0,0.25,0.5))+
+  scale_colour_manual(values=c("black",brewer.pal(12, "Paired")),guide="none")+
+  scale_shape_manual(values=c(17,19),guide="none")+
+  theme(panel.grid.minor = element_blank(),
+        panel.grid.major = element_line(colour = 'black', linetype = 'dashed'))
+
+
+p8<-ggplot(DD,aes(x=Age_infrastructure_S,y=Age_infrastructure_F,colour=I,shape=TP))+geom_point(size=5)+labs(x="Age potable water system (PWS)", y="Age sewer system (SS)")+
+scale_x_continuous(breaks = c(0,30,60),limits = c(0,60),labels =c(0,30,60)) +
+  scale_y_continuous(breaks = c(0,30,60),limits = c(0,60),labels = c(0,30,60))+
+  scale_colour_manual(values=c("black",brewer.pal(12, "Paired")),guide="none")+
+  scale_shape_manual(values=c(17,19),guide="none")+
+  theme(panel.grid.minor = element_blank(),
+        panel.grid.major = element_line(colour = 'black', linetype = 'dashed'))
+
+#+annotate("text",x=DD$Age_infrastructure_S[c(1,2,3,4,6,12,13)],y=(DD$Age_infrastructure_F[c(1,2,3,4,6,12,13)]+c(50,50,50,-20,20,50,50)),label=c("P1","P2","P3","P4","P5","P6","P7"))
+
+p9<-ggplot(DD,aes(x=Exposure_Scarcity,y=Exposure_Flooding,colour=I,shape=TP))+geom_point(size=5)+labs(x="Exposure scarcity",y="Exposure flooding")+
+  scale_x_continuous(breaks = c(0,8,16),limits = c(0,16),labels =c(0,8,16)) +
+  scale_y_continuous(breaks = c(0,8,16),limits = c(0,16),labels = c(0,8,16))+
+  scale_colour_manual(values=c("black",brewer.pal(12, "Paired")),guide="none")+
+  scale_shape_manual(values=c(17,19),guide="none")+
+  theme(panel.grid.minor = element_blank(),
+        panel.grid.major = element_line(colour = 'black', linetype = 'dashed'))#+annotate("text",x=DD$Exposure_Scarcity+c(0,0,0,0,0,0,0,0,0,0,0,0,0),y=(DD$Exposure_Flooding+c(-1,1,1,-1,1,1,1,1,1,1,1,1,1)),label=DD$I)
+
+p10<-ggplot(DD,aes(x=social_pressure_S,y=social_pressure_F,colour=I,shape=TP))+geom_point(size=5)+labs(x="Social pressure water scarcity",y="Social pressure flooding")+
+  scale_x_continuous(breaks = c(0,9,18),limits = c(0,18),labels =c(0,9,18)) +
+  scale_y_continuous(breaks = c(0,9,18),limits = c(0,18),labels = c(0,9,18))+
+  scale_colour_manual(values=c("black",brewer.pal(12, "Paired")),guide="none")+
+  scale_shape_manual(values=c(17,19),guide="none")+
+ theme(panel.grid.minor = element_blank(),
+        panel.grid.major = element_line(colour = 'black', linetype = 'dashed'))
+
+p11<-ggplot(DD,aes(x=Area_covered_S,y=Area_covered_F,colour=I,shape=TP))+geom_point(size=5)+labs(x="Coverage PWS",y="Coverage SS")+
+  scale_x_reverse(breaks = c(8000,4000,0),limits = c(8000,0),labels= c(8000,4000,0)) +
+  scale_y_reverse(breaks = c(8000,4000,0),limits = c(8000,0),labels= c(8000,4000,0))+
+  scale_colour_manual(values=c("black",brewer.pal(12, "Paired")),guide="none")+
+  scale_shape_manual(values=c(17,19),guide="none")+
+ theme(panel.grid.minor = element_blank(),
+        panel.grid.major = element_line(colour = 'black', linetype = 'dashed'))
+
+#  scale_y_continuous(breaks = c(0,4000,8000),limits = c(0,8000),labels= c(0,4000,8000))+
+
+legend_p<-ggplot(DD,aes(x=Area_covered_S,y=Area_covered_F,colour=I,shape=TP))+geom_point(size=5)+labs(x="Coverage PWS",y="Coverage SS")+
+  scale_x_reverse(breaks = c(8000,4000,0),limits = c(8000,0),labels= c(8000,4000,0)) +
+  scale_y_reverse(breaks = c(8000,4000,0),limits = c(8000,0),labels= c(8000,4000,0))+
+  scale_colour_manual(values=c("black",brewer.pal(12, "Paired")))+
+  scale_shape_manual(values=c(17,19),guide="none")+
+ theme(panel.grid.minor = element_blank(),
+        panel.grid.major = element_line(colour = 'black', linetype = 'dashed'))
+
+png(filename = "c:/Users/abaezaca/Dropbox (ASU)/MEGADAPT/abm2/Files_publication_ABM1/Figure4_tradeoffs_ro0tau300.png",width = 12,height = 4,units ="in",res=300) 
+grid.arrange(p8,p10,p11,ncol=3)
+dev.off()
+
+png(filename = "c:/Users/abaezaca/Dropbox (ASU)/MEGADAPT/abm2/Files_publication_ABM1/Legend_Figure4_tradeoffs_ro0tau300.png",width = 10,height = 10,units ="in",res=300) 
+legend_p
+dev.off()
+
+grid.arrange(p7,p8,p10,legend_p,ncol=2)
+```
+Figure ###: 
