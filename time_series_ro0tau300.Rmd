@@ -1,0 +1,83 @@
+---
+title: "time_series"
+author: "Andres Baeza"
+date: "October 5, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+require(ggplot2)
+require(gridExtra)
+```
+
+
+```{r,fig.width=12,fig.height=10}
+AA<-read.csv('/Users/abaezaca/Dropbox (ASU)/MEGADAPT/ABM_V2/landscape_pics/600-0-300-2000--time_series.csv',header = F)
+BB<-read.csv('/Users/abaezaca/Dropbox (ASU)/MEGADAPT/ABM_V2/landscape_pics/600-0-300-2001--time_series.csv',header = F)
+CC<-read.csv('/Users/abaezaca/Dropbox (ASU)/MEGADAPT/ABM_V2/landscape_pics/600-0-300-2002--time_series.csv',header = F)
+
+
+
+
+RB<-as.data.frame(cbind(rbind(t(AA),t(BB),t(CC)),
+c(rep("Expand-Access",600),rep("Repair-First",600),rep("Squeaky-wheel",600))))
+
+row.names(RB) <- NULL
+colnames(RB)<-c("protests_F" ,"protests_S","Coverage_F","Coverage_S","Policy")
+
+RB$protests_F<-as.numeric(as.character(RB$protests_F))
+RB$protests_S<-as.numeric(as.character(RB$protests_S))
+RB$Coverage_F<-as.numeric(as.character(RB$Coverage_F))
+RB$Coverage_S<-as.numeric(as.character(RB$Coverage_S))
+RB$Time<-c(seq(1,600,1),seq(1,600,1),seq(1,600,1))
+
+
+P_F_ts<-ggplot(data = RB,aes(x=Time,y=protests_F,colour=Policy))+geom_line()+scale_colour_hue(guide="none")+labs(y="Protests ",title="Sewer system",x="Timestep")+
+  theme(text = element_text(size=12),
+      panel.background = element_rect(fill = "white", colour = "grey50"),
+      panel.grid.major = element_line(colour = "grey90"),
+      legend.position="bottom")+ylim(200, 1200)
+
+
+P_S_ts<-ggplot(data = RB,aes(x=Time,y=protests_S,colour=Policy))+geom_line()+scale_colour_hue(guide="none")+labs(y="",title="Potable water system",x="Timestep")+
+  theme(text = element_text(size=12),
+      panel.background = element_rect(fill = "white", colour = "grey50"),
+      panel.grid.major = element_line(colour = "grey90"),
+      legend.position="bottom")+ylim(200, 1200)
+
+
+C_F_ts<-ggplot(data = RB,aes(x=Time,y=Coverage_F,colour=Policy))+geom_line()+scale_colour_hue(guide="none")+labs(y="Area Covered",x="Timestep")+
+  theme(text = element_text(size=12),
+      panel.background = element_rect(fill = "white", colour = "grey50"),
+      panel.grid.major = element_line(colour = "grey90"),
+      legend.position="bottom")+ylim(2000, 6000)
+
+
+C_S_ts<-ggplot(data = RB,aes(x=Time,y=Coverage_S,colour=Policy))+geom_line()+scale_colour_hue(guide="none")+labs(y="",x="Timestep")+
+  theme(text = element_text(size=12),
+      panel.background = element_rect(fill = "white", colour = "grey50"),
+      panel.grid.major = element_line(colour = "grey90"),
+      legend.position="bottom")+ylim(2000, 6000)
+
+png(filename = "c:/Users/abaezaca/Dropbox (ASU)/MEGADAPT/abm2/Files_publication_ABM1/TS_infra_protests_ro0tau300.png",width = 12,height = 6,res=300,units = "in")
+grid.arrange(P_F_ts,P_S_ts,C_F_ts,C_S_ts,ncol=2)
+dev.off()
+
+C_S_ts<-ggplot(data = RB,aes(x=Time,y=Coverage_S,colour=Policy))+geom_line()+scale_colour_hue()+labs(y="")+
+  theme(text = element_text(size=12),
+      panel.background = element_rect(fill = "white", colour = "grey50"),
+      panel.grid.major = element_line(colour = "grey90"),
+      legend.position="bottom")
+
+
+png(filename = "c:/Users/abaezaca/Dropbox (ASU)/MEGADAPT/abm2/Files_publication_ABM1/Legend_TS_infra_protests_ro0tau300.png",width = 12,height = 6,res=300,units = "in")
+C_S_ts
+dev.off()
+grid.arrange(P_F_ts,P_S_ts,C_F_ts,C_S_ts,ncol=2)
+```
+
